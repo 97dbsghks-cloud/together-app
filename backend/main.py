@@ -162,6 +162,12 @@ def init_db():
                     data JSONB NOT NULL
                 )
             """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS settings (
+                    key   TEXT PRIMARY KEY,
+                    value JSONB NOT NULL
+                )
+            """)
             conn.commit()
 
             # Seed projects from db.json if table is empty
@@ -612,3 +618,38 @@ def create_announcement(announcement: Announcement):
 def delete_announcement(announcement_id: str):
     delete_announcement_row(announcement_id)
     return {"status": "success"}
+
+@app.put("/api/announcements/{announcement_id}")
+def update_announcement(_announcement_id: str, announcement: Announcement):
+    save_announcement(announcement.dict())
+    return {"status": "success"}
+
+# ── Project Order ──────────────────────────────────────────────────────────────
+class ProjectOrderRequest(BaseModel):
+    order: List[str]
+
+@app.get("/api/projects/order")
+def get_project_order():
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT value FROM settings WHERE key = 'project_order'")
+            row = cur.fetchone()
+            return {"order": row["value"] if row else []}
+    finally:
+        conn.close()
+
+@app.put("/api/projects/order")
+def save_project_order(req: ProjectOrderRequest):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO settings (key, value) VALUES ('project_order', %s)
+                   ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value""",
+                (psycopg2.extras.Json(req.order),)
+            )
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()

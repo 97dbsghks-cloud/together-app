@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Megaphone, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Megaphone, Plus, Trash2, ChevronDown, ChevronUp, Pencil, Check } from 'lucide-react'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -32,6 +32,9 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
 
   const load = async () => {
     const res = await axios.get<{ announcements: Announcement[] }>(`${API}/api/announcements`)
@@ -60,6 +63,21 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
   const handleDelete = async (id: string) => {
     await axios.delete(`${API}/api/announcements/${id}`)
     setAnnouncements(prev => prev.filter(a => a.id !== id))
+  }
+
+  const startEdit = (a: Announcement) => {
+    setEditingId(a.id)
+    setEditTitle(a.title)
+    setEditContent(a.content)
+    setExpandedId(a.id)
+  }
+
+  const handleEditSave = async (a: Announcement) => {
+    if (!editTitle.trim() || !editContent.trim()) return
+    const updated = { ...a, title: editTitle.trim(), content: editContent.trim() }
+    await axios.put(`${API}/api/announcements/${a.id}`, updated)
+    setAnnouncements(prev => prev.map(x => x.id === a.id ? updated : x))
+    setEditingId(null)
   }
 
   return (
@@ -168,9 +186,10 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
             className="rounded-2xl border border-gray-100 overflow-hidden bg-white"
             style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
           >
+            {/* Card header */}
             <div
               className="flex items-start justify-between gap-2 px-4 py-3 cursor-pointer hover:bg-gray-50/60 transition-colors"
-              onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
+              onClick={() => editingId !== a.id && setExpandedId(expandedId === a.id ? null : a.id)}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -189,12 +208,20 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
                 {isAdmin && (
-                  <button
-                    onClick={e => { e.stopPropagation(); handleDelete(a.id) }}
-                    className="p-1.5 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+                  <>
+                    <button
+                      onClick={e => { e.stopPropagation(); startEdit(a) }}
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(a.id) }}
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </>
                 )}
                 {expandedId === a.id
                   ? <ChevronUp className="w-3.5 h-3.5 text-gray-300" />
@@ -202,6 +229,8 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
                 }
               </div>
             </div>
+
+            {/* Expanded content */}
             <AnimatePresence>
               {expandedId === a.id && (
                 <motion.div
@@ -211,7 +240,40 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
                   className="overflow-hidden"
                 >
                   <div className="px-4 pb-4 border-t border-gray-50">
-                    <p className="text-[13px] text-gray-600 leading-relaxed pt-3 whitespace-pre-wrap">{a.content}</p>
+                    {editingId === a.id ? (
+                      <div className="pt-3 space-y-2">
+                        <input
+                          autoFocus
+                          value={editTitle}
+                          onChange={e => setEditTitle(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all"
+                        />
+                        <textarea
+                          value={editContent}
+                          onChange={e => setEditContent(e.target.value)}
+                          rows={4}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all resize-none"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="flex-1 py-1.5 text-xs font-medium text-gray-500 rounded-xl hover:bg-gray-100 transition-colors"
+                          >
+                            취소
+                          </button>
+                          <button
+                            onClick={() => handleEditSave(a)}
+                            disabled={!editTitle.trim() || !editContent.trim()}
+                            className="flex-1 py-1.5 text-xs font-semibold text-white rounded-xl transition-all disabled:opacity-40 flex items-center justify-center gap-1"
+                            style={{ background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)' }}
+                          >
+                            <Check className="w-3 h-3" /> 저장
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-[13px] text-gray-600 leading-relaxed pt-3 whitespace-pre-wrap">{a.content}</p>
+                    )}
                   </div>
                 </motion.div>
               )}

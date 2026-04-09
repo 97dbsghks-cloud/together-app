@@ -3,10 +3,11 @@ import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection,
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone, Users,
+  Plus, X, Bot, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone, Users, GripVertical,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -98,6 +99,61 @@ function AuthGate() {
   return <AppInner />
 }
 
+function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick }: {
+  proj: ProjectMeta
+  isActive: boolean
+  isAdmin: boolean
+  onSelect: () => void
+  onDeleteClick: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: proj.id })
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
+  const pct = proj.taskCount > 0 ? Math.round((proj.doneCount / proj.taskCount) * 100) : 0
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      <button
+        onClick={onSelect}
+        className={clsx(
+          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-start gap-2.5',
+          isAdmin ? 'pl-7' : '',
+          isActive ? 'text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+        )}
+        style={isActive ? { background: 'rgba(0,122,255,0.1)' } : {}}
+      >
+        <div className="flex-1 min-w-0 pr-5">
+          <p className={clsx('text-[12px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className="flex-1 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }}>
+              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: isActive ? '#007aff' : '#34c759' }} />
+            </div>
+            <span className="text-[9px] text-gray-400 font-medium">{pct}%</span>
+          </div>
+        </div>
+      </button>
+      {/* Drag handle — admin only */}
+      {isAdmin && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute left-1 top-1/2 -translate-y-1/2 p-1 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="w-3 h-3" />
+        </div>
+      )}
+      {/* Delete button — admin only */}
+      {isAdmin && (
+        <button
+          onClick={e => { e.stopPropagation(); onDeleteClick() }}
+          className="absolute right-1.5 top-1.5 w-4 h-4 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all"
+        >
+          <X className="w-2.5 h-2.5" />
+        </button>
+      )}
+    </div>
+  )
+}
+
 function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
@@ -160,10 +216,37 @@ function AppInner() {
   // Load project list — filtered by userId for members
   const loadProjects = useCallback(async () => {
     const params = user.role === 'admin' ? {} : { userId: user.id }
-    const res = await axios.get<{ projects: ProjectMeta[] }>(`${API}/api/projects`, { params })
-    setProjects(res.data.projects)
-    return res.data.projects
+    const [projRes, orderRes] = await Promise.all([
+      axios.get<{ projects: ProjectMeta[] }>(`${API}/api/projects`, { params }),
+      axios.get<{ order: string[] }>(`${API}/api/projects/order`).catch(() => ({ data: { order: [] as string[] } })),
+    ])
+    const list = projRes.data.projects
+    const order = orderRes.data.order
+    const sorted = order.length > 0
+      ? [...list].sort((a, b) => {
+          const ai = order.indexOf(a.id)
+          const bi = order.indexOf(b.id)
+          if (ai === -1 && bi === -1) return 0
+          if (ai === -1) return 1
+          if (bi === -1) return -1
+          return ai - bi
+        })
+      : list
+    setProjects(sorted)
+    return sorted
   }, [user.id, user.role])
+
+  const projectSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 150, tolerance: 5 } }))
+
+  const handleProjectDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = projects.findIndex(p => p.id === active.id)
+    const newIndex = projects.findIndex(p => p.id === over.id)
+    const reordered = arrayMove(projects, oldIndex, newIndex)
+    setProjects(reordered)
+    await axios.put(`${API}/api/projects/order`, { order: reordered.map(p => p.id) })
+  }
 
   useEffect(() => {
     loadProjects().then(list => {
@@ -398,41 +481,23 @@ function AppInner() {
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">프로젝트</p>
         </div>
 
-        {/* Project List - emoji 제거 */}
-        <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
-          {projects.map(proj => {
-            const isActive = proj.id === activeProjectId
-            const pct = proj.taskCount > 0 ? Math.round((proj.doneCount / proj.taskCount) * 100) : 0
-            return (
-              <div key={proj.id} className="relative group">
-                <button
-                  onClick={() => setActiveProjectId(proj.id)}
-                  className={clsx(
-                    'w-full text-left px-3 py-2.5 pr-7 rounded-xl transition-all duration-200 flex items-start gap-2.5',
-                    isActive ? 'text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-                  )}
-                  style={isActive ? { background: 'rgba(0,122,255,0.1)' } : {}}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className={clsx('text-[12px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <div className="flex-1 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: isActive ? '#007aff' : '#34c759' }} />
-                      </div>
-                      <span className="text-[9px] text-gray-400 font-medium">{pct}%</span>
-                    </div>
-                  </div>
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
-                  className="absolute right-1.5 top-1.5 w-4 h-4 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all"
-                >
-                  <X className="w-2.5 h-2.5" />
-                </button>
-              </div>
-            )
-          })}
-        </div>
+        {/* Project List */}
+        <DndContext sensors={projectSensors} onDragEnd={handleProjectDragEnd}>
+          <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+            <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+              {projects.map(proj => (
+                <SortableProjectItem
+                  key={proj.id}
+                  proj={proj}
+                  isActive={proj.id === activeProjectId}
+                  isAdmin={user.role === 'admin'}
+                  onSelect={() => setActiveProjectId(proj.id)}
+                  onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
 
         {/* New Project Button (admin only) */}
         {user.role === 'admin' && (
