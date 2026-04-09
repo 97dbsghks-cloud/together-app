@@ -109,53 +109,56 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
           </div>
         )}
 
-        {grouped.map(msg => (
-          <div
-            key={msg.id}
-            className={clsx('flex gap-2', msg.isAdmin ? 'flex-row-reverse' : 'flex-row')}
-            onMouseEnter={() => setHoveredId(msg.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            <div className={clsx('flex flex-col', msg.isAdmin ? 'items-end' : 'items-start', fullPage ? 'max-w-[60%]' : 'max-w-[78%]')}>
-              {msg.showAuthor && (
-                <div className={clsx('flex items-center gap-1 mb-1 mt-2', msg.isAdmin ? 'flex-row-reverse' : '')}>
-                  {msg.isAdmin && <Shield className="w-2.5 h-2.5" style={{ color: '#007aff' }} />}
-                  <span className="text-[10px] font-semibold text-gray-400">{msg.author}</span>
-                </div>
-              )}
-              <div className="flex items-end gap-1.5">
-                {msg.isAdmin && hoveredId === msg.id && (
-                  <button
-                    onClick={() => onDelete(msg.id)}
-                    className="p-1 rounded-md text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 mb-0.5"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+        {grouped.map(msg => {
+          const isMine = !!userName && msg.author === userName
+          return (
+            <div
+              key={msg.id}
+              className={clsx('flex gap-2', isMine ? 'flex-row-reverse' : 'flex-row')}
+              onMouseEnter={() => setHoveredId(msg.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              <div className={clsx('flex flex-col', isMine ? 'items-end' : 'items-start', fullPage ? 'max-w-[60%]' : 'max-w-[78%]')}>
+                {msg.showAuthor && (
+                  <div className={clsx('flex items-center gap-1 mb-1 mt-2', isMine ? 'flex-row-reverse' : '')}>
+                    {msg.isAdmin && <Shield className="w-2.5 h-2.5" style={{ color: '#007aff' }} />}
+                    <span className="text-[10px] font-semibold text-gray-400">{msg.author}</span>
+                  </div>
                 )}
-                <div
-                  className={clsx(
-                    'px-3 py-2 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap break-words',
-                    msg.isAdmin
-                      ? 'text-white rounded-tr-md'
-                      : 'bg-gray-100 text-gray-800 rounded-tl-md'
+                <div className="flex items-end gap-1.5">
+                  {isMine && hoveredId === msg.id && (
+                    <button
+                      onClick={() => onDelete(msg.id)}
+                      className="p-1 rounded-md text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 mb-0.5"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   )}
-                  style={msg.isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
-                >
-                  {msg.content}
-                </div>
-                {!msg.isAdmin && hoveredId === msg.id && (
-                  <button
-                    onClick={() => onDelete(msg.id)}
-                    className="p-1 rounded-md text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 mb-0.5"
+                  <div
+                    className={clsx(
+                      'px-3 py-2 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap break-words',
+                      isMine
+                        ? 'text-white rounded-tr-md'
+                        : 'bg-gray-100 text-gray-800 rounded-tl-md'
+                    )}
+                    style={isMine ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
                   >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                )}
+                    {msg.content}
+                  </div>
+                  {!isMine && hoveredId === msg.id && (
+                    <button
+                      onClick={() => onDelete(msg.id)}
+                      className="p-1 rounded-md text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 mb-0.5"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <span className="text-[9px] text-gray-300 mt-0.5 px-1">{formatTime(msg.createdAt)}</span>
               </div>
-              <span className="text-[9px] text-gray-300 mt-0.5 px-1">{formatTime(msg.createdAt)}</span>
             </div>
-          </div>
-        ))}
+          )
+        })}
         <div ref={endRef} />
       </div>
 

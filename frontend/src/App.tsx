@@ -251,7 +251,7 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>('board')
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>(ALL_TABS[0].key as TabKey)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
@@ -312,6 +312,7 @@ function AppInner() {
         // prepend saved order, append any new tabs not yet in saved list
         const merged = [...saved, ...allTabKeys.filter(k => !saved.includes(k))]
         setTabOrder(merged)
+        setView(merged[0] as TabKey)
       })
       .catch(() => {})
   }, []) // eslint-disable-line
