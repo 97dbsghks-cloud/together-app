@@ -455,6 +455,36 @@ def list_projects(userId: Optional[str] = None):
             projects_meta = [p for p in projects_meta if p["id"] in allowed]
     return {"projects": projects_meta}
 
+# ── Project Order (must be before /{project_id} routes) ───────────────────────
+class ProjectOrderRequest(BaseModel):
+    order: List[str]
+
+@app.get("/api/projects/order")
+def get_project_order():
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT value FROM settings WHERE key = 'project_order'")
+            row = cur.fetchone()
+            return {"order": row["value"] if row else []}
+    finally:
+        conn.close()
+
+@app.put("/api/projects/order")
+def save_project_order(req: ProjectOrderRequest):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO settings (key, value) VALUES ('project_order', %s)
+                   ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value""",
+                (psycopg2.extras.Json(req.order),)
+            )
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()
+
 @app.get("/api/projects/{project_id}")
 def get_project(project_id: str):
     db = load_db()
@@ -623,33 +653,3 @@ def delete_announcement(announcement_id: str):
 def update_announcement(announcement_id: str, announcement: Announcement):  # noqa: ARG001
     save_announcement(announcement.dict())
     return {"status": "success"}
-
-# ── Project Order ──────────────────────────────────────────────────────────────
-class ProjectOrderRequest(BaseModel):
-    order: List[str]
-
-@app.get("/api/projects/order")
-def get_project_order():
-    conn = get_conn()
-    try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("SELECT value FROM settings WHERE key = 'project_order'")
-            row = cur.fetchone()
-            return {"order": row["value"] if row else []}
-    finally:
-        conn.close()
-
-@app.put("/api/projects/order")
-def save_project_order(req: ProjectOrderRequest):
-    conn = get_conn()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                """INSERT INTO settings (key, value) VALUES ('project_order', %s)
-                   ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value""",
-                (psycopg2.extras.Json(req.order),)
-            )
-        conn.commit()
-        return {"status": "success"}
-    finally:
-        conn.close()
