@@ -82,7 +82,7 @@ export default function AnnouncementPanel({ onClose, isAdmin, userName, onRead }
           </div>
           <div>
             <h3 className="text-sm font-semibold text-gray-900">공지사항</h3>
-            <p className="text-[10px] text-gray-400">관리자 공지 및 업데이트</p>
+            <p className="text-[10px] text-gray-400">공지사항 및 업데이트 내역</p>
           </div>
         </div>
         <div className="flex items-center gap-1">

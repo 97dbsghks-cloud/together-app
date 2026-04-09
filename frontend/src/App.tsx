@@ -6,7 +6,7 @@ import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Sparkles, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone,
+  Plus, X, Bot, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone, Users,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -385,7 +385,7 @@ function AppInner() {
         <div className="px-4 pt-5 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #007aff 0%, #5856d6 100%)' }}>
-              <Sparkles className="w-4 h-4 text-white" />
+              <Users className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-[13px] font-bold text-gray-900 leading-none">Together</p>
@@ -434,16 +434,18 @@ function AppInner() {
           })}
         </div>
 
-        {/* New Project Button */}
-        <div className="px-3 pt-3 pb-1">
-          <button
-            onClick={() => setShowNewProject(true)}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-dashed border-gray-200 hover:border-blue-300"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            새 프로젝트 추가
-          </button>
-        </div>
+        {/* New Project Button (admin only) */}
+        {user.role === 'admin' && (
+          <div className="px-3 pt-3 pb-1">
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-dashed border-gray-200 hover:border-blue-300"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              새 프로젝트 추가
+            </button>
+          </div>
+        )}
 
         {/* Feedback Button */}
         <div className="px-3 pb-1">

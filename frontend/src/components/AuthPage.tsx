@@ -90,7 +90,7 @@ export default function AuthPage() {
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-              placeholder="홍길동"
+              placeholder="이름을 입력하세요"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
             />
           </div>
