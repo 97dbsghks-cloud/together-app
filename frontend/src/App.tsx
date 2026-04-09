@@ -300,28 +300,41 @@ function AppInner() {
   const tabSensors     = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   // Tab order — global, admin-controlled
-  const defaultTabOrder = ALL_TABS.map(t => t.key)
-  const [tabOrder, setTabOrder] = useState<string[]>(defaultTabOrder)
+  const allTabKeys = ALL_TABS.map(t => t.key)
+  const [tabOrder, setTabOrder] = useState<string[]>(allTabKeys)
+  const tabOrderRef = useRef<string[]>(allTabKeys)
+  tabOrderRef.current = tabOrder   // always latest, no stale-closure risk
 
   useEffect(() => {
     axios.get<{ order: string[] }>(`${API}/api/settings/tab-order`)
-      .then(res => { if (res.data.order.length) setTabOrder(res.data.order) })
+      .then(res => {
+        const saved = res.data.order.filter(k => (allTabKeys as string[]).includes(k))
+        // prepend saved order, append any new tabs not yet in saved list
+        const merged = [...saved, ...allTabKeys.filter(k => !saved.includes(k))]
+        setTabOrder(merged)
+      })
       .catch(() => {})
-  }, [])
+  }, []) // eslint-disable-line
 
   const orderedTabs = tabOrder
     .map(key => ALL_TABS.find(t => t.key === key))
     .filter(Boolean) as typeof ALL_TABS[number][]
 
-  const handleTabDragEnd = async (event: DragEndEvent) => {
+  const handleTabDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const oldIdx = tabOrder.indexOf(active.id as string)
-    const newIdx = tabOrder.indexOf(over.id  as string)
-    const reordered = arrayMove(tabOrder, oldIdx, newIdx)
+    const cur     = tabOrderRef.current
+    const oldIdx  = cur.indexOf(active.id as string)
+    const newIdx  = cur.indexOf(over.id   as string)
+    if (oldIdx === -1 || newIdx === -1) return   // dropped outside valid tab
+    const reordered = arrayMove(cur, oldIdx, newIdx)
     setTabOrder(reordered)
-    await axios.put(`${API}/api/settings/tab-order`, { order: reordered })
-  }
+    try {
+      await axios.put(`${API}/api/settings/tab-order`, { order: reordered })
+    } catch (e) {
+      console.error('[tab-order] save failed:', e)
+    }
+  }, [])  // useCallback with empty deps — safe because we use tabOrderRef
 
   const handleProjectDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
