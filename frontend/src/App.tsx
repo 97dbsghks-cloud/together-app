@@ -6,7 +6,7 @@ import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Sparkles, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog,
+  Plus, X, Bot, Sparkles, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -22,6 +22,7 @@ import FeedbackBoard from './components/FeedbackBoard'
 import ChatPanel from './components/ChatPanel'
 import AuthPage from './components/AuthPage'
 import UserManagementPanel from './components/UserManagementPanel'
+import AnnouncementPanel from './components/AnnouncementPanel'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -101,6 +102,33 @@ function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
+  const [announcementOpen, setAnnouncementOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  const getReadIds = () => {
+    const s = localStorage.getItem(`together_read_announcements_${user.id}`)
+    return s ? (JSON.parse(s) as string[]) : []
+  }
+
+  const markRead = (ids: string[]) => {
+    const prev = getReadIds()
+    const merged = Array.from(new Set([...prev, ...ids]))
+    localStorage.setItem(`together_read_announcements_${user.id}`, JSON.stringify(merged))
+    setUnreadCount(0)
+  }
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+        const res = await axios.get<{ announcements: { id: string }[] }>(`${API}/api/announcements`)
+        const allIds = res.data.announcements.map(a => a.id)
+        const readIds = getReadIds()
+        setUnreadCount(allIds.filter(id => !readIds.includes(id)).length)
+      } catch {}
+    }
+    fetchUnread()
+  }, [])
 
   const [projects, setProjects] = useState<ProjectMeta[]>([])
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
@@ -500,6 +528,19 @@ function AppInner() {
                 <span className="text-xs font-semibold text-gray-600">{progress}%</span>
               </div>
             )}
+            {/* 공지사항 */}
+            <button
+              onClick={() => setAnnouncementOpen(v => !v)}
+              className={clsx('relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', announcementOpen ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
+              style={announcementOpen ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)' } : {}}
+            >
+              <Megaphone className="w-4 h-4" />
+              {unreadCount > 0 && !announcementOpen && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center" style={{ background: '#ff3b30' }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
             {/* 종합 캘린더 */}
             <button
               onClick={() => setView(v => v === 'global-calendar' ? 'board' : 'global-calendar')}
@@ -629,6 +670,17 @@ function AppInner() {
               </AnimatePresence>
             </>
           )}
+          {/* Announcement Panel */}
+          <AnimatePresence>
+            {announcementOpen && (
+              <AnnouncementPanel
+                isAdmin={user.role === 'admin'}
+                userName={user.name}
+                onClose={() => setAnnouncementOpen(false)}
+                onRead={markRead}
+              />
+            )}
+          </AnimatePresence>
           {/* User Management Panel (admin) */}
           <AnimatePresence>
             {userMgmtOpen && user.role === 'admin' && (

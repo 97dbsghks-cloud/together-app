@@ -116,6 +116,13 @@ class FeedbackPost(BaseModel):
 class UpdateStatusRequest(BaseModel):
     status: str
 
+class Announcement(BaseModel):
+    id: str
+    title: str
+    content: str
+    authorName: str
+    createdAt: str
+
 # ---------- DB helpers ----------
 DEFAULT_COLUMNS = [
     {"id": "todo", "title": "할 일", "color": "#6e6e73"},
@@ -145,6 +152,12 @@ def init_db():
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS feedback (
+                    id   TEXT PRIMARY KEY,
+                    data JSONB NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS announcements (
                     id   TEXT PRIMARY KEY,
                     data JSONB NOT NULL
                 )
@@ -319,6 +332,39 @@ def delete_feedback_row(post_id: str):
     try:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM feedback WHERE id = %s", (post_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+# ---------- Announcement DB helpers ----------
+
+def load_announcements() -> list:
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT data FROM announcements ORDER BY (data->>'createdAt') DESC")
+            return [row["data"] for row in cur.fetchall()]
+    finally:
+        conn.close()
+
+def save_announcement(announcement: dict):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO announcements (id, data) VALUES (%s, %s)
+                   ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data""",
+                (announcement["id"], psycopg2.extras.Json(announcement))
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+def delete_announcement_row(announcement_id: str):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM announcements WHERE id = %s", (announcement_id,))
         conn.commit()
     finally:
         conn.close()
@@ -550,4 +596,19 @@ def update_status(post_id: str, body: UpdateStatusRequest):
 @app.delete("/api/feedback/{post_id}")
 def delete_feedback_post(post_id: str):
     delete_feedback_row(post_id)
+    return {"status": "success"}
+
+# ── Announcements ──────────────────────────────────────────────────────────────
+@app.get("/api/announcements")
+def get_announcements():
+    return {"announcements": load_announcements()}
+
+@app.post("/api/announcements")
+def create_announcement(announcement: Announcement):
+    save_announcement(announcement.dict())
+    return {"status": "success", "id": announcement.id}
+
+@app.delete("/api/announcements/{announcement_id}")
+def delete_announcement(announcement_id: str):
+    delete_announcement_row(announcement_id)
     return {"status": "success"}
