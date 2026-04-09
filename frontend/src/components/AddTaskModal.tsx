@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
-import clsx from 'clsx'
 import type { Task, Column, TaskPriority } from '../App'
 
 type Props = {

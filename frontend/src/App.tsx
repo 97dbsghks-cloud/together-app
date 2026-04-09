@@ -98,7 +98,8 @@ function AuthGate() {
 }
 
 function AppInner() {
-  const { user, logout } = useAuth()
+  const { user: _user, logout } = useAuth()
+  const user = _user!
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
 
   const [projects, setProjects] = useState<ProjectMeta[]>([])
