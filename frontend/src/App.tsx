@@ -790,14 +790,13 @@ function AppInner() {
           ) : view === 'milestone' && board ? (
             <MilestoneView gantt={board.gantt} onChange={saveGantt} />
           ) : (
-            <>
-              <div className="flex-1 overflow-x-auto">
-                {loadingProject ? (
-                  <div className="flex-1 flex items-center justify-center h-full">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
-                  </div>
-                ) : board ? (
-                  <DndContext
+            <div className="flex-1 overflow-x-auto">
+              {loadingProject ? (
+                <div className="flex-1 flex items-center justify-center h-full">
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+                </div>
+              ) : board ? (
+                <DndContext
                     sensors={sensors}
                     collisionDetection={rectIntersection}
                     onDragStart={handleDragStart}
@@ -832,15 +831,14 @@ function AppInner() {
                     </DragOverlay>
                   </DndContext>
                 ) : null}
-              </div>
-              {/* AI Panel */}
-              <AnimatePresence>
-                {aiOpen && board && (
-                  <AiPanel tasks={board.tasks} columns={board.columns} onClose={() => setAiOpen(false)} onInjectTasks={injectAiTasks} />
-                )}
-              </AnimatePresence>
-            </>
+            </div>
           )}
+          {/* AI Panel — visible on all tabs */}
+          <AnimatePresence>
+            {aiOpen && board && (
+              <AiPanel tasks={board.tasks} columns={board.columns} onClose={() => setAiOpen(false)} onInjectTasks={injectAiTasks} />
+            )}
+          </AnimatePresence>
           {/* Announcement Panel */}
           <AnimatePresence>
             {announcementOpen && (
