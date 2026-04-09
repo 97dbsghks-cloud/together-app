@@ -24,7 +24,7 @@ export default function AiPanel({ tasks, columns, onClose, onInjectTasks }: Prop
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '안녕하세요! 프로젝트 AI 비서입니다. 업무를 쪼개거나 일정 리스크를 분석하는 등 무엇이든 도와드릴게요.\n\n예시: "인허가 접수 업무 태스크로 쪼개줘" 또는 "현재 진행상황 좀 분석해줘"',
+      content: '해당 기능은 추후 오픈 예정입니다.',
     }
   ])
   const [input, setInput] = useState('')
@@ -91,7 +91,7 @@ export default function AiPanel({ tasks, columns, onClose, onInjectTasks }: Prop
             <Bot className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">AI 프로젝트 매니저</h3>
+            <h3 className="text-sm font-semibold text-gray-900">AI Agent</h3>
             <p className="text-[10px] text-gray-400">by {model.startsWith('gemini') ? 'Gemini' : 'ChatGPT'}</p>
           </div>
         </div>

@@ -623,7 +623,7 @@ function AppInner() {
               style={aiOpen ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
             >
               <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">AI 비서</span>
+              <span className="hidden sm:inline">AI Agent</span>
             </button>
           </div>
         </header>

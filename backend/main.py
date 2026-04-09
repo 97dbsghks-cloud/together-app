@@ -620,7 +620,7 @@ def delete_announcement(announcement_id: str):
     return {"status": "success"}
 
 @app.put("/api/announcements/{announcement_id}")
-def update_announcement(_announcement_id: str, announcement: Announcement):
+def update_announcement(announcement_id: str, announcement: Announcement):  # noqa: ARG001
     save_announcement(announcement.dict())
     return {"status": "success"}
 
