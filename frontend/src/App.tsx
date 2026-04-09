@@ -24,6 +24,7 @@ import ChatPanel from './components/ChatPanel'
 import AuthPage from './components/AuthPage'
 import UserManagementPanel from './components/UserManagementPanel'
 import AnnouncementPanel from './components/AnnouncementPanel'
+import MilestoneView from './components/MilestoneView'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -72,6 +73,36 @@ export type ProjectMeta = {
   doneCount: number
 }
 
+export type GanttBar = {
+  id: string
+  startWeek: number
+  endWeek: number
+  label?: string
+  color?: string
+}
+
+export type GanttMilestone = {
+  id: string
+  week: number
+  label: string
+  color?: string
+}
+
+export type GanttRow = {
+  id: string
+  name: string
+  indent: number
+  isGroup: boolean
+  bars: GanttBar[]
+  milestones: GanttMilestone[]
+}
+
+export type GanttConfig = {
+  startDate: string
+  weekCount: number
+  rows: GanttRow[]
+}
+
 export type ProjectBoard = {
   id: string
   name: string
@@ -80,6 +111,7 @@ export type ProjectBoard = {
   tasks: Task[]
   events: CalendarEvent[]
   messages: ChatMessage[]
+  gantt?: GanttConfig
 }
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
@@ -183,7 +215,7 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback'>('board')
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>('board')
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
@@ -414,6 +446,13 @@ function AppInner() {
     saveBoard(updated)
   }
 
+  const saveGantt = useCallback((gantt: GanttConfig) => {
+    if (!board) return
+    const updated = { ...board, gantt }
+    setBoard(updated)
+    saveBoard(updated)
+  }, [board, saveBoard])
+
   const injectAiTasks = (newTasks: Partial<Task>[], colId: string) => {
     if (!board) return
     const created = newTasks.map(t => ({ id: uuidv4(), title: t.title || '태스크', columnId: colId, ...t } as Task))
@@ -627,6 +666,7 @@ function AppInner() {
               { key: 'chat', label: '팀 채팅' },
               { key: 'project-calendar', label: '캘린더' },
               { key: 'board', label: '보드' },
+              { key: 'milestone', label: '마일스톤' },
             ] as const).map(tab => (
               <button
                 key={tab.key}
@@ -677,6 +717,8 @@ function AppInner() {
               fullPage
               userName={user.name}
             />
+          ) : view === 'milestone' && board ? (
+            <MilestoneView gantt={board.gantt} onChange={saveGantt} />
           ) : (
             <>
               <div className="flex-1 overflow-x-auto">
