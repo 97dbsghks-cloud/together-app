@@ -3,7 +3,7 @@ import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection,
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core'
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -129,6 +129,42 @@ function AuthGate() {
   const { user } = useAuth()
   if (!user) return <AuthPage />
   return <AppInner />
+}
+
+const ALL_TABS = [
+  { key: 'chat',             label: '팀 채팅' },
+  { key: 'project-calendar', label: '캘린더'  },
+  { key: 'board',            label: '보드'    },
+  { key: 'milestone',        label: '마일스톤' },
+] as const
+
+type TabKey = typeof ALL_TABS[number]['key']
+
+function SortableTab({ id, label, isActive, isAdmin, onClick }: {
+  id: string; label: string; isActive: boolean; isAdmin: boolean; onClick: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  return (
+    <button
+      ref={setNodeRef}
+      onClick={onClick}
+      {...(isAdmin ? attributes : {})}
+      {...(isAdmin ? listeners : {})}
+      className={clsx(
+        'px-4 h-full text-[12px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5',
+        isActive ? 'text-blue-600 border-blue-500' : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300',
+        isDragging && 'opacity-50',
+      )}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+      }}
+    >
+      {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
+      {label}
+    </button>
+  )
 }
 
 function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick }: {
@@ -261,6 +297,31 @@ function AppInner() {
   }, [user.id, user.role])
 
   const projectSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 150, tolerance: 5 } }))
+  const tabSensors     = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  // Tab order — global, admin-controlled
+  const defaultTabOrder = ALL_TABS.map(t => t.key)
+  const [tabOrder, setTabOrder] = useState<string[]>(defaultTabOrder)
+
+  useEffect(() => {
+    axios.get<{ order: string[] }>(`${API}/api/settings/tab-order`)
+      .then(res => { if (res.data.order.length) setTabOrder(res.data.order) })
+      .catch(() => {})
+  }, [])
+
+  const orderedTabs = tabOrder
+    .map(key => ALL_TABS.find(t => t.key === key))
+    .filter(Boolean) as typeof ALL_TABS[number][]
+
+  const handleTabDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIdx = tabOrder.indexOf(active.id as string)
+    const newIdx = tabOrder.indexOf(over.id  as string)
+    const reordered = arrayMove(tabOrder, oldIdx, newIdx)
+    setTabOrder(reordered)
+    await axios.put(`${API}/api/settings/tab-order`, { order: reordered })
+  }
 
   const handleProjectDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
@@ -662,25 +723,20 @@ function AppInner() {
         {/* Per-project Tab Strip */}
         {board && !['global-calendar', 'feedback'].includes(view) && (
           <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', height: 40 }}>
-            {([
-              { key: 'chat', label: '팀 채팅' },
-              { key: 'project-calendar', label: '캘린더' },
-              { key: 'board', label: '보드' },
-              { key: 'milestone', label: '마일스톤' },
-            ] as const).map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setView(tab.key)}
-                className={clsx(
-                  'px-4 h-full text-[12px] font-semibold transition-all border-b-2 -mb-px',
-                  view === tab.key
-                    ? 'text-blue-600 border-blue-500'
-                    : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300'
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
+              <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
+                {orderedTabs.map(tab => (
+                  <SortableTab
+                    key={tab.key}
+                    id={tab.key}
+                    label={tab.label}
+                    isActive={view === tab.key}
+                    isAdmin={user.role === 'admin'}
+                    onClick={() => setView(tab.key as TabKey)}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         )}
 

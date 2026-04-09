@@ -485,6 +485,32 @@ def save_project_order(req: ProjectOrderRequest):
     finally:
         conn.close()
 
+@app.get("/api/settings/tab-order")
+def get_tab_order():
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT value FROM settings WHERE key = 'tab_order'")
+            row = cur.fetchone()
+            return {"order": row["value"] if row else []}
+    finally:
+        conn.close()
+
+@app.put("/api/settings/tab-order")
+def save_tab_order(req: ProjectOrderRequest):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO settings (key, value) VALUES ('tab_order', %s)
+                   ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value""",
+                (psycopg2.extras.Json(req.order),)
+            )
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()
+
 @app.get("/api/projects/{project_id}")
 def get_project(project_id: str):
     db = load_db()
