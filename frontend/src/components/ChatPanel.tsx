@@ -36,10 +36,13 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
   const [adminCode, setAdminCode] = useState('')
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
+  const prevProjectRef = useRef(projectName)
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    const isProjectChange = prevProjectRef.current !== projectName
+    prevProjectRef.current = projectName
+    endRef.current?.scrollIntoView(isProjectChange ? undefined : { behavior: 'smooth' })
+  }, [messages, projectName])
 
   const handleSend = () => {
     if (!text.trim()) return
