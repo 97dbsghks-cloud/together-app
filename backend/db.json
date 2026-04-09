@@ -1,0 +1,240 @@
+{
+  "projects": {
+    "22d7cbf9-e2d8-4189-9805-037a8d84a103": {
+      "id": "22d7cbf9-e2d8-4189-9805-037a8d84a103",
+      "name": "금호리조트 스파포레 더 빌라",
+      "emoji": "📁",
+      "columns": [
+        {
+          "id": "todo",
+          "title": "할 일",
+          "color": "#6e6e73"
+        },
+        {
+          "id": "in-progress",
+          "title": "진행 중",
+          "color": "#007aff"
+        },
+        {
+          "id": "review",
+          "title": "검토 요망",
+          "color": "#ff9f0a"
+        },
+        {
+          "id": "done",
+          "title": "완료",
+          "color": "#34c759"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "cbf131d1-6ecd-49fb-a49e-8236675b2701",
+          "title": "Drag Test Task",
+          "description": null,
+          "columnId": "done",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": null,
+          "checklist": null
+        },
+        {
+          "id": "c0a08c1e-9ad9-4b67-9d1e-b9ffa27046ec",
+          "title": "32평형 Workset 정리",
+          "description": "workset 설정 필요",
+          "columnId": "review",
+          "dueDate": "2026-04-20",
+          "assignee": "방윤환",
+          "priority": "high",
+          "tags": [
+            "BIM"
+          ],
+          "checklist": [
+            {
+              "id": "30fbc0c4-3e65-4fca-b9d8-a364e8cb6385",
+              "text": "금강 발송 목업 도면 참고",
+              "done": false
+            }
+          ]
+        },
+        {
+          "id": "f69a1457-3025-4fb0-afa5-284c8626403d",
+          "title": "27",
+          "description": null,
+          "columnId": "review",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": null,
+          "checklist": null
+        },
+        {
+          "id": "b29edea5-8798-4ed9-b4dd-da74c0f614dd",
+          "title": "Task High",
+          "description": null,
+          "columnId": "todo",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "high",
+          "tags": null,
+          "checklist": null
+        },
+        {
+          "id": "63427b4d-fb81-4645-9e57-a02992dfe625",
+          "title": "47평형 창호 변경",
+          "description": null,
+          "columnId": "in-progress",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": [
+            "BIM"
+          ],
+          "checklist": null
+        },
+        {
+          "id": "c2da6a4f-c37d-4f0b-83f7-712bfd40b22c",
+          "title": "Task Low",
+          "description": null,
+          "columnId": "in-progress",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": null,
+          "checklist": null
+        }
+      ],
+      "events": [
+        {
+          "id": "e66ed246-3ce5-4023-b89b-70326e2bd447",
+          "title": "[KR] Test 1",
+          "date": "2026-04-09",
+          "endDate": null,
+          "color": "#007aff",
+          "description": null,
+          "important": null
+        },
+        {
+          "id": "76fcc6f6-02f3-496c-a862-9ff4559845ba",
+          "title": "금호리조트 보고회",
+          "date": "2026-04-09",
+          "endDate": null,
+          "color": "#007aff",
+          "description": null,
+          "important": null
+        },
+        {
+          "id": "4bed4a30-0bba-4242-b415-3cc7edcc5caf",
+          "title": "금호리조트 인허가",
+          "date": "2026-04-16",
+          "endDate": "2026-04-18",
+          "color": "#34c759",
+          "description": null,
+          "important": true
+        }
+      ],
+      "messages": [
+        {
+          "id": "acb7d378-9468-4bf5-b465-9bdc79955b81",
+          "author": "관리자",
+          "content": "안녕하세요",
+          "createdAt": "2026-04-09T13:00:03.428Z",
+          "isAdmin": true
+        }
+      ]
+    },
+    "14917647-7f6e-42b1-b792-2a8402a8625d": {
+      "id": "14917647-7f6e-42b1-b792-2a8402a8625d",
+      "name": "포천 힐마루 관광휴양단지",
+      "emoji": "🏢",
+      "columns": [
+        {
+          "id": "todo",
+          "title": "할 일",
+          "color": "#6e6e73"
+        },
+        {
+          "id": "in-progress",
+          "title": "진행 중",
+          "color": "#007aff"
+        },
+        {
+          "id": "review",
+          "title": "검토 요망",
+          "color": "#ff9f0a"
+        },
+        {
+          "id": "done",
+          "title": "완료",
+          "color": "#34c759"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "24a07172-af91-40a4-886b-fb4b241ba25a",
+          "title": "..",
+          "description": null,
+          "columnId": "review",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": null,
+          "checklist": null
+        }
+      ],
+      "events": [
+        {
+          "id": "3f1c3469-cc7b-4faa-b5f6-73bbd28ff01c",
+          "title": "[HM] Test1",
+          "date": "2026-04-16",
+          "endDate": null,
+          "color": "#5856d6",
+          "description": null
+        }
+      ],
+      "messages": []
+    },
+    "4b5e89d3-6368-4cd5-bf5c-baeb3e3376d6": {
+      "id": "4b5e89d3-6368-4cd5-bf5c-baeb3e3376d6",
+      "name": "스노우피크 모듈 개발",
+      "emoji": "📐",
+      "columns": [
+        {
+          "id": "todo",
+          "title": "할 일",
+          "color": "#6e6e73"
+        },
+        {
+          "id": "in-progress",
+          "title": "진행 중",
+          "color": "#007aff"
+        },
+        {
+          "id": "review",
+          "title": "검토 요망",
+          "color": "#ff9f0a"
+        },
+        {
+          "id": "done",
+          "title": "완료",
+          "color": "#34c759"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "41011202-af43-4c62-accf-6292f3431af6",
+          "title": "ㅓ",
+          "description": null,
+          "columnId": "review",
+          "dueDate": null,
+          "assignee": null,
+          "priority": "medium",
+          "tags": null,
+          "checklist": null
+        }
+      ],
+      "events": [],
+      "messages": []
+    }
+  }
+}

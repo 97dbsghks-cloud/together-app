@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+requests
+psycopg2-binary
+python-dotenv
+langchain
+langchain-openai
+langchain-anthropic
+langchain-google-genai
