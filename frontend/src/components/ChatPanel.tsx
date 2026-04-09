@@ -100,7 +100,8 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
       )}
 
       {/* Messages */}
-      <div className={clsx('flex-1 overflow-y-auto py-3 space-y-0.5', fullPage ? 'px-6' : 'px-4')}>
+      <div className={clsx('flex-1 overflow-y-auto', fullPage ? 'px-6' : 'px-4')}>
+        <div className="flex flex-col justify-end min-h-full py-3 space-y-0.5">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center pb-8">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3"
@@ -163,6 +164,7 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
           )
         })}
         <div ref={endRef} />
+        </div>
       </div>
 
       {/* Input */}
