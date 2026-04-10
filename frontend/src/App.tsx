@@ -613,18 +613,22 @@ function AppInner() {
   }, [board, saveBoard])
 
   const saveMeetings = useCallback((meetings: MeetingNote[]) => {
-    if (!board) return
-    const updated = { ...board, meetings }
-    setBoard(updated)
-    saveBoard(updated)
-  }, [board, saveBoard])
+    setBoard(prev => {
+      if (!prev) return prev
+      const updated = { ...prev, meetings }
+      axios.put(`${API}/api/projects/${updated.id}`, updated).then(() => loadProjects()).catch(console.error)
+      return updated
+    })
+  }, [loadProjects])
 
   const addRememberFromMeeting = useCallback((item: RememberItem) => {
-    if (!board) return
-    const updated = { ...board, remember: [...(board.remember ?? []), item] }
-    setBoard(updated)
-    saveBoard(updated)
-  }, [board, saveBoard])
+    setBoard(prev => {
+      if (!prev) return prev
+      const updated = { ...prev, remember: [...(prev.remember ?? []), item] }
+      axios.put(`${API}/api/projects/${updated.id}`, updated).catch(console.error)
+      return updated
+    })
+  }, [])
 
   const injectAiTasks = (newTasks: Partial<Task>[], colId: string) => {
     if (!board) return

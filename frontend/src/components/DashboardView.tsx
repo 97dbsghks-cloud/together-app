@@ -107,7 +107,7 @@ export default function DashboardView({
         <div className="overflow-y-auto p-4 border-r" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>
           <div className="flex items-center gap-2 mb-2.5">
             <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
-            <h3 className="text-[12px] font-bold text-gray-700">2주 내 주요 일정</h3>
+            <h3 className="text-[12px] font-bold text-gray-700">2주 내 일정</h3>
             <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full ml-auto">{upcomingEvents.length}</span>
           </div>
 
