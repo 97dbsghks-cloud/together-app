@@ -8,6 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, X, Bot, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone, Users, GripVertical,
+  Home, ChevronLeft, RefreshCw,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -252,6 +253,8 @@ function AppInner() {
   const [loadingProject, setLoadingProject] = useState(false)
 
   const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>(ALL_TABS[0].key as TabKey)
+  const [viewHistory, setViewHistory] = useState<string[]>([])
+  const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
@@ -355,6 +358,30 @@ function AppInner() {
     })
   }, [])
 
+  // Navigation helpers
+  const navigateTo = useCallback((next: string) => {
+    setView(prev => {
+      setViewHistory(h => [...h, prev])
+      return next as TabKey
+    })
+  }, [])
+
+  const goBack = useCallback(() => {
+    setViewHistory(h => {
+      if (h.length === 0) return h
+      const prev = h[h.length - 1]
+      setView(prev as TabKey)
+      return h.slice(0, -1)
+    })
+  }, [])
+
+  const goHome = useCallback(() => {
+    setView(prev => {
+      setViewHistory(h => [...h, prev])
+      return 'global-calendar'
+    })
+  }, [])
+
   // Load board when project changes
   useEffect(() => {
     if (!activeProjectId) return
@@ -363,6 +390,34 @@ function AppInner() {
       .then(res => { setBoard(res.data); setLoadingProject(false) })
       .catch(() => setLoadingProject(false))
   }, [activeProjectId])
+
+  // Sync current project
+  const syncProject = useCallback(async () => {
+    if (!activeProjectId) return
+    setSyncing(true)
+    try {
+      const res = await axios.get<ProjectBoard>(`${API}/api/projects/${activeProjectId}`)
+      setBoard(res.data)
+    } finally {
+      setSyncing(false)
+    }
+  }, [activeProjectId])
+
+  // Chat polling — every 3s when on chat tab
+  useEffect(() => {
+    if (view !== 'chat' || !activeProjectId) return
+    const id = setInterval(async () => {
+      try {
+        const res = await axios.get<ProjectBoard>(`${API}/api/projects/${activeProjectId}`)
+        setBoard(prev => {
+          if (!prev) return res.data
+          // only update messages to avoid overwriting unsaved local edits
+          return { ...prev, messages: res.data.messages }
+        })
+      } catch {}
+    }, 3000)
+    return () => clearInterval(id)
+  }, [view, activeProjectId])
 
   const saveBoard = useCallback((updatedBoard: ProjectBoard) => {
     axios.put(`${API}/api/projects/${updatedBoard.id}`, updatedBoard)
@@ -670,6 +725,23 @@ function AppInner() {
         {/* Top Bar */}
         <header className="h-[60px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', backdropFilter: 'blur(20px)' }}>
           <div className="flex items-center gap-3">
+            {/* 뒤로가기 / 홈 */}
+            <button
+              onClick={goBack}
+              disabled={viewHistory.length === 0}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+              title="뒤로가기"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={goHome}
+              className={clsx('p-1.5 rounded-lg transition-colors', view === 'global-calendar' ? 'text-white' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100')}
+              style={view === 'global-calendar' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
+              title="홈 (종합 캘린더)"
+            >
+              <Home className="w-4 h-4" />
+            </button>
             {board && (
               <>
                 {editingProjectName ? (
@@ -722,6 +794,15 @@ function AppInner() {
             >
               <CalendarDays className="w-4 h-4" />
               <span className="hidden sm:inline">종합 캘린더</span>
+            </button>
+            {/* 동기화 */}
+            <button
+              onClick={syncProject}
+              disabled={syncing || !activeProjectId}
+              className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+              title="동기화"
+            >
+              <RefreshCw className={clsx('w-4 h-4', syncing && 'animate-spin')} />
             </button>
             <button
               onClick={() => setAiOpen(v => !v)}
