@@ -932,7 +932,6 @@ function AppInner() {
               onChange={saveMeetings}
               onSendToRemember={addRememberFromMeeting}
               onAddTask={addTask}
-              isAdmin={user.role === 'admin'}
             />
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">

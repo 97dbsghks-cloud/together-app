@@ -35,7 +35,6 @@ type Props = {
   onChange: (meetings: MeetingNote[]) => void
   onSendToRemember?: (item: RememberItem) => void
   onAddTask?: (colId: string, task: Partial<Task>) => void
-  isAdmin: boolean
 }
 
 const CATEGORIES = ['삼우', '발주처', '협력사'] as const
@@ -51,7 +50,7 @@ const EMPTY_NOTE = (category: Category): MeetingNote => ({
   actionItems: [],
 })
 
-export default function MeetingView({ meetings, columns, onChange, onSendToRemember, onAddTask, isAdmin }: Props) {
+export default function MeetingView({ meetings, columns, onChange, onSendToRemember, onAddTask }: Props) {
   const [activeCategory, setActiveCategory] = useState<Category>('삼우')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
