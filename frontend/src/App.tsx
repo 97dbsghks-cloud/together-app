@@ -359,13 +359,6 @@ function AppInner() {
   }, [])
 
   // Navigation helpers
-  const navigateTo = useCallback((next: string) => {
-    setView(prev => {
-      setViewHistory(h => [...h, prev])
-      return next as TabKey
-    })
-  }, [])
-
   const goBack = useCallback(() => {
     setViewHistory(h => {
       if (h.length === 0) return h
