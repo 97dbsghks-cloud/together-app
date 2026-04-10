@@ -262,7 +262,9 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>(ALL_TABS[0].key as TabKey)
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>('global-calendar')
+  const viewRef = useRef(view)
+  viewRef.current = view
   const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
   const [viewHistory, setViewHistory] = useState<string[]>([])
   const [syncing, setSyncing] = useState(false)
@@ -326,7 +328,6 @@ function AppInner() {
         // prepend saved order, append any new tabs not yet in saved list
         const merged = [...saved, ...allTabKeys.filter(k => !saved.includes(k))]
         setTabOrder(merged)
-        setView(merged[0] as TabKey)
       })
       .catch(() => {})
   }, []) // eslint-disable-line
@@ -367,7 +368,6 @@ function AppInner() {
         setActiveProjectId(list[0].id)
       }
     })
-    setView('global-calendar')
   }, [])
 
   // Navigation helpers
@@ -665,7 +665,7 @@ function AppInner() {
                   isAdmin={user.role === 'admin'}
                   onSelect={() => {
                     setActiveProjectId(proj.id)
-                    if (view === 'global-calendar' || view === 'feedback') setView('project-calendar')
+                    if (viewRef.current === 'global-calendar' || viewRef.current === 'feedback') setView('project-calendar')
                   }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
                 />
