@@ -147,7 +147,6 @@ const ALL_TABS = [
   { key: 'project-calendar', label: '캘린더'   },
   { key: 'board',            label: '보드'     },
   { key: 'milestone',        label: '마일스톤' },
-  { key: 'remember',         label: '리멤버'   },
 ] as const
 
 type TabKey = typeof ALL_TABS[number]['key']
@@ -263,7 +262,8 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'remember'>(ALL_TABS[0].key as TabKey)
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>(ALL_TABS[0].key as TabKey)
+  const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
   const [viewHistory, setViewHistory] = useState<string[]>([])
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
@@ -882,9 +882,27 @@ function AppInner() {
             />
           ) : view === 'milestone' && board ? (
             <MilestoneView gantt={board.gantt} onChange={saveGantt} />
-          ) : view === 'remember' && board ? (
-            <RememberView items={board.remember ?? []} onChange={saveRemember} isAdmin={user.role === 'admin'} userName={user.name} />
           ) : (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Board sub-tabs */}
+              <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b bg-gray-50/60" style={{ borderColor: 'rgba(0,0,0,0.07)', height: 38 }}>
+                {(['todo', 'remember'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setBoardTab(t)}
+                    className={clsx(
+                      'px-4 h-full text-[11px] font-semibold transition-all border-b-2 -mb-px',
+                      boardTab === t ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                    )}
+                  >
+                    {t === 'todo' ? '할 일' : '🔖 리멤버'}
+                  </button>
+                ))}
+              </div>
+
+              {boardTab === 'remember' && board ? (
+                <RememberView items={board.remember ?? []} onChange={saveRemember} isAdmin={user.role === 'admin'} userName={user.name} />
+              ) : (
             <div className="flex-1 overflow-x-auto">
               {loadingProject ? (
                 <div className="flex-1 flex items-center justify-center h-full">
@@ -926,6 +944,8 @@ function AppInner() {
                     </DragOverlay>
                   </DndContext>
                 ) : null}
+            </div>
+              )}
             </div>
           )}
           {/* AI Panel — visible on all tabs */}

@@ -4,15 +4,16 @@ import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { RememberItem } from '../App'
 
-const STAGES = ['기획', '설계', '개발', '테스트', '보류'] as const
+const STAGES = ['기획 설계', '계획 설계', '기본 설계', '실시 설계', '납품 후 지원', '기타'] as const
 type Stage = typeof STAGES[number]
 
 const STAGE_STYLE: Record<Stage, string> = {
-  '기획':  'bg-purple-100 text-purple-700',
-  '설계':  'bg-blue-100 text-blue-700',
-  '개발':  'bg-orange-100 text-orange-700',
-  '테스트':'bg-green-100 text-green-700',
-  '보류':  'bg-gray-100 text-gray-500',
+  '기획 설계':   'bg-purple-100 text-purple-700',
+  '계획 설계':   'bg-blue-100 text-blue-700',
+  '기본 설계':   'bg-cyan-100 text-cyan-700',
+  '실시 설계':   'bg-orange-100 text-orange-700',
+  '납품 후 지원':'bg-green-100 text-green-700',
+  '기타':        'bg-gray-100 text-gray-500',
 }
 
 type Props = {
@@ -24,7 +25,7 @@ type Props = {
 
 const EMPTY: Omit<RememberItem, 'id'> = {
   content: '',
-  stage: '기획',
+  stage: '기획 설계',
   assignee: '',
   deadline: '',
 }
@@ -111,7 +112,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                 <input
                   value={form.assignee}
                   onChange={e => setForm(f => ({ ...f, assignee: e.target.value }))}
-                  placeholder={userName}
+                  placeholder="이름"
                   className="w-full text-[13px] bg-transparent outline-none text-gray-700 placeholder-gray-300"
                 />
               </div>
