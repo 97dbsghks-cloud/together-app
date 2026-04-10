@@ -26,6 +26,7 @@ import AuthPage from './components/AuthPage'
 import UserManagementPanel from './components/UserManagementPanel'
 import AnnouncementPanel from './components/AnnouncementPanel'
 import MilestoneView from './components/MilestoneView'
+import RememberView from './components/RememberView'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -74,6 +75,14 @@ export type ProjectMeta = {
   doneCount: number
 }
 
+export type RememberItem = {
+  id: string
+  content: string
+  stage: string
+  assignee: string
+  deadline: string
+}
+
 export type GanttBar = {
   id: string
   startWeek: number
@@ -113,6 +122,7 @@ export type ProjectBoard = {
   events: CalendarEvent[]
   messages: ChatMessage[]
   gantt?: GanttConfig
+  remember?: RememberItem[]
 }
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
@@ -133,10 +143,11 @@ function AuthGate() {
 }
 
 const ALL_TABS = [
-  { key: 'chat',             label: '팀 채팅' },
-  { key: 'project-calendar', label: '캘린더'  },
-  { key: 'board',            label: '보드'    },
+  { key: 'chat',             label: '팀 채팅'  },
+  { key: 'project-calendar', label: '캘린더'   },
+  { key: 'board',            label: '보드'     },
   { key: 'milestone',        label: '마일스톤' },
+  { key: 'remember',         label: '리멤버'   },
 ] as const
 
 type TabKey = typeof ALL_TABS[number]['key']
@@ -252,7 +263,7 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>(ALL_TABS[0].key as TabKey)
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'remember'>(ALL_TABS[0].key as TabKey)
   const [viewHistory, setViewHistory] = useState<string[]>([])
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
@@ -575,6 +586,13 @@ function AppInner() {
     saveBoard(updated)
   }, [board, saveBoard])
 
+  const saveRemember = useCallback((items: RememberItem[]) => {
+    if (!board) return
+    const updated = { ...board, remember: items }
+    setBoard(updated)
+    saveBoard(updated)
+  }, [board, saveBoard])
+
   const injectAiTasks = (newTasks: Partial<Task>[], colId: string) => {
     if (!board) return
     const created = newTasks.map(t => ({ id: uuidv4(), title: t.title || '태스크', columnId: colId, ...t } as Task))
@@ -864,6 +882,8 @@ function AppInner() {
             />
           ) : view === 'milestone' && board ? (
             <MilestoneView gantt={board.gantt} onChange={saveGantt} />
+          ) : view === 'remember' && board ? (
+            <RememberView items={board.remember ?? []} onChange={saveRemember} isAdmin={user.role === 'admin'} userName={user.name} />
           ) : (
             <div className="flex-1 overflow-x-auto">
               {loadingProject ? (
