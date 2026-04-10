@@ -6,6 +6,7 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Plus, Trash2, Check, X, GripVertical, Star, Pencil } from 'lucide-react'
+import SmartDateInput from './SmartDateInput'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { RememberItem } from '../App'
@@ -140,12 +141,11 @@ function SortableRow({
               className="w-full text-[13px] bg-transparent outline-none text-gray-700"
             />
           </div>
-          <div className="px-3 py-3">
-            <input
-              type="date"
+          <div className="px-1 py-1">
+            <SmartDateInput
               value={editForm.deadline}
-              onChange={e => setEditForm({ ...editForm, deadline: e.target.value })}
-              className="text-[12px] bg-transparent outline-none text-gray-700"
+              onChange={v => setEditForm({ ...editForm, deadline: v })}
+              className="bg-transparent border-gray-200"
             />
           </div>
           <div className="flex items-center justify-center gap-1 pr-2">
@@ -350,12 +350,11 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   className="w-full text-[13px] bg-transparent outline-none text-gray-700 placeholder-gray-300"
                 />
               </div>
-              <div className="px-3 py-3">
-                <input
-                  type="date"
+              <div className="px-1 py-1">
+                <SmartDateInput
                   value={form.deadline}
-                  onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
-                  className="text-[12px] bg-transparent outline-none text-gray-700"
+                  onChange={v => setForm(f => ({ ...f, deadline: v }))}
+                  className="bg-transparent border-gray-200"
                 />
               </div>
               <div className="flex items-center justify-center gap-1 pr-2">

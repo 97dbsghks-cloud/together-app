@@ -102,7 +102,7 @@ export default function DashboardView({
       {/* 하단 정보 패널 */}
       <div
         className="flex-shrink-0 grid grid-cols-2 gap-0 border-t"
-        style={{ borderColor: 'rgba(0,0,0,0.07)', maxHeight: 240 }}
+        style={{ borderColor: 'rgba(0,0,0,0.07)', maxHeight: 180 }}
       >
         {/* 2주 내 주요 일정 */}
         <div className="overflow-y-auto p-4 border-r" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>

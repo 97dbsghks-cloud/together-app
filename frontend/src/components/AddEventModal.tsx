@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { X, Check } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import type { CalendarEvent, ProjectMeta } from '../App'
+import SmartDateInput from './SmartDateInput'
 
 const COLORS = [
   '#ff3b30', '#ff9f0a', '#ffcc00', '#34c759',
@@ -88,22 +89,11 @@ export default function AddEventModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">시작일</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
-              />
+              <SmartDateInput value={startDate} onChange={setStartDate} className="w-full bg-gray-50 rounded-xl" />
             </div>
             <div>
               <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">종료일 (선택)</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                min={startDate}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
-              />
+              <SmartDateInput value={endDate} onChange={setEndDate} className="w-full bg-gray-50 rounded-xl" />
             </div>
           </div>
 

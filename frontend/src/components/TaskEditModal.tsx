@@ -4,6 +4,7 @@ import { X, Plus, Trash2, Check, ArrowRight } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { Task, Column, TaskPriority } from '../App'
+import SmartDateInput from './SmartDateInput'
 
 type Props = {
   task: Task
@@ -168,12 +169,7 @@ export default function TaskEditModal({ task, columns, onClose, onSave, onDelete
             </div>
             <div>
               <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">마감일</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="w-full px-2.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
+              <SmartDateInput value={dueDate} onChange={setDueDate} className="w-full bg-gray-50 rounded-xl" />
             </div>
           </div>
 

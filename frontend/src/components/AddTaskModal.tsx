@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import type { Task, Column, TaskPriority } from '../App'
+import SmartDateInput from './SmartDateInput'
 
 type Props = {
   columnId: string
@@ -131,12 +132,7 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">마감일</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
+              <SmartDateInput value={dueDate} onChange={setDueDate} className="w-full px-3 py-2.5 bg-gray-50 rounded-xl" />
             </div>
           </div>
 
