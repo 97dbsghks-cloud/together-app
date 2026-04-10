@@ -891,11 +891,14 @@ function AppInner() {
                     key={t}
                     onClick={() => setBoardTab(t)}
                     className={clsx(
-                      'px-4 h-full text-[11px] font-semibold transition-all border-b-2 -mb-px',
-                      boardTab === t ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                      'px-3.5 py-1 rounded-lg text-[11px] font-semibold transition-all mr-1',
+                      boardTab === t
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/60'
                     )}
+                    style={boardTab === t ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
                   >
-                    {t === 'todo' ? '할 일' : '🔖 리멤버'}
+                    {t === 'todo' ? '할 일' : '리멤버'}
                   </button>
                 ))}
               </div>
