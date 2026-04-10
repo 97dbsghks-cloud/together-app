@@ -71,6 +71,8 @@ class ProjectBoard(BaseModel):
     tasks: List[TaskItem]
     events: Optional[List[CalendarEvent]] = []
     messages: Optional[List[ChatMessage]] = []
+    gantt: Optional[Dict[str, Any]] = None
+    remember: Optional[List[Dict[str, Any]]] = []
 
 class RegisterRequest(BaseModel):
     name: str
