@@ -92,6 +92,7 @@ export default function DashboardView({
           allBoards={allBoards}
           projects={projects}
           activeProjectId={activeProjectId}
+          hideEventList
           onAddEvent={onAddEvent}
           onDeleteEvent={onDeleteEvent}
           onUpdateEvent={onUpdateEvent}
