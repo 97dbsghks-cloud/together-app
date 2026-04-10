@@ -122,8 +122,6 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
 
   const firstTodoCol = columns.find(c => c.id === 'todo') ?? columns[0]
 
-  const current = (id: string) => editingId === id ? draft! : meetings.find(m => m.id === id)!
-
   return (
     <div className="flex-1 overflow-y-auto p-5">
       <div className="max-w-3xl mx-auto">
