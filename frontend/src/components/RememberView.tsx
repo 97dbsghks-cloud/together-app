@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2, Check, X } from 'lucide-react'
+import { Plus, Trash2, Check, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { RememberItem } from '../App'
@@ -28,6 +28,7 @@ const EMPTY: Omit<RememberItem, 'id'> = {
   stage: '기획 설계',
   assignee: '',
   deadline: '',
+  done: false,
 }
 
 export default function RememberView({ items, onChange, userName }: Props) {
@@ -48,9 +49,34 @@ export default function RememberView({ items, onChange, userName }: Props) {
     onChange(items.filter(i => i.id !== id))
   }
 
+  const toggleDone = (id: string) => {
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    const nowDone = !item.done
+    // remove from current position, push to end if checked, keep position if unchecked
+    const rest = items.filter(i => i.id !== id)
+    const updated = { ...item, done: nowDone }
+    if (nowDone) {
+      onChange([...rest, updated])
+    } else {
+      // put back at original index (before done items)
+      const firstDoneIdx = rest.findIndex(i => i.done)
+      if (firstDoneIdx === -1) onChange([...rest, updated])
+      else onChange([...rest.slice(0, firstDoneIdx), updated, ...rest.slice(firstDoneIdx)])
+    }
+  }
+
+  const moveItem = (idx: number, dir: -1 | 1) => {
+    const next = idx + dir
+    if (next < 0 || next >= items.length) return
+    const arr = [...items]
+    ;[arr[idx], arr[next]] = [arr[next], arr[idx]]
+    onChange(arr)
+  }
+
   const startEdit = (item: RememberItem) => {
     setEditingId(item.id)
-    setEditForm({ content: item.content, stage: item.stage, assignee: item.assignee, deadline: item.deadline })
+    setEditForm({ content: item.content, stage: item.stage, assignee: item.assignee, deadline: item.deadline, done: item.done })
   }
 
   const saveEdit = (id: string) => {
@@ -80,16 +106,17 @@ export default function RememberView({ items, onChange, userName }: Props) {
         {/* Table */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
           {/* Table Header */}
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-0 border-b border-gray-100 bg-gray-50/60">
-            {['내용', '설계단계', '담당자', '기한', ''].map((h, i) => (
-              <div key={i} className="px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{h}</div>
+          <div className="grid grid-cols-[32px_2fr_1fr_1fr_1fr_72px] gap-0 border-b border-gray-100 bg-gray-50/60">
+            {['', '내용', '설계단계', '담당자', '기한', ''].map((h, i) => (
+              <div key={i} className="px-3 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{h}</div>
             ))}
           </div>
 
           {/* Add row */}
           {adding && (
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-0 border-b border-blue-100 bg-blue-50/30">
-              <div className="px-4 py-3">
+            <div className="grid grid-cols-[32px_2fr_1fr_1fr_1fr_72px] gap-0 border-b border-blue-100 bg-blue-50/30">
+              <div />
+              <div className="px-3 py-3">
                 <input
                   autoFocus
                   value={form.content}
@@ -99,7 +126,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   className="w-full text-[13px] bg-transparent outline-none text-gray-800 placeholder-gray-300"
                 />
               </div>
-              <div className="px-4 py-3">
+              <div className="px-3 py-3">
                 <select
                   value={form.stage}
                   onChange={e => setForm(f => ({ ...f, stage: e.target.value as Stage }))}
@@ -108,7 +135,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   {STAGES.map(s => <option key={s}>{s}</option>)}
                 </select>
               </div>
-              <div className="px-4 py-3">
+              <div className="px-3 py-3">
                 <input
                   value={form.assignee}
                   onChange={e => setForm(f => ({ ...f, assignee: e.target.value }))}
@@ -116,7 +143,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   className="w-full text-[13px] bg-transparent outline-none text-gray-700 placeholder-gray-300"
                 />
               </div>
-              <div className="px-4 py-3">
+              <div className="px-3 py-3">
                 <input
                   type="date"
                   value={form.deadline}
@@ -148,14 +175,16 @@ export default function RememberView({ items, onChange, userName }: Props) {
             <div
               key={item.id}
               className={clsx(
-                'grid grid-cols-[2fr_1fr_1fr_1fr_40px] gap-0 group',
+                'grid grid-cols-[32px_2fr_1fr_1fr_1fr_72px] gap-0 group',
                 idx < items.length - 1 && 'border-b border-gray-50',
-                'hover:bg-gray-50/60 transition-colors'
+                item.done ? 'bg-gray-50/50' : 'hover:bg-gray-50/60',
+                'transition-colors'
               )}
             >
               {editingId === item.id ? (
                 <>
-                  <div className="px-4 py-3">
+                  <div />
+                  <div className="px-3 py-3">
                     <input
                       autoFocus
                       value={editForm.content}
@@ -164,7 +193,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                       className="w-full text-[13px] bg-transparent outline-none text-gray-800"
                     />
                   </div>
-                  <div className="px-4 py-3">
+                  <div className="px-3 py-3">
                     <select
                       value={editForm.stage}
                       onChange={e => setEditForm(f => ({ ...f, stage: e.target.value as Stage }))}
@@ -173,14 +202,14 @@ export default function RememberView({ items, onChange, userName }: Props) {
                       {STAGES.map(s => <option key={s}>{s}</option>)}
                     </select>
                   </div>
-                  <div className="px-4 py-3">
+                  <div className="px-3 py-3">
                     <input
                       value={editForm.assignee}
                       onChange={e => setEditForm(f => ({ ...f, assignee: e.target.value }))}
                       className="w-full text-[13px] bg-transparent outline-none text-gray-700"
                     />
                   </div>
-                  <div className="px-4 py-3">
+                  <div className="px-3 py-3">
                     <input
                       type="date"
                       value={editForm.deadline}
@@ -199,25 +228,82 @@ export default function RememberView({ items, onChange, userName }: Props) {
                 </>
               ) : (
                 <>
-                  <div className="px-4 py-3.5 cursor-pointer" onClick={() => startEdit(item)}>
-                    <p className="text-[13px] text-gray-800 leading-snug">{item.content}</p>
+                  {/* Checkbox */}
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={() => toggleDone(item.id)}
+                      className={clsx(
+                        'w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0',
+                        item.done
+                          ? 'border-blue-500 bg-blue-500'
+                          : 'border-gray-300 hover:border-blue-400'
+                      )}
+                      style={{ width: 18, height: 18 }}
+                    >
+                      {item.done && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                    </button>
                   </div>
-                  <div className="px-4 py-3.5 flex items-center">
-                    <span className={clsx('px-2 py-0.5 rounded-md text-[11px] font-semibold', STAGE_STYLE[item.stage as Stage] ?? 'bg-gray-100 text-gray-500')}>
+
+                  {/* Content */}
+                  <div className="px-3 py-3.5 cursor-pointer" onClick={() => !item.done && startEdit(item)}>
+                    <p className={clsx(
+                      'text-[13px] leading-snug',
+                      item.done ? 'line-through text-gray-400' : 'text-gray-800'
+                    )}>
+                      {item.content}
+                    </p>
+                  </div>
+
+                  {/* Stage */}
+                  <div className="px-3 py-3.5 flex items-center">
+                    <span className={clsx(
+                      'px-2 py-0.5 rounded-md text-[11px] font-semibold transition-opacity',
+                      item.done ? 'opacity-40' : '',
+                      STAGE_STYLE[item.stage as Stage] ?? 'bg-gray-100 text-gray-500'
+                    )}>
                       {item.stage}
                     </span>
                   </div>
-                  <div className="px-4 py-3.5 flex items-center">
-                    <span className="text-[13px] text-gray-600">{item.assignee || '—'}</span>
-                  </div>
-                  <div className="px-4 py-3.5 flex items-center">
-                    <span className={clsx('text-[12px]', item.deadline && new Date(item.deadline) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500')}>
-                      {item.deadline ? item.deadline : '—'}
+
+                  {/* Assignee */}
+                  <div className="px-3 py-3.5 flex items-center">
+                    <span className={clsx('text-[13px]', item.done ? 'text-gray-400 line-through' : 'text-gray-600')}>
+                      {item.assignee || '—'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-center pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleDelete(item.id)} className="p-1 rounded-md text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
+
+                  {/* Deadline */}
+                  <div className="px-3 py-3.5 flex items-center">
+                    <span className={clsx(
+                      'text-[12px]',
+                      item.done ? 'text-gray-400 line-through' :
+                      item.deadline && new Date(item.deadline) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'
+                    )}>
+                      {item.deadline || '—'}
+                    </span>
+                  </div>
+
+                  {/* Actions: up/down + delete */}
+                  <div className="flex items-center justify-center gap-0.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => moveItem(idx, -1)}
+                      disabled={idx === 0}
+                      className="p-0.5 rounded text-gray-300 hover:text-gray-600 disabled:opacity-20 transition-colors"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveItem(idx, 1)}
+                      disabled={idx === items.length - 1}
+                      className="p-0.5 rounded text-gray-300 hover:text-gray-600 disabled:opacity-20 transition-colors"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="p-0.5 rounded text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
                 </>

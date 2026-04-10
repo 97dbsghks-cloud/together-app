@@ -81,6 +81,7 @@ export type RememberItem = {
   stage: string
   assignee: string
   deadline: string
+  done?: boolean
 }
 
 export type GanttBar = {
