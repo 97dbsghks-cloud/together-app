@@ -78,6 +78,7 @@ export type ProjectMeta = {
 export type RememberItem = {
   id: string
   content: string
+  importance?: number  // 1~3
   stage: string
   assignee: string
   deadline: string

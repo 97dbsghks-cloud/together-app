@@ -5,7 +5,7 @@ import {
 import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Plus, Trash2, Check, X, GripVertical } from 'lucide-react'
+import { Plus, Trash2, Check, X, GripVertical, Star } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { RememberItem } from '../App'
@@ -30,7 +30,34 @@ type Props = {
 }
 
 const EMPTY: Omit<RememberItem, 'id'> = {
-  content: '', stage: '기획 설계', assignee: '', deadline: '', done: false,
+  content: '', importance: 1, stage: '기획 설계', assignee: '', deadline: '', done: false,
+}
+
+function StarPicker({ value, onChange, disabled }: { value?: number; onChange?: (v: number) => void; disabled?: boolean }) {
+  const [hovered, setHovered] = useState(0)
+  const cur = hovered || value || 0
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3].map(n => (
+        <button
+          key={n}
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange?.(n)}
+          onMouseEnter={() => !disabled && setHovered(n)}
+          onMouseLeave={() => !disabled && setHovered(0)}
+          className="p-0 leading-none transition-transform hover:scale-110 disabled:cursor-default"
+        >
+          <Star
+            className="w-3.5 h-3.5"
+            fill={n <= cur ? '#ff9f0a' : 'none'}
+            stroke={n <= cur ? '#ff9f0a' : '#d1d5db'}
+            strokeWidth={1.5}
+          />
+        </button>
+      ))}
+    </div>
+  )
 }
 
 // ── Sortable row ──────────────────────────────────────────────────────────────
@@ -66,7 +93,7 @@ function SortableRow({
       ref={setNodeRef}
       style={style}
       className={clsx(
-        'grid grid-cols-[28px_28px_2fr_1fr_1fr_1fr_56px] gap-0 group',
+        'grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 group',
         idx < total - 1 && 'border-b border-gray-50',
         item.done ? 'bg-gray-50/50' : 'hover:bg-gray-50/60',
         'transition-colors'
@@ -93,6 +120,9 @@ function SortableRow({
               onKeyDown={e => { if (e.key === 'Enter') onSaveEdit(item.id); if (e.key === 'Escape') onCancelEdit() }}
               className="w-full text-[13px] bg-transparent outline-none text-gray-800"
             />
+          </div>
+          <div className="px-3 py-3 flex items-center">
+            <StarPicker value={editForm.importance} onChange={v => setEditForm({ ...editForm, importance: v })} />
           </div>
           <div className="px-3 py-3">
             <select
@@ -148,6 +178,11 @@ function SortableRow({
             <p className={clsx('text-[13px] leading-snug', item.done ? 'line-through text-gray-400' : 'text-gray-800')}>
               {item.content}
             </p>
+          </div>
+
+          {/* Importance */}
+          <div className="px-3 py-3.5 flex items-center">
+            <StarPicker value={item.importance ?? 1} disabled={item.done} />
           </div>
 
           {/* Stage */}
@@ -267,15 +302,15 @@ export default function RememberView({ items, onChange, userName }: Props) {
         {/* Table */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
           {/* Table Header */}
-          <div className="grid grid-cols-[28px_28px_2fr_1fr_1fr_1fr_56px] gap-0 border-b border-gray-100 bg-gray-50/60">
-            {['', '', '내용', '설계단계', '담당자', '기한', ''].map((h, i) => (
+          <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 border-b border-gray-100 bg-gray-50/60">
+            {['', '', '내용', '중요도', '설계단계', '담당자', '기한', ''].map((h, i) => (
               <div key={i} className="px-3 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{h}</div>
             ))}
           </div>
 
           {/* Add row */}
           {adding && (
-            <div className="grid grid-cols-[28px_28px_2fr_1fr_1fr_1fr_56px] gap-0 border-b border-blue-100 bg-blue-50/30">
+            <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 border-b border-blue-100 bg-blue-50/30">
               <div /><div />
               <div className="px-3 py-3">
                 <input
@@ -286,6 +321,9 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   placeholder="내용을 입력하세요"
                   className="w-full text-[13px] bg-transparent outline-none text-gray-800 placeholder-gray-300"
                 />
+              </div>
+              <div className="px-3 py-3 flex items-center">
+                <StarPicker value={form.importance} onChange={v => setForm(f => ({ ...f, importance: v }))} />
               </div>
               <div className="px-3 py-3">
                 <select
