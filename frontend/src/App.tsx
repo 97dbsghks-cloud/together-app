@@ -367,6 +367,7 @@ function AppInner() {
         setActiveProjectId(list[0].id)
       }
     })
+    setView('global-calendar')
   }, [])
 
   // Navigation helpers
@@ -662,7 +663,10 @@ function AppInner() {
                   proj={proj}
                   isActive={proj.id === activeProjectId}
                   isAdmin={user.role === 'admin'}
-                  onSelect={() => setActiveProjectId(proj.id)}
+                  onSelect={() => {
+                    setActiveProjectId(proj.id)
+                    if (view === 'global-calendar') setView('project-calendar')
+                  }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
                 />
               ))}
