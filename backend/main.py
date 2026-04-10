@@ -73,6 +73,7 @@ class ProjectBoard(BaseModel):
     messages: Optional[List[ChatMessage]] = []
     gantt: Optional[Dict[str, Any]] = None
     remember: Optional[List[Dict[str, Any]]] = []
+    meetings: Optional[List[Dict[str, Any]]] = []
 
 class RegisterRequest(BaseModel):
     name: str

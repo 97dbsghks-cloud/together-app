@@ -27,8 +27,11 @@ import UserManagementPanel from './components/UserManagementPanel'
 import AnnouncementPanel from './components/AnnouncementPanel'
 import MilestoneView from './components/MilestoneView'
 import RememberView from './components/RememberView'
+import MeetingView from './components/MeetingView'
+import DashboardView from './components/DashboardView'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ConfettiEffect from './components/ConfettiEffect'
+import type { MeetingNote } from './components/MeetingView'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
 
@@ -126,6 +129,7 @@ export type ProjectBoard = {
   messages: ChatMessage[]
   gantt?: GanttConfig
   remember?: RememberItem[]
+  meetings?: MeetingNote[]
 }
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
@@ -150,6 +154,7 @@ const ALL_TABS = [
   { key: 'project-calendar', label: '캘린더'   },
   { key: 'board',            label: '보드'     },
   { key: 'milestone',        label: '마일스톤' },
+  { key: 'meeting',          label: '회의록'   },
 ] as const
 
 type TabKey = typeof ALL_TABS[number]['key']
@@ -265,7 +270,7 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone'>('global-calendar')
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard'>('dashboard')
   const viewRef = useRef(view)
   viewRef.current = view
   const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
@@ -388,7 +393,7 @@ function AppInner() {
   const goHome = useCallback(() => {
     setView(prev => {
       setViewHistory(h => [...h, prev])
-      return 'global-calendar'
+      return 'dashboard'
     })
   }, [])
 
@@ -444,7 +449,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (view === 'global-calendar' && projects.length > 0) {
+    if ((view === 'global-calendar' || view === 'dashboard') && projects.length > 0) {
       loadAllBoards(projects)
     }
   }, [view, projects, loadAllBoards])
@@ -607,6 +612,20 @@ function AppInner() {
     saveBoard(updated)
   }, [board, saveBoard])
 
+  const saveMeetings = useCallback((meetings: MeetingNote[]) => {
+    if (!board) return
+    const updated = { ...board, meetings }
+    setBoard(updated)
+    saveBoard(updated)
+  }, [board, saveBoard])
+
+  const addRememberFromMeeting = useCallback((item: RememberItem) => {
+    if (!board) return
+    const updated = { ...board, remember: [...(board.remember ?? []), item] }
+    setBoard(updated)
+    saveBoard(updated)
+  }, [board, saveBoard])
+
   const injectAiTasks = (newTasks: Partial<Task>[], colId: string) => {
     if (!board) return
     const created = newTasks.map(t => ({ id: uuidv4(), title: t.title || '태스크', columnId: colId, ...t } as Task))
@@ -674,11 +693,11 @@ function AppInner() {
                 <SortableProjectItem
                   key={proj.id}
                   proj={proj}
-                  isActive={proj.id === activeProjectId && view !== 'global-calendar'}
+                  isActive={proj.id === activeProjectId && view !== 'global-calendar' && view !== 'dashboard'}
                   isAdmin={user.role === 'admin'}
                   onSelect={() => {
                     setActiveProjectId(proj.id)
-                    if (viewRef.current === 'global-calendar' || viewRef.current === 'feedback') setView('project-calendar')
+                    if (viewRef.current === 'global-calendar' || viewRef.current === 'dashboard' || viewRef.current === 'feedback') setView('project-calendar')
                   }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
                 />
@@ -763,13 +782,15 @@ function AppInner() {
             </button>
             <button
               onClick={goHome}
-              className={clsx('p-1.5 rounded-lg transition-colors', view === 'global-calendar' ? 'text-white' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100')}
-              style={view === 'global-calendar' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
-              title="홈 (종합 캘린더)"
+              className={clsx('p-1.5 rounded-lg transition-colors', view === 'dashboard' ? 'text-white' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100')}
+              style={view === 'dashboard' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
+              title="홈 (대시보드)"
             >
               <Home className="w-4 h-4" />
             </button>
-            {view === 'global-calendar' ? (
+            {view === 'dashboard' ? (
+              <h2 className="text-base font-bold text-gray-900">대시보드</h2>
+            ) : view === 'global-calendar' ? (
               <h2 className="text-base font-bold text-gray-900">프로젝트 종합 캘린더</h2>
             ) : board && (
               <>
@@ -822,7 +843,7 @@ function AppInner() {
               style={view === 'global-calendar' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
             >
               <CalendarDays className="w-4 h-4" />
-              <span className="hidden sm:inline">종합 캘린더</span>
+              <span className="hidden sm:inline">대시보드</span>
             </button>
             {/* 동기화 */}
             <button
@@ -845,7 +866,7 @@ function AppInner() {
         </header>
 
         {/* Per-project Tab Strip */}
-        {board && !['global-calendar', 'feedback'].includes(view) && (
+        {board && !['global-calendar', 'dashboard', 'feedback'].includes(view) && (
           <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', height: 40 }}>
             <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
               <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
@@ -868,6 +889,12 @@ function AppInner() {
         <div className="flex flex-1 overflow-hidden">
           {view === 'feedback' ? (
             <FeedbackBoard userName={user.name} isAdmin={user.role === 'admin'} />
+          ) : view === 'dashboard' ? (
+            <DashboardView
+              allBoards={allBoards}
+              projects={projects}
+              onSelectProject={(pid) => { setActiveProjectId(pid); setView('project-calendar') }}
+            />
           ) : view === 'global-calendar' ? (
             <CalendarView
               allBoards={allBoards}
@@ -899,6 +926,15 @@ function AppInner() {
             />
           ) : view === 'milestone' && board ? (
             <MilestoneView gantt={board.gantt} onChange={saveGantt} />
+          ) : view === 'meeting' && board ? (
+            <MeetingView
+              meetings={board.meetings ?? []}
+              columns={board.columns}
+              onChange={saveMeetings}
+              onSendToRemember={addRememberFromMeeting}
+              onAddTask={addTask}
+              isAdmin={user.role === 'admin'}
+            />
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Board sub-tabs */}
