@@ -661,7 +661,7 @@ function AppInner() {
                 <SortableProjectItem
                   key={proj.id}
                   proj={proj}
-                  isActive={proj.id === activeProjectId}
+                  isActive={proj.id === activeProjectId && view !== 'global-calendar'}
                   isAdmin={user.role === 'admin'}
                   onSelect={() => {
                     setActiveProjectId(proj.id)
