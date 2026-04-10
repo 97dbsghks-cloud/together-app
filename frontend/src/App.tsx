@@ -542,7 +542,10 @@ function AppInner() {
       // 이동 이벤트 기록
       const originalTask = activeTask
       if (originalTask && originalTask.columnId !== draggedTask.columnId) {
-        setConfettiTrigger(t => !t)
+        const destCol = current.columns.find(c => c.id === draggedTask.columnId)
+        if (destCol && destCol.title.trim() === '완료') {
+          setConfettiTrigger(t => !t)
+        }
       }
     }
   }
