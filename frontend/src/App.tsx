@@ -28,8 +28,6 @@ import AnnouncementPanel from './components/AnnouncementPanel'
 import MilestoneView from './components/MilestoneView'
 import RememberView from './components/RememberView'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import ActivityTicker from './components/ActivityTicker'
-import type { ActivityEvent } from './components/ActivityTicker'
 import ConfettiEffect from './components/ConfettiEffect'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -281,16 +279,7 @@ function AppInner() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [aiOpen, setAiOpen] = useState(false)
 
-  // ── Activity Pulse ──────────────────────────────────────────────────────────
-  const [activityLog, setActivityLog] = useState<ActivityEvent[]>([])
   const [confettiTrigger, setConfettiTrigger] = useState(false)
-
-  const pushEvent = useCallback((event: Omit<ActivityEvent, 'id' | 'timestamp'>) => {
-    setActivityLog(prev => [
-      ...prev.slice(-49),
-      { ...event, id: uuidv4(), timestamp: Date.now() },
-    ])
-  }, [])
 
   const [showNewProject, setShowNewProject] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
@@ -551,16 +540,9 @@ function AppInner() {
     if (draggedTask) {
       axios.patch(`${API}/api/projects/${current.id}/tasks/${draggedId}`, draggedTask).catch(console.error)
       // 이동 이벤트 기록
-      const originalTask = activeTask // drag 시작 시점 저장된 태스크
-      const fromColTitle = current.columns.find(c => c.id === originalTask?.columnId)?.title ?? originalTask?.columnId ?? ''
-      const toColTitle   = current.columns.find(c => c.id === draggedTask.columnId)?.title ?? draggedTask.columnId
+      const originalTask = activeTask
       if (originalTask && originalTask.columnId !== draggedTask.columnId) {
-        if (draggedTask.columnId === 'done') {
-          pushEvent({ type: 'task_done', taskTitle: draggedTask.title, fromCol: fromColTitle, toCol: toColTitle, projectName: current.name })
-          setConfettiTrigger(t => !t)
-        } else {
-          pushEvent({ type: 'task_moved', taskTitle: draggedTask.title, fromCol: fromColTitle, toCol: toColTitle, projectName: current.name })
-        }
+        setConfettiTrigger(t => !t)
       }
     }
   }
@@ -571,15 +553,12 @@ function AppInner() {
     setBoard(prev => prev ? { ...prev, tasks: [...prev.tasks, newTask] } : prev)
     axios.post(`${API}/api/projects/${board.id}/tasks`, newTask).catch(console.error)
     setAddingToCol(null)
-    pushEvent({ type: 'task_created', taskTitle: newTask.title, projectName: board.name })
   }
 
   const deleteTask = (id: string) => {
     if (!board) return
-    const task = board.tasks.find(t => t.id === id)
     setBoard(prev => prev ? { ...prev, tasks: prev.tasks.filter(t => t.id !== id) } : prev)
     axios.delete(`${API}/api/projects/${board.id}/tasks/${id}`).catch(console.error)
-    if (task) pushEvent({ type: 'task_deleted', taskTitle: task.title, projectName: board.name })
   }
 
   const updateTask = (updatedTask: Task) => {
@@ -1134,8 +1113,6 @@ function AppInner() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Activity Ticker — 하단 고정 */}
-      <ActivityTicker events={activityLog} />
       {/* Confetti — Done 이벤트 시 폭죽 */}
       <ConfettiEffect trigger={confettiTrigger} />
     </div>
