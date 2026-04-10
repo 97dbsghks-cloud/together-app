@@ -408,7 +408,7 @@ function AppInner() {
           return { ...prev, messages: res.data.messages }
         })
       } catch {}
-    }, 3000)
+    }, 500)
     return () => clearInterval(id)
   }, [view, activeProjectId])
 
@@ -512,61 +512,60 @@ function AppInner() {
       const newIndex = current.tasks.findIndex(t => t.id === overId)
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         const reordered = arrayMove(current.tasks, oldIndex, newIndex)
-        const updated = { ...current, tasks: reordered }
-        setBoard(updated)
-        saveBoard(updated)
+        setBoard(prev => prev ? { ...prev, tasks: reordered } : prev)
+        axios.patch(`${API}/api/projects/${current.id}/tasks-order`, { order: reordered.map(t => t.id) }).catch(console.error)
         return
       }
     }
 
-    // over가 컬럼 자체라면 → 크로스 컬럼 이동은 handleDragOver에서 이미 처리됨 → 저장만
-    saveBoard(current)
+    // 크로스 컬럼 이동 — handleDragOver에서 columnId 이미 변경됨 → 변경된 task만 PATCH
+    const draggedTask = current.tasks.find(t => t.id === draggedId)
+    if (draggedTask) {
+      axios.patch(`${API}/api/projects/${current.id}/tasks/${draggedId}`, draggedTask).catch(console.error)
+    }
   }
 
   const addTask = (colId: string, taskData: Partial<Task>) => {
     if (!board) return
     const newTask: Task = { id: uuidv4(), title: taskData.title || '새 태스크', columnId: colId, ...taskData }
-    const updated = { ...board, tasks: [...board.tasks, newTask] }
-    setBoard(updated)
-    saveBoard(updated)
+    setBoard(prev => prev ? { ...prev, tasks: [...prev.tasks, newTask] } : prev)
+    axios.post(`${API}/api/projects/${board.id}/tasks`, newTask).catch(console.error)
     setAddingToCol(null)
   }
 
   const deleteTask = (id: string) => {
     if (!board) return
-    const updated = { ...board, tasks: board.tasks.filter(t => t.id !== id) }
-    setBoard(updated)
-    saveBoard(updated)
+    setBoard(prev => prev ? { ...prev, tasks: prev.tasks.filter(t => t.id !== id) } : prev)
+    axios.delete(`${API}/api/projects/${board.id}/tasks/${id}`).catch(console.error)
   }
 
   const updateTask = (updatedTask: Task) => {
     if (!board) return
-    const updated = { ...board, tasks: board.tasks.map(t => t.id === updatedTask.id ? updatedTask : t) }
-    setBoard(updated)
-    saveBoard(updated)
+    setBoard(prev => prev ? { ...prev, tasks: prev.tasks.map(t => t.id === updatedTask.id ? updatedTask : t) } : prev)
+    axios.patch(`${API}/api/projects/${board.id}/tasks/${updatedTask.id}`, updatedTask).catch(console.error)
   }
 
   const addColumn = () => {
     if (!board) return
     const colors = ['#af52de', '#ff2d55', '#5ac8fa', '#ff6b35']
     const newCol: Column = { id: uuidv4(), title: '새 열', color: colors[board.columns.length % colors.length] }
-    const updated = { ...board, columns: [...board.columns, newCol] }
-    setBoard(updated)
-    saveBoard(updated)
+    setBoard(prev => prev ? { ...prev, columns: [...prev.columns, newCol] } : prev)
+    axios.post(`${API}/api/projects/${board.id}/columns`, newCol).catch(console.error)
   }
 
   const updateColumnTitle = (id: string, title: string) => {
     if (!board) return
-    const updated = { ...board, columns: board.columns.map(c => c.id === id ? { ...c, title } : c) }
-    setBoard(updated)
-    saveBoard(updated)
+    const col = board.columns.find(c => c.id === id)
+    if (!col) return
+    const updated = { ...col, title }
+    setBoard(prev => prev ? { ...prev, columns: prev.columns.map(c => c.id === id ? updated : c) } : prev)
+    axios.patch(`${API}/api/projects/${board.id}/columns/${id}`, updated).catch(console.error)
   }
 
   const deleteColumn = (id: string) => {
     if (!board) return
-    const updated = { ...board, columns: board.columns.filter(c => c.id !== id), tasks: board.tasks.filter(t => t.columnId !== id) }
-    setBoard(updated)
-    saveBoard(updated)
+    setBoard(prev => prev ? { ...prev, columns: prev.columns.filter(c => c.id !== id), tasks: prev.tasks.filter(t => t.columnId !== id) } : prev)
+    axios.delete(`${API}/api/projects/${board.id}/columns/${id}`).catch(console.error)
   }
 
   const saveGantt = useCallback((gantt: GanttConfig) => {
@@ -735,7 +734,9 @@ function AppInner() {
             >
               <Home className="w-4 h-4" />
             </button>
-            {board && (
+            {view === 'global-calendar' ? (
+              <h2 className="text-base font-bold text-gray-900">프로젝트 종합 캘린더</h2>
+            ) : board && (
               <>
                 {editingProjectName ? (
                   <div className="flex items-center gap-2">

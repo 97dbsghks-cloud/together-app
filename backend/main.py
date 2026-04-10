@@ -571,6 +571,83 @@ def delete_message(project_id: str, message_id: str):
     save_project(project)
     return {"status": "success"}
 
+# ── Task granular endpoints (prevents last-write-wins on concurrent edits) ────
+
+@app.post("/api/projects/{project_id}/tasks")
+def add_task(project_id: str, task: TaskItem):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project.setdefault("tasks", []).append(task.dict())
+    save_project(project)
+    return {"status": "success"}
+
+@app.patch("/api/projects/{project_id}/tasks/{task_id}")
+def update_task(project_id: str, task_id: str, task: TaskItem):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project["tasks"] = [task.dict() if t["id"] == task_id else t for t in project.get("tasks", [])]
+    save_project(project)
+    return {"status": "success"}
+
+@app.delete("/api/projects/{project_id}/tasks/{task_id}")
+def delete_task_endpoint(project_id: str, task_id: str):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project["tasks"] = [t for t in project.get("tasks", []) if t["id"] != task_id]
+    save_project(project)
+    return {"status": "success"}
+
+@app.patch("/api/projects/{project_id}/tasks-order")
+def reorder_tasks(project_id: str, req: ProjectOrderRequest):
+    """Reorder tasks by id list (drag & drop)"""
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    task_map = {t["id"]: t for t in project.get("tasks", [])}
+    project["tasks"] = [task_map[tid] for tid in req.order if tid in task_map]
+    save_project(project)
+    return {"status": "success"}
+
+# ── Column granular endpoints ─────────────────────────────────────────────────
+
+@app.post("/api/projects/{project_id}/columns")
+def add_column(project_id: str, column: ColumnItem):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project.setdefault("columns", []).append(column.dict())
+    save_project(project)
+    return {"status": "success"}
+
+@app.patch("/api/projects/{project_id}/columns/{column_id}")
+def update_column(project_id: str, column_id: str, column: ColumnItem):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project["columns"] = [column.dict() if c["id"] == column_id else c for c in project.get("columns", [])]
+    save_project(project)
+    return {"status": "success"}
+
+@app.delete("/api/projects/{project_id}/columns/{column_id}")
+def delete_column_endpoint(project_id: str, column_id: str):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    project["columns"] = [c for c in project.get("columns", []) if c["id"] != column_id]
+    project["tasks"] = [t for t in project.get("tasks", []) if t["columnId"] != column_id]
+    save_project(project)
+    return {"status": "success"}
+
 # ── AI Chat ───────────────────────────────────────────────────────────────────
 @app.post("/api/ai/chat")
 def ai_chat(req: AIChatRequest):
