@@ -66,6 +66,14 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
   // Do NOT call onChange here — that would overwrite server data with a default
   useEffect(() => { setG(prop ?? defaultGantt()) }, [prop])
 
+  // Current week index relative to gantt startDate
+  const todayWeekIdx = (() => {
+    const base = new Date(g.startDate + 'T00:00:00')
+    const today = getMonday(new Date())
+    const diff = Math.round((today.getTime() - base.getTime()) / (7 * 24 * 60 * 60 * 1000))
+    return diff
+  })()
+
   // Always-current refs for event handlers
   const gRef  = useRef(g);        gRef.current  = g
   const cbRef = useRef(onChange); cbRef.current = onChange
@@ -276,12 +284,24 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {header.weeks.map(w => (
                 <div
                   key={w.i}
-                  className="absolute flex items-center justify-center text-[9px] text-gray-400 border-r border-gray-100 bg-white"
-                  style={{ left: w.i * WEEK_W, width: WEEK_W, top: HDR_YEAR + HDR_MONTH, height: HDR_WEEK }}
+                  className="absolute flex items-center justify-center text-[9px] border-r border-gray-100"
+                  style={{
+                    left: w.i * WEEK_W, width: WEEK_W, top: HDR_YEAR + HDR_MONTH, height: HDR_WEEK,
+                    background: w.i === todayWeekIdx ? 'rgba(0,122,255,0.12)' : 'white',
+                    color: w.i === todayWeekIdx ? '#007aff' : '#9ca3af',
+                    fontWeight: w.i === todayWeekIdx ? 700 : 400,
+                  }}
                 >
                   {w.i + 1}
                 </div>
               ))}
+              {/* Today vertical line in header */}
+              {todayWeekIdx >= 0 && todayWeekIdx < g.weekCount && (
+                <div
+                  className="absolute pointer-events-none z-10"
+                  style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, top: 0, bottom: 0, background: 'rgba(0,122,255,0.7)' }}
+                />
+              )}
             </div>
           </div>
 
@@ -369,6 +389,13 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                 {header.months.map((m, i) => (
                   <div key={i} className="absolute inset-y-0 border-l border-gray-100" style={{ left: m.s * WEEK_W }} />
                 ))}
+                {/* Today line */}
+                {todayWeekIdx >= 0 && todayWeekIdx < g.weekCount && (
+                  <div
+                    className="absolute inset-y-0 pointer-events-none z-10"
+                    style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, background: 'rgba(0,122,255,0.7)' }}
+                  />
+                )}
 
                 {/* Gantt bars */}
                 {row.bars.map(bar => {
