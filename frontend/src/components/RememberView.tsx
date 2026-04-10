@@ -5,7 +5,7 @@ import {
 import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Plus, Trash2, Check, X, GripVertical, Star } from 'lucide-react'
+import { Plus, Trash2, Check, X, GripVertical, Star, Pencil } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { RememberItem } from '../App'
@@ -93,7 +93,7 @@ function SortableRow({
       ref={setNodeRef}
       style={style}
       className={clsx(
-        'grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 group',
+        'grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 group',
         idx < total - 1 && 'border-b border-gray-50',
         item.done ? 'bg-gray-50/50' : 'hover:bg-gray-50/60',
         'transition-colors'
@@ -214,11 +214,19 @@ function SortableRow({
             </span>
           </div>
 
-          {/* Delete */}
-          <div className="flex items-center justify-center pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Actions */}
+          <div className="flex items-center justify-center gap-0.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onStartEdit(item)}
+              className="p-1 rounded-md text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+              title="수정"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
             <button
               onClick={() => onDelete(item.id)}
               className="p-1 rounded-md text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+              title="삭제"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -302,7 +310,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
         {/* Table */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
           {/* Table Header */}
-          <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 border-b border-gray-100 bg-gray-50/60">
+          <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b border-gray-100 bg-gray-50/60">
             {['', '', '내용', '중요도', '설계단계', '담당자', '기한', ''].map((h, i) => (
               <div key={i} className="px-3 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{h}</div>
             ))}
@@ -310,7 +318,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
 
           {/* Add row */}
           {adding && (
-            <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_56px] gap-0 border-b border-blue-100 bg-blue-50/30">
+            <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b border-blue-100 bg-blue-50/30">
               <div /><div />
               <div className="px-3 py-3">
                 <input
