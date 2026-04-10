@@ -7,7 +7,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, h
 import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Loader2, Trash2, Edit2, Check, CalendarDays, LogOut, UserCog, Megaphone, Users, GripVertical,
+  Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, Users, GripVertical,
   Home, ChevronLeft, RefreshCw,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
@@ -789,7 +789,7 @@ function AppInner() {
               <Home className="w-4 h-4" />
             </button>
             {view === 'dashboard' ? (
-              <h2 className="text-base font-bold text-gray-900">대시보드</h2>
+              <h2 className="text-base font-bold text-gray-900">프로젝트 대시보드</h2>
             ) : view === 'global-calendar' ? (
               <h2 className="text-base font-bold text-gray-900">프로젝트 종합 캘린더</h2>
             ) : board && (
@@ -835,15 +835,6 @@ function AppInner() {
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
-            </button>
-            {/* 종합 캘린더 */}
-            <button
-              onClick={() => setView(v => v === 'global-calendar' ? 'board' : 'global-calendar')}
-              className={clsx('flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', view === 'global-calendar' ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
-              style={view === 'global-calendar' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
-            >
-              <CalendarDays className="w-4 h-4" />
-              <span className="hidden sm:inline">대시보드</span>
             </button>
             {/* 동기화 */}
             <button
@@ -893,7 +884,11 @@ function AppInner() {
             <DashboardView
               allBoards={allBoards}
               projects={projects}
+              activeProjectId={activeProjectId}
               onSelectProject={(pid) => { setActiveProjectId(pid); setView('project-calendar') }}
+              onAddEvent={addEvent}
+              onDeleteEvent={deleteEvent}
+              onUpdateEvent={updateEvent}
             />
           ) : view === 'global-calendar' ? (
             <CalendarView
