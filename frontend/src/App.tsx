@@ -665,7 +665,7 @@ function AppInner() {
                   isAdmin={user.role === 'admin'}
                   onSelect={() => {
                     setActiveProjectId(proj.id)
-                    if (view === 'global-calendar') setView('project-calendar')
+                    if (view === 'global-calendar' || view === 'feedback') setView('project-calendar')
                   }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
                 />
