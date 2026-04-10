@@ -62,10 +62,9 @@ type Props = { gantt: GanttConfig | undefined; onChange: (g: GanttConfig) => voi
 export default function MilestoneView({ gantt: prop, onChange }: Props) {
   const [g, setG] = useState<GanttConfig>(() => prop ?? defaultGantt())
 
-  // Sync prop → local
-  useEffect(() => { if (prop) setG(prop) }, [prop])
-  // Push default to parent if prop was undefined
-  useEffect(() => { if (!prop) onChange(defaultGantt()) }, []) // eslint-disable-line
+  // Sync prop → local whenever prop changes (project switch or first load)
+  // Do NOT call onChange here — that would overwrite server data with a default
+  useEffect(() => { setG(prop ?? defaultGantt()) }, [prop])
 
   // Always-current refs for event handlers
   const gRef  = useRef(g);        gRef.current  = g
