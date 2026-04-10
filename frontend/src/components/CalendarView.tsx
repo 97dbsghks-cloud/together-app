@@ -345,7 +345,7 @@ export default function CalendarView({
         return (
           <div className="mt-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-gray-700">주요 일정</h3>
+              <h3 className="text-sm font-bold text-gray-700">일정</h3>
               {filterProjectId && (
                 <button
                   onClick={() => setAddingDate(todayStr)}
@@ -359,10 +359,7 @@ export default function CalendarView({
 
             {visibleEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed border-gray-200">
-                <p className="text-[12px] text-gray-400 font-medium">등록된 주요 일정이 없습니다</p>
-                {filterProjectId && (
-                  <p className="text-[11px] text-gray-300 mt-0.5">일정 추가 시 ⭐ 주요 일정으로 등록을 선택하세요</p>
-                )}
+                <p className="text-[12px] text-gray-400 font-medium">등록된 일정이 없습니다</p>
               </div>
             ) : isGlobal ? (
               <div className="space-y-4">
