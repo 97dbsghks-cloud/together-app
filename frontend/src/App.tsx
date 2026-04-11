@@ -486,7 +486,8 @@ function AppInner() {
     const updated = updater(base)
     axios.put(`${API}/api/projects/${projectId}`, updated).catch(console.error)
     setBoard(prev => prev?.id === projectId ? updated : prev)
-    setAllBoards(prev => prev[projectId] ? { ...prev, [projectId]: updated } : prev)
+    // always update allBoards locally so dashboard reflects changes immediately
+    setAllBoards(prev => ({ ...prev, [projectId]: updated }))
   }, [allBoards])
 
   const addEvent = useCallback((projectId: string, event: CalendarEvent) => {
