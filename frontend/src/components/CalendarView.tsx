@@ -363,7 +363,11 @@ export default function CalendarView({
           <div
             className="mt-5"
             onDragOver={e => { e.preventDefault(); setDropOver(true) }}
-            onDragLeave={() => setDropOver(false)}
+            onDragLeave={e => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setDropOver(false)
+              }
+            }}
             onDrop={e => {
               e.preventDefault()
               setDropOver(false)
@@ -392,7 +396,7 @@ export default function CalendarView({
                 <p className="text-[11px] text-gray-300 mt-0.5">달력의 일정을 여기로 드래그하면 주요 일정으로 등록됩니다</p>
               </div>
             ) : isGlobal ? (
-              <div className="space-y-4">
+              <div className={`space-y-4 rounded-2xl border-2 border-dashed transition-colors p-2 ${dropOver ? 'border-blue-400 bg-blue-50/30' : 'border-transparent'}`}>
                 {Object.entries(grouped).map(([projId, entries]) => {
                   const projName = projects.find(p => p.id === projId)?.name ?? projId
                   return (
@@ -408,7 +412,7 @@ export default function CalendarView({
                             projectId={projectId}
                             todayStr={todayStr}
                             onEdit={() => setEditingEntry({ event, projectId, projectName: projName })}
-                            onDelete={() => onDeleteEvent(projectId, event.id)}
+                            onDelete={() => onUpdateEvent(projectId, { ...event, important: false })}
                           />
                         ))}
                       </div>
@@ -417,7 +421,7 @@ export default function CalendarView({
                 })}
               </div>
             ) : (
-              <div className="space-y-1.5">
+              <div className={`space-y-1.5 rounded-2xl border-2 border-dashed transition-colors p-2 ${dropOver ? 'border-blue-400 bg-blue-50/30' : 'border-transparent'}`}>
                 {visibleEvents.map(({ event, projectId, projectName }) => (
                   <EventRow
                     key={event.id}
@@ -425,7 +429,7 @@ export default function CalendarView({
                     projectId={projectId}
                     todayStr={todayStr}
                     onEdit={() => setEditingEntry({ event, projectId, projectName })}
-                    onDelete={() => onDeleteEvent(projectId, event.id)}
+                    onDelete={() => onUpdateEvent(projectId, { ...event, important: false })}
                   />
                 ))}
               </div>
