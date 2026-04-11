@@ -463,7 +463,9 @@ function AppInner() {
 
   useEffect(() => {
     if ((view === 'global-calendar' || view === 'dashboard') && projects.length > 0) {
-      loadAllBoards(projects)
+      // small delay so any in-flight PUT requests complete before we fetch from server
+      const id = setTimeout(() => loadAllBoards(projects), 400)
+      return () => clearTimeout(id)
     }
   }, [view, projects, loadAllBoards])
 
