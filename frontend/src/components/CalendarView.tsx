@@ -270,17 +270,23 @@ export default function CalendarView({
                         {/* Single-day events */}
                         <div className="px-1.5 pb-1.5 space-y-0.5">
                           {sdEvents.slice(0, 3).map(({ event, projectId: pid, projectName }) => (
-                            <button
+                            <div
                               key={event.id}
+                              draggable={!event.important}
+                              onDragStart={e => {
+                                e.stopPropagation()
+                                dragRef.current = { projectId: pid, event }
+                                e.dataTransfer.effectAllowed = 'move'
+                              }}
                               onClick={e => {
                                 e.stopPropagation()
                                 setSelectedEntry({ event, projectId: pid, projectName })
                               }}
-                              className="w-full text-left px-1.5 py-[2px] rounded text-[10px] font-medium text-white truncate hover:opacity-80 transition-opacity"
+                              className="w-full text-left px-1.5 py-[2px] rounded text-[10px] font-medium text-white truncate hover:opacity-80 transition-opacity cursor-grab active:cursor-grabbing"
                               style={{ backgroundColor: event.color }}
                             >
                               {event.title}
-                            </button>
+                            </div>
                           ))}
                           {sdEvents.length > 3 && (
                             <p className="text-[9px] text-gray-400 pl-1">
