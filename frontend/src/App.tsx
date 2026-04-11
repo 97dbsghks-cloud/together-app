@@ -418,7 +418,7 @@ function AppInner() {
     }
   }, [activeProjectId])
 
-  // Chat polling — every 3s when on chat tab
+  // Chat polling — every 0.5s when on chat tab
   useEffect(() => {
     if (view !== 'chat' || !activeProjectId) return
     const id = setInterval(async () => {
@@ -431,6 +431,19 @@ function AppInner() {
         })
       } catch {}
     }, 500)
+    return () => clearInterval(id)
+  }, [view, activeProjectId])
+
+  // Real-time polling — every 5s for all non-chat project tabs
+  useEffect(() => {
+    const projectTabs = ['board', 'project-calendar', 'meeting', 'milestone', 'remember']
+    if (!projectTabs.includes(view) || !activeProjectId) return
+    const id = setInterval(async () => {
+      try {
+        const res = await axios.get<ProjectBoard>(`${API}/api/projects/${activeProjectId}`)
+        setBoard(res.data)
+      } catch {}
+    }, 5000)
     return () => clearInterval(id)
   }, [view, activeProjectId])
 
@@ -452,6 +465,18 @@ function AppInner() {
     if ((view === 'global-calendar' || view === 'dashboard') && projects.length > 0) {
       loadAllBoards(projects)
     }
+  }, [view, projects, loadAllBoards])
+
+  // Real-time polling — every 5s for dashboard / global calendar (all boards)
+  useEffect(() => {
+    if (view !== 'dashboard' && view !== 'global-calendar') return
+    if (projects.length === 0) return
+    const id = setInterval(async () => {
+      try {
+        await loadAllBoards(projects)
+      } catch {}
+    }, 5000)
+    return () => clearInterval(id)
   }, [view, projects, loadAllBoards])
 
   // Calendar event CRUD — allBoards may be empty in project-calendar view, so fall back to boardRef
