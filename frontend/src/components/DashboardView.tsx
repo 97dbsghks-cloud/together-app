@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { AlertCircle, CalendarDays } from 'lucide-react'
+import { AlertCircle, CalendarDays, Trash2 } from 'lucide-react'
 import CalendarView from './CalendarView'
 import type { ProjectBoard, ProjectMeta, CalendarEvent } from '../App'
 
@@ -43,7 +43,7 @@ export default function DashboardView({
 
   // 2주 내 일정
   const upcomingEvents = useMemo(() => {
-    const events: { projectName: string; projectId: string; title: string; date: string; color: string }[] = []
+    const events: { projectName: string; projectId: string; eventId: string; title: string; date: string; color: string }[] = []
     for (const board of Object.values(allBoards)) {
       const proj = projects.find(p => p.id === board.id)
       if (!proj) continue
@@ -51,7 +51,7 @@ export default function DashboardView({
         const d = new Date(ev.date)
         d.setHours(0, 0, 0, 0)
         if (d >= today && d <= twoWeeksLater) {
-          events.push({ projectName: proj.name, projectId: proj.id, title: ev.title, date: ev.date, color: ev.color })
+          events.push({ projectName: proj.name, projectId: proj.id, eventId: ev.id, title: ev.title, date: ev.date, color: ev.color })
         }
       }
     }
@@ -121,7 +121,7 @@ export default function DashboardView({
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 group transition-colors cursor-pointer"
                     onClick={() => onSelectProject?.(ev.projectId)}
                   >
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ev.color }} />
@@ -130,6 +130,12 @@ export default function DashboardView({
                       <p className="text-[10px] text-gray-400 truncate">{ev.projectName}</p>
                     </div>
                     <span className={`text-[10px] font-semibold flex-shrink-0 ${urgent ? 'text-red-500' : 'text-gray-400'}`}>{label}</span>
+                    <button
+                      onClick={e => { e.stopPropagation(); onDeleteEvent(ev.projectId, ev.eventId) }}
+                      className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all flex-shrink-0"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
                 )
               })}
