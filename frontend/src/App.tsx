@@ -664,10 +664,6 @@ function AppInner() {
     setEditingProjectName(false)
   }
 
-  const totalTasks = board?.tasks.length ?? 0
-  const doneTasks = board?.tasks.filter(t => t.columnId === 'done').length ?? 0
-  const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
-
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f2f2f7' }}>
       {/* Left Sidebar - Project Tabs */}
@@ -817,16 +813,15 @@ function AppInner() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Progress (board only) */}
-            {view === 'board' && totalTasks > 0 && (
-              <div className="hidden md:flex items-center gap-3">
-                <span className="text-xs text-gray-400">{doneTasks}/{totalTasks} 완료</span>
-                <div className="w-28 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, #007aff, #5856d6)' }} animate={{ width: `${progress}%` }} transition={{ duration: 0.6 }} />
-                </div>
-                <span className="text-xs font-semibold text-gray-600">{progress}%</span>
-              </div>
-            )}
+            {/* 동기화 */}
+            <button
+              onClick={syncProject}
+              disabled={syncing || !activeProjectId}
+              className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+              title="동기화"
+            >
+              <RefreshCw className={clsx('w-4 h-4', syncing && 'animate-spin')} />
+            </button>
             {/* 공지사항 */}
             <button
               onClick={() => setAnnouncementOpen(v => !v)}
@@ -839,15 +834,6 @@ function AppInner() {
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
-            </button>
-            {/* 동기화 */}
-            <button
-              onClick={syncProject}
-              disabled={syncing || !activeProjectId}
-              className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
-              title="동기화"
-            >
-              <RefreshCw className={clsx('w-4 h-4', syncing && 'animate-spin')} />
             </button>
             <button
               onClick={() => setAiOpen(v => !v)}

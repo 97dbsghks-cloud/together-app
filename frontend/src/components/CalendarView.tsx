@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Plus, Trash2, Edit2 } from 'lucide-react'
 import type { CalendarEvent, ProjectBoard, ProjectMeta } from '../App'
@@ -74,6 +74,8 @@ export default function CalendarView({
   const [addingDate, setAddingDate] = useState<string | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<EventWithMeta | null>(null)
   const [editingEntry, setEditingEntry] = useState<EventWithMeta | null>(null)
+  const [dropOver, setDropOver] = useState(false)
+  const dragRef = useRef<{ projectId: string; event: EventWithMeta['event'] } | null>(null)
 
   const year = current.getFullYear()
   const month = current.getMonth()
@@ -301,6 +303,12 @@ export default function CalendarView({
                 return (
                   <button
                     key={bar.event.id}
+                    draggable={!bar.event.important}
+                    onDragStart={e => {
+                      e.stopPropagation()
+                      dragRef.current = { projectId: bar.projectId, event: bar.event }
+                      e.dataTransfer.effectAllowed = 'move'
+                    }}
                     onClick={e => {
                       e.stopPropagation()
                       setSelectedEntry({
@@ -346,7 +354,19 @@ export default function CalendarView({
         if (hideEventList) return null
 
         return (
-          <div className="mt-5">
+          <div
+            className="mt-5"
+            onDragOver={e => { e.preventDefault(); setDropOver(true) }}
+            onDragLeave={() => setDropOver(false)}
+            onDrop={e => {
+              e.preventDefault()
+              setDropOver(false)
+              const d = dragRef.current
+              if (!d || d.event.important) return
+              onUpdateEvent(d.projectId, { ...d.event, important: true })
+              dragRef.current = null
+            }}
+          >
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-gray-700">주요 일정</h3>
               {filterProjectId && (
@@ -361,11 +381,9 @@ export default function CalendarView({
             </div>
 
             {visibleEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed border-gray-200">
+              <div className={`flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed transition-colors ${dropOver ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
                 <p className="text-[12px] text-gray-400 font-medium">등록된 주요 일정이 없습니다</p>
-                {filterProjectId && (
-                  <p className="text-[11px] text-gray-300 mt-0.5">일정 추가 시 ⭐ 주요 일정으로 등록을 선택하세요</p>
-                )}
+                <p className="text-[11px] text-gray-300 mt-0.5">달력의 일정을 여기로 드래그하면 주요 일정으로 등록됩니다</p>
               </div>
             ) : isGlobal ? (
               <div className="space-y-4">
