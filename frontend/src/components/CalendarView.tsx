@@ -75,7 +75,14 @@ export default function CalendarView({
   const [selectedEntry, setSelectedEntry] = useState<EventWithMeta | null>(null)
   const [editingEntry, setEditingEntry] = useState<EventWithMeta | null>(null)
   const [dropOver, setDropOver] = useState(false)
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null)
   const dragRef = useRef<{ projectId: string; event: EventWithMeta['event'] } | null>(null)
+
+  function shiftDate(dateStr: string, deltaMs: number): string {
+    const d = new Date(dateStr + 'T00:00:00')
+    const s = new Date(d.getTime() + deltaMs)
+    return `${s.getFullYear()}-${String(s.getMonth() + 1).padStart(2, '0')}-${String(s.getDate()).padStart(2, '0')}`
+  }
 
   const year = current.getFullYear()
   const month = current.getMonth()
@@ -238,9 +245,36 @@ export default function CalendarView({
                   <div
                     key={day ?? `e-${wIdx}-${col}`}
                     onClick={() => day && dateStr && setAddingDate(dateStr)}
+                    onDragOver={e => {
+                      if (!dragRef.current || !dateStr) return
+                      e.preventDefault()
+                      setDragOverDate(dateStr)
+                    }}
+                    onDragLeave={e => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setDragOverDate(null)
+                      }
+                    }}
+                    onDrop={e => {
+                      e.preventDefault()
+                      setDragOverDate(null)
+                      const d = dragRef.current
+                      if (!d || !dateStr || d.event.date === dateStr) return
+                      dragRef.current = null
+                      const deltaMs =
+                        new Date(dateStr + 'T00:00:00').getTime() -
+                        new Date(d.event.date + 'T00:00:00').getTime()
+                      onUpdateEvent(d.projectId, {
+                        ...d.event,
+                        date: dateStr,
+                        ...(d.event.endDate ? { endDate: shiftDate(d.event.endDate, deltaMs) } : {}),
+                      })
+                    }}
                     className={`border-r border-b border-gray-100 transition-colors ${
                       day
-                        ? 'bg-white cursor-pointer hover:bg-blue-50/20'
+                        ? dragOverDate === dateStr
+                          ? 'bg-blue-100'
+                          : 'bg-white cursor-pointer hover:bg-blue-50/20'
                         : 'bg-gray-50/60'
                     }`}
                     style={{ minHeight: cellMinH }}
@@ -272,7 +306,7 @@ export default function CalendarView({
                           {sdEvents.slice(0, 3).map(({ event, projectId: pid, projectName }) => (
                             <div
                               key={event.id}
-                              draggable={!event.important}
+                              draggable={true}
                               onDragStart={e => {
                                 e.stopPropagation()
                                 dragRef.current = { projectId: pid, event }
