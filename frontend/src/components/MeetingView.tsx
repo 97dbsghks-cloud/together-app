@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2, ChevronDown, ChevronUp, BookOpen, ArrowRight } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ChevronUp, BookOpen, ArrowRight, Pencil } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { Task, RememberItem } from '../App'
@@ -218,17 +218,17 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[12px] font-bold text-gray-800">{d.date}</span>
+                      <span className="text-[13px] font-bold text-gray-800">{d.date}</span>
                       {d.title
-                        ? <span className="text-[12px] font-semibold text-gray-700 truncate max-w-[240px]">{d.title}</span>
-                        : <span className="text-[12px] text-gray-300">제목 없음</span>}
+                        ? <span className="text-[13px] font-semibold text-gray-700 truncate max-w-[240px]">{d.title}</span>
+                        : <span className="text-[13px] text-gray-300">제목 없음</span>}
                       {d.author && <span className="text-[11px] text-gray-400">{d.author}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                     {!isEditing && (
-                      <button onClick={() => startEdit(note)} className="p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 text-[11px] font-semibold">
-                        편집
+                      <button onClick={() => startEdit(note)} className="p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-colors">
+                        <Pencil className="w-3.5 h-3.5" />
                       </button>
                     )}
                     <button onClick={() => deleteNote(note.id)} className="p-1.5 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50">
@@ -252,25 +252,25 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">날짜</label>
                         {isEditing
                           ? <SmartDateInput value={d.date} onChange={v => updateDraft({ date: v })} className="w-full bg-gray-50 rounded-lg" />
-                          : <p className="text-[12px] text-gray-700">{d.date}</p>}
+                          : <p className="text-[13px] text-gray-700">{d.date}</p>}
                       </div>
                       <div className="col-span-1">
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">회의 제목</label>
                         {isEditing
-                          ? <input value={d.title} placeholder="회의 제목..." onChange={e => updateDraft({ title: e.target.value })} className="w-full text-[12px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
-                          : <p className="text-[12px] text-gray-700">{d.title || <span className="text-gray-300">-</span>}</p>}
+                          ? <input value={d.title} placeholder="회의 제목..." onChange={e => updateDraft({ title: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
+                          : <p className="text-[13px] text-gray-700">{d.title || <span className="text-gray-300">-</span>}</p>}
                       </div>
                       <div>
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">작성자</label>
                         {isEditing
-                          ? <input value={d.author} placeholder="이름" onChange={e => updateDraft({ author: e.target.value })} className="w-full text-[12px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
-                          : <p className="text-[12px] text-gray-700">{d.author || <span className="text-gray-300">-</span>}</p>}
+                          ? <input value={d.author} placeholder="이름" onChange={e => updateDraft({ author: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
+                          : <p className="text-[13px] text-gray-700">{d.author || <span className="text-gray-300">-</span>}</p>}
                       </div>
                       <div>
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">참석자</label>
                         {isEditing
-                          ? <input value={d.attendees} placeholder="김OO, 이OO..." onChange={e => updateDraft({ attendees: e.target.value })} className="w-full text-[12px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
-                          : <p className="text-[12px] text-gray-700">{d.attendees || <span className="text-gray-300">-</span>}</p>}
+                          ? <input value={d.attendees} placeholder="김OO, 이OO..." onChange={e => updateDraft({ attendees: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
+                          : <p className="text-[13px] text-gray-700">{d.attendees || <span className="text-gray-300">-</span>}</p>}
                       </div>
                     </div>
 
@@ -296,10 +296,10 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                                   value={agenda.title}
                                   onChange={e => updateAgenda(aIdx, { title: e.target.value })}
                                   placeholder="안건 제목..."
-                                  className="flex-1 text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400"
+                                  className="flex-1 text-[13px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400"
                                 />
                               ) : (
-                                <p className="flex-1 text-[12px] font-semibold text-gray-700">{agenda.title || <span className="text-gray-300">제목 없음</span>}</p>
+                                <p className="flex-1 text-[13px] font-semibold text-gray-700">{agenda.title || <span className="text-gray-300">제목 없음</span>}</p>
                               )}
                               {isEditing && d.agendaItems.length > 1 && (
                                 <button onClick={() => removeAgenda(aIdx)} className="p-1 text-gray-300 hover:text-red-400 flex-shrink-0">
@@ -322,8 +322,8 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                                   )}
                                 </div>
                                 {isEditing
-                                  ? <textarea value={agenda.decisions} onChange={e => updateAgenda(aIdx, { decisions: e.target.value })} placeholder="결정된 사항..." rows={2} className="w-full text-[12px] border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 resize-none" />
-                                  : <p className="text-[12px] text-gray-600 whitespace-pre-wrap">{agenda.decisions || <span className="text-gray-300">-</span>}</p>}
+                                  ? <textarea value={agenda.decisions} onChange={e => updateAgenda(aIdx, { decisions: e.target.value })} placeholder="결정된 사항..." rows={2} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 resize-none" />
+                                  : <p className="text-[13px] text-gray-600 whitespace-pre-wrap">{agenda.decisions || <span className="text-gray-300">-</span>}</p>}
                               </div>
 
                               {/* Action items */}
@@ -338,7 +338,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                                 </div>
 
                                 {agenda.actionItems.length === 0 && !isEditing && (
-                                  <p className="text-[12px] text-gray-300">-</p>
+                                  <p className="text-[13px] text-gray-300">-</p>
                                 )}
 
                                 <div className="space-y-1.5">
@@ -346,8 +346,8 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                                     <div key={item.id} className={clsx('flex items-center gap-2 p-2 rounded-lg', item.sent ? 'bg-green-50' : 'bg-gray-50')}>
                                       {isEditing ? (
                                         <>
-                                          <input value={item.title} onChange={e => updateAction(aIdx, acIdx, { title: e.target.value })} placeholder="액션아이템..." className="flex-1 text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 min-w-0" />
-                                          <input value={item.assignee} onChange={e => updateAction(aIdx, acIdx, { assignee: e.target.value })} placeholder="담당자" className="w-20 text-[12px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400" />
+                                          <input value={item.title} onChange={e => updateAction(aIdx, acIdx, { title: e.target.value })} placeholder="액션아이템..." className="flex-1 text-[13px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 min-w-0" />
+                                          <input value={item.assignee} onChange={e => updateAction(aIdx, acIdx, { assignee: e.target.value })} placeholder="담당자" className="w-20 text-[13px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400" />
                                           <SmartDateInput value={item.dueDate} onChange={v => updateAction(aIdx, acIdx, { dueDate: v })} className="bg-white" />
                                           <button onClick={() => removeAction(aIdx, acIdx)} className="p-1 text-gray-300 hover:text-red-400 flex-shrink-0">
                                             <Trash2 className="w-3.5 h-3.5" />
@@ -355,7 +355,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                                         </>
                                       ) : (
                                         <>
-                                          <span className={clsx('flex-1 text-[12px] min-w-0 truncate', item.sent ? 'text-green-600' : 'text-gray-700')}>{item.title}</span>
+                                          <span className={clsx('flex-1 text-[13px] min-w-0 truncate', item.sent ? 'text-green-600' : 'text-gray-700')}>{item.title}</span>
                                           {item.assignee && <span className="text-[11px] text-gray-400 flex-shrink-0">{item.assignee}</span>}
                                           {item.dueDate && <span className="text-[11px] text-gray-400 flex-shrink-0">{item.dueDate}</span>}
                                           {item.sent
@@ -381,8 +381,8 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                     {/* Edit actions */}
                     {isEditing && (
                       <div className="flex gap-2 pt-1">
-                        <button onClick={saveEdit} className="flex-1 py-2 rounded-xl text-[12px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}>저장</button>
-                        <button onClick={cancelEdit} className="px-4 py-2 rounded-xl text-[12px] font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200">취소</button>
+                        <button onClick={saveEdit} className="flex-1 py-2 rounded-xl text-[13px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}>저장</button>
+                        <button onClick={cancelEdit} className="px-4 py-2 rounded-xl text-[13px] font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200">취소</button>
                       </div>
                     )}
                   </div>

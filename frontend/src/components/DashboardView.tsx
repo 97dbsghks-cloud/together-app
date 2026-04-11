@@ -101,14 +101,14 @@ export default function DashboardView({
 
       {/* 하단 정보 패널 */}
       <div
-        className="flex-shrink-0 grid grid-cols-2 gap-0 border-t"
-        style={{ borderColor: 'rgba(0,0,0,0.07)', height: 180 }}
+        className="grid grid-cols-2 gap-0 border-t"
+        style={{ borderColor: 'rgba(0,0,0,0.07)', height: 200, minHeight: 0 }}
       >
-        {/* 2주 내 일정 */}
-        <div className="flex flex-col border-r" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>
+        {/* 2주 내 주요 일정 */}
+        <div className="flex flex-col min-h-0 border-r" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>
           <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
             <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
-            <h3 className="text-[12px] font-bold text-gray-700">2주 내 일정</h3>
+            <h3 className="text-[12px] font-bold text-gray-700">2주 내 주요 일정</h3>
             <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full ml-auto">{upcomingEvents.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pb-3">
@@ -139,7 +139,7 @@ export default function DashboardView({
         </div>
 
         {/* 마감 임박 태스크 */}
-        <div className="flex flex-col">
+        <div className="flex flex-col min-h-0">
           <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
             <AlertCircle className="w-3.5 h-3.5" style={{ color: '#ff3b30' }} />
             <h3 className="text-[12px] font-bold text-gray-700">마감 임박 태스크</h3>
