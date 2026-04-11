@@ -246,7 +246,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                 {isExpanded && (
                   <div className="px-4 pb-4 border-t border-gray-50 pt-3 space-y-4">
                     {/* Meta row */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-4 gap-3">
                       <div>
                         <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">날짜</label>
                         {isEditing
@@ -258,6 +258,12 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                         {isEditing
                           ? <input value={d.title} placeholder="회의 제목..." onChange={e => updateDraft({ title: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
                           : <p className="text-[13px] text-gray-700">{d.title || <span className="text-gray-300">-</span>}</p>}
+                      </div>
+                      <div>
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">작성자</label>
+                        {isEditing
+                          ? <input value={d.author} placeholder="이름" onChange={e => updateDraft({ author: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
+                          : <p className="text-[13px] text-gray-700">{d.author || <span className="text-gray-300">-</span>}</p>}
                       </div>
                       <div>
                         <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">참석자</label>
@@ -306,12 +312,14 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                               <div>
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-[10px] text-gray-400 font-semibold">결정사항</span>
-                                  {!isEditing && agenda.decisions.trim() && onSendToRemember && (
+                                  {!isEditing && onSendToRemember && (
                                     agenda.decisionSent
                                       ? <span className="text-[10px] text-indigo-400 font-semibold">리멤버에 추가됨 ✓</span>
-                                      : <button onClick={() => sendDecisionToRemember(note, aIdx)} className="flex items-center gap-1 text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold">
-                                          리멤버로 <ArrowRight className="w-3 h-3" />
-                                        </button>
+                                      : agenda.decisions.trim()
+                                        ? <button onClick={() => sendDecisionToRemember(note, aIdx)} className="flex items-center gap-1 text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold">
+                                            리멤버로 <ArrowRight className="w-3 h-3" />
+                                          </button>
+                                        : null
                                   )}
                                 </div>
                                 {isEditing
