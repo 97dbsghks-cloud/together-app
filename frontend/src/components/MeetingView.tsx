@@ -222,7 +222,6 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                       {d.title
                         ? <span className="text-[13px] font-semibold text-gray-700 truncate max-w-[240px]">{d.title}</span>
                         : <span className="text-[13px] text-gray-300">제목 없음</span>}
-                      {d.author && <span className="text-[11px] text-gray-400">{d.author}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
@@ -247,27 +246,21 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                 {isExpanded && (
                   <div className="px-4 pb-4 border-t border-gray-50 pt-3 space-y-4">
                     {/* Meta row */}
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <div>
-                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">날짜</label>
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">날짜</label>
                         {isEditing
                           ? <SmartDateInput value={d.date} onChange={v => updateDraft({ date: v })} className="w-full bg-gray-50 rounded-lg" />
                           : <p className="text-[13px] text-gray-700">{d.date}</p>}
                       </div>
-                      <div className="col-span-1">
-                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">회의 제목</label>
+                      <div>
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">회의 제목</label>
                         {isEditing
                           ? <input value={d.title} placeholder="회의 제목..." onChange={e => updateDraft({ title: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
                           : <p className="text-[13px] text-gray-700">{d.title || <span className="text-gray-300">-</span>}</p>}
                       </div>
                       <div>
-                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">작성자</label>
-                        {isEditing
-                          ? <input value={d.author} placeholder="이름" onChange={e => updateDraft({ author: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
-                          : <p className="text-[13px] text-gray-700">{d.author || <span className="text-gray-300">-</span>}</p>}
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">참석자</label>
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">참석자</label>
                         {isEditing
                           ? <input value={d.attendees} placeholder="김OO, 이OO..." onChange={e => updateDraft({ attendees: e.target.value })} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
                           : <p className="text-[13px] text-gray-700">{d.attendees || <span className="text-gray-300">-</span>}</p>}
@@ -277,7 +270,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                     {/* Agenda items */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">안건</label>
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">안건</label>
                         {isEditing && (
                           <button onClick={addAgenda} className="flex items-center gap-1 text-[10px] text-blue-500 hover:text-blue-700 font-semibold">
                             <Plus className="w-3 h-3" /> 안건 추가
