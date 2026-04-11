@@ -461,11 +461,16 @@ function AppInner() {
     setAllBoards(map)
   }, [])
 
+  // Load allBoards only when project list actually changes (new/deleted projects),
+  // NOT on every view switch — prevents overwriting locally-correct state with stale server data
+  const loadedProjectIdsRef = useRef('')
   useEffect(() => {
     if ((view === 'global-calendar' || view === 'dashboard') && projects.length > 0) {
-      // small delay so any in-flight PUT requests complete before we fetch from server
-      const id = setTimeout(() => loadAllBoards(projects), 400)
-      return () => clearTimeout(id)
+      const ids = projects.map(p => p.id).sort().join(',')
+      if (ids !== loadedProjectIdsRef.current) {
+        loadedProjectIdsRef.current = ids
+        loadAllBoards(projects)
+      }
     }
   }, [view, projects, loadAllBoards])
 
@@ -481,9 +486,9 @@ function AppInner() {
     return () => clearInterval(id)
   }, [view, projects, loadAllBoards])
 
-  // Calendar event CRUD — allBoards may be empty in project-calendar view, so fall back to boardRef
+  // Calendar event CRUD — prefer boardRef.current (latest polled state) over potentially stale allBoards
   const applyEventUpdate = useCallback((projectId: string, updater: (b: ProjectBoard) => ProjectBoard) => {
-    const base = allBoards[projectId] ?? (boardRef.current?.id === projectId ? boardRef.current : null)
+    const base = (boardRef.current?.id === projectId ? boardRef.current : null) ?? allBoards[projectId] ?? null
     if (!base) return
     const updated = updater(base)
     axios.put(`${API}/api/projects/${projectId}`, updated).catch(console.error)
