@@ -24,6 +24,7 @@ export type AgendaItem = {
 export type MeetingNote = {
   id: string
   date: string
+  title: string
   author: string
   attendees: string
   category: '삼우' | '발주처' | '협력사'
@@ -47,6 +48,7 @@ const newAgendaItem = (): AgendaItem => ({ id: uuidv4(), title: '', decisions: '
 const EMPTY_NOTE = (category: Category): MeetingNote => ({
   id: uuidv4(),
   date: new Date().toISOString().slice(0, 10),
+  title: '',
   author: '',
   attendees: '',
   category,
@@ -197,7 +199,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
           </div>
         )}
 
-        <div className="space-y-3 max-w-3xl mx-auto">
+        <div className="space-y-3">
           {filtered.map(note => {
             const isExpanded = expandedId === note.id
             const isEditing = editingId === note.id
@@ -217,13 +219,10 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[12px] font-bold text-gray-800">{d.date}</span>
-                      {d.author && <span className="text-[11px] text-gray-500">{d.author}</span>}
-                      {d.attendees && <span className="text-[11px] text-gray-400 truncate max-w-[180px]">참석: {d.attendees}</span>}
-                      {d.agendaItems[0]?.title && (
-                        <span className="text-[11px] text-blue-500 font-medium truncate max-w-[160px]">
-                          {d.agendaItems[0].title}{d.agendaItems.length > 1 ? ` 외 ${d.agendaItems.length - 1}건` : ''}
-                        </span>
-                      )}
+                      {d.title
+                        ? <span className="text-[12px] font-semibold text-gray-700 truncate max-w-[240px]">{d.title}</span>
+                        : <span className="text-[12px] text-gray-300">제목 없음</span>}
+                      {d.author && <span className="text-[11px] text-gray-400">{d.author}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
@@ -235,7 +234,12 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                     <button onClick={() => deleteNote(note.id)} className="p-1.5 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-300" /> : <ChevronDown className="w-4 h-4 text-gray-300" />}
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : note.id)}
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
 
@@ -243,12 +247,18 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                 {isExpanded && (
                   <div className="px-4 pb-4 border-t border-gray-50 pt-3 space-y-4">
                     {/* Meta row */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-4 gap-3">
                       <div>
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">날짜</label>
                         {isEditing
                           ? <SmartDateInput value={d.date} onChange={v => updateDraft({ date: v })} className="w-full bg-gray-50 rounded-lg" />
                           : <p className="text-[12px] text-gray-700">{d.date}</p>}
+                      </div>
+                      <div className="col-span-1">
+                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">회의 제목</label>
+                        {isEditing
+                          ? <input value={d.title} placeholder="회의 제목..." onChange={e => updateDraft({ title: e.target.value })} className="w-full text-[12px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-400" />
+                          : <p className="text-[12px] text-gray-700">{d.title || <span className="text-gray-300">-</span>}</p>}
                       </div>
                       <div>
                         <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide block mb-1">작성자</label>
