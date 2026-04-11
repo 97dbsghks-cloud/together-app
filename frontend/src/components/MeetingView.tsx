@@ -312,19 +312,18 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                               <div>
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-[10px] text-gray-400 font-semibold">결정사항</span>
-                                  {!isEditing && onSendToRemember && (
-                                    agenda.decisionSent
-                                      ? <span className="text-[10px] text-indigo-400 font-semibold">리멤버에 추가됨 ✓</span>
-                                      : agenda.decisions.trim()
-                                        ? <button onClick={() => sendDecisionToRemember(note, aIdx)} className="flex items-center gap-1 text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold">
-                                            리멤버로 <ArrowRight className="w-3 h-3" />
-                                          </button>
-                                        : null
+                                  {!isEditing && !agenda.decisionSent && agenda.decisions.trim() && onSendToRemember && (
+                                    <button onClick={() => sendDecisionToRemember(note, aIdx)} className="flex items-center gap-1 text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold">
+                                      리멤버로 <ArrowRight className="w-3 h-3" />
+                                    </button>
                                   )}
                                 </div>
                                 {isEditing
                                   ? <textarea value={agenda.decisions} onChange={e => updateAgenda(aIdx, { decisions: e.target.value })} placeholder="결정된 사항..." rows={2} className="w-full text-[13px] border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 resize-none" />
-                                  : <p className="text-[13px] text-gray-600 whitespace-pre-wrap">{agenda.decisions || <span className="text-gray-300">-</span>}</p>}
+                                  : <div className="flex items-start gap-2">
+                                      <p className="flex-1 text-[13px] text-gray-600 whitespace-pre-wrap">{agenda.decisions || <span className="text-gray-300">-</span>}</p>
+                                      {agenda.decisionSent && <span className="text-[10px] text-indigo-400 font-semibold flex-shrink-0 mt-0.5">리멤버에 추가됨 ✓</span>}
+                                    </div>}
                               </div>
 
                               {/* Action items */}
@@ -344,7 +343,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
 
                                 <div className="space-y-1.5">
                                   {agenda.actionItems.map((item, acIdx) => (
-                                    <div key={item.id} className={clsx('flex items-center gap-2 p-2 rounded-lg', item.sent ? 'bg-green-50' : 'bg-gray-50')}>
+                                    <div key={item.id} className="flex items-center gap-2 py-1.5">
                                       {isEditing ? (
                                         <>
                                           <input value={item.title} onChange={e => updateAction(aIdx, acIdx, { title: e.target.value })} placeholder="액션아이템..." className="flex-1 text-[13px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-400 min-w-0" />
