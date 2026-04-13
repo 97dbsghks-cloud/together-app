@@ -68,7 +68,7 @@ export default function KanbanColumn({
       style={{
         width: '272px',
         flexShrink: 0,
-        background: isOver ? 'rgba(0,122,255,0.06)' : 'rgba(0,0,0,0.03)',
+        background: isOver ? 'rgba(99,102,241,0.08)' : 'var(--t-hover)',
       }}
     >
       {/* Column Header */}
@@ -79,7 +79,8 @@ export default function KanbanColumn({
             <input
               value={col.title}
               onChange={e => onUpdateColumnTitle(col.id, e.target.value)}
-              className="text-[12px] font-semibold text-gray-600 bg-transparent border-none outline-none w-28 truncate"
+              className="text-[12px] font-semibold bg-transparent border-none outline-none w-28 truncate"
+              style={{ color: 'var(--t-text2)' }}
             />
             <span className="text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full" style={{ backgroundColor: col.color }}>
               {tasks.length}
@@ -95,7 +96,7 @@ export default function KanbanColumn({
                 'p-1 rounded-lg transition-all',
                 sortMode !== 'default'
                   ? 'text-white'
-                  : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'
+                  : 't-text3 t-hover'
               )}
               style={sortMode !== 'default' ? { backgroundColor: col.color } : {}}
             >
@@ -140,7 +141,7 @@ export default function KanbanColumn({
         </SortableContext>
         {tasks.length === 0 && (
           <div className="py-8 text-center">
-            <p className="text-[11px] text-gray-300">드래그하거나 추가해 주세요</p>
+            <p className="text-[11px] t-text3">드래그하거나 추가해 주세요</p>
           </div>
         )}
       </div>
@@ -149,7 +150,7 @@ export default function KanbanColumn({
       <div className="px-2.5 pb-2.5">
         <button
           onClick={onAddTask}
-          className="w-full flex items-center gap-2 p-2.5 rounded-xl text-[12px] font-medium text-gray-400 hover:text-gray-700 hover:bg-white/80 transition-all group"
+          className="w-full flex items-center gap-2 p-2.5 rounded-xl text-[12px] font-medium t-text3 t-hover transition-all group"
         >
           <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors" />
           태스크 추가

@@ -8,7 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, Users, GripVertical,
-  Home, ChevronLeft, RefreshCw,
+  Home, ChevronLeft, RefreshCw, Sun, Moon,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -30,6 +30,7 @@ import RememberView from './components/RememberView'
 import MeetingView from './components/MeetingView'
 import DashboardView from './components/DashboardView'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import ConfettiEffect from './components/ConfettiEffect'
 import type { MeetingNote } from './components/MeetingView'
 
@@ -137,9 +138,11 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AuthGate />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
@@ -169,15 +172,12 @@ function SortableTab({ id, label, isActive, isAdmin, onClick }: {
       onClick={onClick}
       {...(isAdmin ? attributes : {})}
       {...(isAdmin ? listeners : {})}
-      className={clsx(
-        'px-4 h-full text-[14px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5',
-        isActive ? 'text-blue-600 border-blue-500' : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300',
-        isDragging && 'opacity-50',
-      )}
+      className={clsx('px-4 h-full text-[14px] font-semibold flex items-center gap-1.5 t-tab', isActive && 'active', isDragging && 'opacity-50')}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+        marginBottom: '-1px',
       }}
     >
       {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
@@ -200,14 +200,13 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
       <button
         onClick={onSelect}
         className={clsx(
-          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-start gap-2.5',
+          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-start gap-2.5 t-project-item',
           isAdmin ? 'pl-7' : '',
-          isActive ? 'text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+          isActive && 'active',
         )}
-        style={isActive ? { background: 'rgba(0,122,255,0.1)' } : {}}
       >
         <div className="flex-1 min-w-0 pr-5">
-          <p className={clsx('text-[14px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
+          <p className="text-[14px] font-semibold truncate leading-snug">{proj.name}</p>
         </div>
       </button>
       {/* Drag handle — admin only */}
@@ -236,6 +235,7 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
 function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
+  const { theme, toggle: toggleTheme } = useTheme()
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -698,24 +698,24 @@ function AppInner() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#f2f2f7' }}>
-      {/* Left Sidebar - Project Tabs */}
-      <aside className="w-56 flex-shrink-0 flex flex-col border-r" style={{ background: 'rgba(255,255,255,0.82)', borderColor: 'rgba(0,0,0,0.08)', backdropFilter: 'blur(20px)' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
+      {/* Left Sidebar */}
+      <aside className="w-56 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
         {/* Logo */}
-        <div className="px-4 pt-5 pb-4">
+        <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid var(--t-border2)' }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #007aff 0%, #5856d6 100%)' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 0 16px rgba(99,102,241,0.35)' }}>
               <Users className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-[13px] font-bold text-gray-900 leading-none">Together</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">함께하는 프로젝트</p>
+              <p className="text-[13px] font-bold leading-none" style={{ color: 'var(--t-text)' }}>Together</p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--t-text3)' }}>함께하는 프로젝트</p>
             </div>
           </div>
         </div>
 
-        <div className="px-3 mb-2">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">프로젝트</p>
+        <div className="px-3 mt-3 mb-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-1" style={{ color: 'var(--t-text3)' }}>프로젝트</p>
         </div>
 
         {/* Project List */}
@@ -741,10 +741,13 @@ function AppInner() {
 
         {/* New Project Button (admin/sub_admin only) */}
         {(user.role === 'admin' || user.role === 'sub_admin') && (
-          <div className="px-3 pt-3 pb-1">
+          <div className="px-3 pt-2 pb-1">
             <button
               onClick={() => setShowNewProject(true)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-dashed border-gray-200 hover:border-blue-300"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium transition-all duration-200 border border-dashed"
+              style={{ color: 'var(--t-text3)', borderColor: 'var(--t-border)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-accent2)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-accent)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-active-bg)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text3)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
             >
               <Plus className="w-3.5 h-3.5" />
               새 프로젝트 추가
@@ -756,12 +759,8 @@ function AppInner() {
         <div className="px-3 pb-1">
           <button
             onClick={() => setView(v => v === 'feedback' ? 'board' : 'feedback')}
-            className={clsx(
-              'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200',
-              view === 'feedback'
-                ? 'text-purple-700 bg-purple-50'
-                : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
-            )}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium t-sidebar-btn transition-all duration-200"
+            style={view === 'feedback' ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' } : {}}
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -771,28 +770,26 @@ function AppInner() {
         </div>
 
         {/* User info + actions */}
-        <div className="px-3 pb-3 pt-1 border-t border-gray-100 mt-1">
-          {/* User management — admin only (not sub_admin) */}
+        <div className="px-3 pb-3 pt-2 mt-1" style={{ borderTop: '1px solid var(--t-border2)' }}>
+          {/* User management — admin only */}
           {user.role === 'admin' && (
             <button
               onClick={() => setUserMgmtOpen(v => !v)}
-              className={clsx(
-                'w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all duration-200 mb-1',
-                userMgmtOpen ? 'text-indigo-700 bg-indigo-50' : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50'
-              )}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium t-sidebar-btn transition-all duration-200 mb-1"
+              style={userMgmtOpen ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' } : {}}
             >
               <UserCog className="w-3.5 h-3.5" />
               사용자 관리
             </button>
           )}
           {/* Current user + logout */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'var(--t-hover)' }}>
             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
-              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #007aff, #5856d6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #34c759, #30d158)' }}>
+              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
               {user.name[0]}
             </div>
-            <span className="text-[12px] font-semibold text-gray-700 flex-1 truncate">{user.name}</span>
-            <button onClick={logout} className="p-1 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex-shrink-0" title="로그아웃">
+            <span className="text-[12px] font-semibold flex-1 truncate" style={{ color: 'var(--t-text)' }}>{user.name}</span>
+            <button onClick={logout} className="p-1 rounded-lg transition-colors flex-shrink-0 t-sidebar-btn" title="로그아웃">
               <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -802,78 +799,95 @@ function AppInner() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Bar */}
-        <header className="h-[60px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', backdropFilter: 'blur(20px)' }}>
-          <div className="flex items-center gap-3">
+        <header className="h-[52px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+          <div className="flex items-center gap-2">
             {/* 뒤로가기 / 홈 */}
             <button
               onClick={goBack}
               disabled={viewHistory.length === 0}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors disabled:opacity-30"
               title="뒤로가기"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={goHome}
-              className={clsx('p-1.5 rounded-lg transition-colors', view === 'dashboard' ? 'text-white' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100')}
-              style={view === 'dashboard' ? { background: 'linear-gradient(135deg, #34c759, #30d158)' } : {}}
+              className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
+              style={view === 'dashboard'
+                ? { background: 'rgba(99,102,241,0.15)', color: 'var(--t-accent2)' }
+                : { color: 'var(--t-text3)' }}
+              onMouseEnter={e => { if (view !== 'dashboard') (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text)' }}
+              onMouseLeave={e => { if (view !== 'dashboard') (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text3)' }}
               title="홈 (대시보드)"
             >
               <Home className="w-4 h-4" />
             </button>
             {view === 'dashboard' ? (
-              <h2 className="text-base font-bold text-gray-900">프로젝트 대시보드</h2>
+              <h2 className="text-[14px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 대시보드</h2>
             ) : view === 'global-calendar' ? (
-              <h2 className="text-base font-bold text-gray-900">프로젝트 종합 캘린더</h2>
+              <h2 className="text-[14px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 종합 캘린더</h2>
             ) : board && (
               <>
                 {editingProjectName ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-1">
                     <input autoFocus value={editNameVal} onChange={e => setEditNameVal(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveProjectName(); if (e.key === 'Escape') setEditingProjectName(false) }}
-                      className="text-base font-bold text-gray-900 border-b-2 border-blue-500 bg-transparent outline-none px-1"
+                      className="text-[14px] font-semibold border-b-2 bg-transparent outline-none px-1"
+                      style={{ color: 'var(--t-text)', borderColor: 'var(--t-accent)' }}
                     />
-                    <button onClick={saveProjectName} className="p-1 rounded-lg bg-blue-500 text-white"><Check className="w-3 h-3" /></button>
-                    <button onClick={() => setEditingProjectName(false)} className="p-1 rounded-lg text-gray-400 hover:bg-gray-100"><X className="w-3 h-3" /></button>
+                    <button onClick={saveProjectName} className="p-1 rounded-lg text-white" style={{ background: 'var(--t-accent)' }}><Check className="w-3 h-3" /></button>
+                    <button onClick={() => setEditingProjectName(false)} className="p-1 rounded-lg t-topbar-btn"><X className="w-3 h-3" /></button>
                   </div>
                 ) : (
-                  <button className="flex items-center gap-1.5 group" onClick={() => { setEditNameVal(board.name); setEditingProjectName(true) }}>
-                    <h2 className="text-base font-bold text-gray-900">{board.name}</h2>
-                    <Edit2 className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button className="flex items-center gap-1.5 group ml-1" onClick={() => { setEditNameVal(board.name); setEditingProjectName(true) }}>
+                    <h2 className="text-[14px] font-semibold" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>{board.name}</h2>
+                    <Edit2 className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--t-text3)' }} />
                   </button>
                 )}
               </>
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* 테마 토글 */}
+            <button
+              onClick={toggleTheme}
+              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
+              title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
             {/* 동기화 */}
             <button
               onClick={syncProject}
               disabled={syncing || !activeProjectId}
-              className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors disabled:opacity-30"
               title="동기화"
             >
-              <RefreshCw className={clsx('w-4 h-4', syncing && 'animate-spin')} />
+              <RefreshCw className={clsx('w-3.5 h-3.5', syncing && 'animate-spin')} />
             </button>
             {/* 공지사항 */}
             <button
               onClick={() => setAnnouncementOpen(v => !v)}
-              className={clsx('relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', announcementOpen ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
-              style={announcementOpen ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)' } : {}}
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border"
+              style={announcementOpen
+                ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)', color: '#fff', borderColor: 'transparent' }
+                : { background: 'var(--t-surface2)', color: 'var(--t-text2)', borderColor: 'var(--t-border)' }}
             >
-              <Megaphone className="w-4 h-4" />
+              <Megaphone className="w-3.5 h-3.5" />
               {unreadCount > 0 && !announcementOpen && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center" style={{ background: '#ff3b30' }}>
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center" style={{ background: '#ef4444' }}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </button>
             <button
               onClick={() => setAiOpen(v => !v)}
-              className={clsx('flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', aiOpen ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
-              style={aiOpen ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border"
+              style={aiOpen
+                ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', borderColor: 'transparent' }
+                : { background: 'var(--t-surface2)', color: 'var(--t-text2)', borderColor: 'var(--t-border)' }}
             >
-              <Bot className="w-4 h-4" />
+              <Bot className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">AI Agent</span>
             </button>
           </div>
@@ -881,7 +895,7 @@ function AppInner() {
 
         {/* Per-project Tab Strip */}
         {board && !['global-calendar', 'dashboard', 'feedback'].includes(view) && (
-          <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', height: 40 }}>
+          <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', height: 40 }}>
             <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
               <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
                 {orderedTabs.map(tab => (
@@ -1082,24 +1096,24 @@ function AppInner() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-2xl w-full max-w-sm p-6"
-              style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.18)' }}
+              className="t-surface rounded-2xl w-full max-w-sm p-6"
+              style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }}
             >
               {/* Warning icon */}
-              <div className="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 mx-auto" style={{ background: 'rgba(255,59,48,0.1)' }}>
-                <Trash2 className="w-5 h-5" style={{ color: '#ff3b30' }} />
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 mx-auto" style={{ background: 'rgba(239,68,68,0.1)' }}>
+                <Trash2 className="w-5 h-5" style={{ color: '#ef4444' }} />
               </div>
 
-              <h3 className="text-base font-bold text-gray-900 text-center mb-1">프로젝트 삭제</h3>
-              <p className="text-[12px] text-gray-400 text-center mb-1 leading-relaxed">
-                <span className="font-semibold text-gray-700">"{deleteConfirm.name}"</span> 프로젝트와
+              <h3 className="text-base font-bold t-text text-center mb-1">프로젝트 삭제</h3>
+              <p className="text-[12px] t-text2 text-center mb-1 leading-relaxed">
+                <span className="font-semibold t-text">"{deleteConfirm.name}"</span> 프로젝트와
               </p>
-              <p className="text-[12px] text-gray-400 text-center mb-5 leading-relaxed">
+              <p className="text-[12px] t-text2 text-center mb-5 leading-relaxed">
                 모든 태스크가 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
               </p>
 
               <div className="mb-4">
-                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                <label className="text-[11px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">
                   확인 코드 입력 <span className="text-red-400 normal-case font-bold">( 0000 )</span>
                 </label>
                 <input
@@ -1110,10 +1124,10 @@ function AppInner() {
                   onChange={e => setDeleteCode(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && deleteCode === '0000' && deleteProject(deleteConfirm.id)}
                   placeholder="0000"
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-sm text-center font-bold tracking-[0.4em] text-gray-900 placeholder-gray-300 focus:outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 t-surface2 border rounded-xl text-sm text-center font-bold tracking-[0.4em] t-text focus:outline-none transition-all"
                   style={{
-                    borderColor: deleteCode === '0000' ? '#ff3b30' : deleteCode.length > 0 ? '#ff9f0a' : '#e5e7eb',
-                    boxShadow: deleteCode === '0000' ? '0 0 0 3px rgba(255,59,48,0.12)' : 'none',
+                    borderColor: deleteCode === '0000' ? '#ef4444' : deleteCode.length > 0 ? '#ff9f0a' : 'var(--t-border)',
+                    boxShadow: deleteCode === '0000' ? '0 0 0 3px rgba(239,68,68,0.12)' : 'none',
                   }}
                 />
               </div>
@@ -1121,7 +1135,7 @@ function AppInner() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { setDeleteConfirm(null); setDeleteCode('') }}
-                  className="flex-1 py-2.5 text-sm font-medium text-gray-500 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors"
                 >
                   취소
                 </button>
@@ -1148,19 +1162,19 @@ function AppInner() {
           >
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-2xl w-full max-w-sm p-6" style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.15)' }}
+              className="t-surface rounded-2xl w-full max-w-sm p-6" style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.28)' }}
             >
-              <h3 className="text-base font-bold text-gray-900 mb-4">새 프로젝트 만들기</h3>
+              <h3 className="text-base font-bold t-text mb-4">새 프로젝트 만들기</h3>
 
               <div className="mb-5">
-                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">프로젝트 이름</label>
+                <label className="text-[11px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">프로젝트 이름</label>
                 <input autoFocus value={newProjectName} onChange={e => setNewProjectName(e.target.value)} onKeyDown={e => e.key === 'Enter' && createProject()}
                   placeholder="예: 서울 역세권 복합개발"
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:outline-none focus:border-blue-400 transition-all"
                 />
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setShowNewProject(false)} className="flex-1 py-2.5 text-sm font-medium text-gray-500 rounded-xl hover:bg-gray-100 transition-colors">취소</button>
+                <button onClick={() => setShowNewProject(false)} className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors">취소</button>
                 <button onClick={createProject} disabled={!newProjectName.trim()}
                   className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40"
                   style={{ background: newProjectName.trim() ? 'linear-gradient(135deg, #007aff, #5856d6)' : '#ccc' }}

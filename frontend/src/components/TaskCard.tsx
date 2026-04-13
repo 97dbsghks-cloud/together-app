@@ -43,7 +43,7 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
       transition={{ duration: 0.18 }}
       onClick={onClick}
       className={clsx(
-        'bg-white rounded-xl select-none transition-all duration-200 overflow-hidden flex',
+        't-surface rounded-xl select-none transition-all duration-200 overflow-hidden flex',
         isDragging
           ? 'rotate-2 apple-shadow-hover opacity-95 cursor-grabbing'
           : 'apple-shadow hover:apple-shadow-lg group cursor-pointer'
@@ -64,7 +64,7 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
               </span>
             )}
             {task.tags?.map(tag => (
-              <span key={tag} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+              <span key={tag} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full t-surface2 t-text2">
                 #{tag}
               </span>
             ))}
@@ -80,13 +80,13 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
         </div>
 
         {/* Title */}
-        <p className="text-[13px] font-semibold text-gray-800 leading-snug group-hover:text-blue-600 transition-colors">
+        <p className="text-[13px] font-semibold t-text leading-snug group-hover:text-blue-500 transition-colors">
           {task.title}
         </p>
 
         {/* Description */}
         {task.description && (
-          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed line-clamp-2">{task.description}</p>
+          <p className="text-[11px] t-text3 mt-1 leading-relaxed line-clamp-2">{task.description}</p>
         )}
 
         {/* Checklist progress */}
@@ -96,7 +96,7 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
               <span className="text-[10px] text-gray-400 font-medium">{doneCheck} / {totalCheck} 항목</span>
               <span className="text-[10px] text-gray-400 font-medium">{Math.round((doneCheck / totalCheck) * 100)}%</span>
             </div>
-            <div className="h-1 rounded-full bg-gray-100 overflow-hidden">
+            <div className="h-1 rounded-full t-surface2 overflow-hidden">
               <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(doneCheck / totalCheck) * 100}%`, background: 'linear-gradient(90deg, #007aff, #5856d6)' }} />
             </div>
           </div>
@@ -129,15 +129,15 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
 
         {/* Footer Meta */}
         {(task.dueDate || task.assignee) && (
-          <div className="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-50">
+          <div className="flex items-center gap-3 mt-2.5 pt-2 border-t t-border2">
             {task.dueDate && (
-              <span className="flex items-center gap-1 text-[10px] text-gray-400 font-medium">
+              <span className="flex items-center gap-1 text-[10px] t-text3 font-medium">
                 <Calendar className="w-3 h-3" />
                 {task.dueDate}
               </span>
             )}
             {task.assignee && (
-              <span className="flex items-center gap-1 text-[10px] text-gray-400 font-medium">
+              <span className="flex items-center gap-1 text-[10px] t-text3 font-medium">
                 <User className="w-3 h-3" />
                 {task.assignee}
               </span>

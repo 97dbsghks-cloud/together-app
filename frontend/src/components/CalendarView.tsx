@@ -44,20 +44,20 @@ function EventRow({
   const dateLabel = event.endDate ? `${event.date} ~ ${event.endDate}` : event.date
 
   return (
-    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white border border-gray-100 group transition-opacity ${isPast ? 'opacity-50' : ''}`}>
+    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl t-surface t-border border group transition-opacity ${isPast ? 'opacity-50' : ''}`}>
       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: event.color }} />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-gray-800 truncate">{event.title}</p>
-        <p className="text-[10px] text-gray-400 mt-0.5">{dateLabel}</p>
+        <p className="text-[13px] font-semibold t-text truncate">{event.title}</p>
+        <p className="text-[10px] t-text3 mt-0.5">{dateLabel}</p>
         {event.description && (
-          <p className="text-[11px] text-gray-500 mt-0.5 truncate">{event.description}</p>
+          <p className="text-[11px] t-text2 mt-0.5 truncate">{event.description}</p>
         )}
       </div>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-        <button onClick={onEdit} className="p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-colors">
+        <button onClick={onEdit} className="p-1.5 rounded-lg t-text3 hover:text-blue-500 hover:bg-blue-50 transition-colors">
           <Edit2 className="w-3.5 h-3.5" />
         </button>
-        <button onClick={onDelete} className="p-1.5 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors">
+        <button onClick={onDelete} className="p-1.5 rounded-lg t-text3 hover:text-red-400 hover:bg-red-50 transition-colors">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -118,24 +118,24 @@ export default function CalendarView({
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 min-h-0">
+    <div className="flex-1 overflow-y-auto p-5 min-h-0" style={{ background: 'var(--t-bg)' }}>
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrent(new Date(year, month - 1, 1))}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg t-topbar-btn transition-colors"
           >
-            <ChevronLeft className="w-4 h-4 text-gray-500" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
-          <h2 className="text-base font-bold text-gray-900 w-24 text-center">
+          <h2 className="text-base font-bold t-text w-24 text-center">
             {year}년 {month + 1}월
           </h2>
           <button
             onClick={() => setCurrent(new Date(year, month + 1, 1))}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg t-topbar-btn transition-colors"
           >
-            <ChevronRight className="w-4 h-4 text-gray-500" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
         <button
@@ -161,7 +161,7 @@ export default function CalendarView({
       </div>
 
       {/* Calendar grid — week by week */}
-      <div className="border-t border-l border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="border-t border-l t-border rounded-2xl overflow-hidden shadow-sm">
         {weeks.map((week, wIdx) => {
           const weekDates = week.map(d => (d ? cellDate(d) : null))
           const validDates = weekDates.filter(Boolean) as string[]
@@ -270,12 +270,12 @@ export default function CalendarView({
                         ...(d.event.endDate ? { endDate: shiftDate(d.event.endDate, deltaMs) } : {}),
                       })
                     }}
-                    className={`border-r border-b border-gray-100 transition-colors ${
+                    className={`border-r border-b t-border transition-colors ${
                       day
                         ? dragOverDate === dateStr
                           ? 'bg-blue-100'
-                          : 'bg-white cursor-pointer hover:bg-blue-50/20'
-                        : 'bg-gray-50/60'
+                          : 't-surface cursor-pointer'
+                        : 't-surface2'
                     }`}
                     style={{ minHeight: cellMinH }}
                   >
@@ -291,7 +291,7 @@ export default function CalendarView({
                                 ? 'text-blue-500'
                                 : dow === 6
                                 ? 'text-red-500'
-                                : 'text-gray-700'
+                                : 't-text2'
                             }`}
                           >
                             {day}
@@ -412,7 +412,7 @@ export default function CalendarView({
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-gray-700">주요 일정</h3>
+              <h3 className="text-sm font-bold t-text">주요 일정</h3>
               {filterProjectId && (
                 <button
                   onClick={() => setAddingDate(todayStr)}
@@ -425,9 +425,9 @@ export default function CalendarView({
             </div>
 
             {visibleEvents.length === 0 ? (
-              <div className={`flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed transition-colors ${dropOver ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
-                <p className="text-[12px] text-gray-400 font-medium">등록된 주요 일정이 없습니다</p>
-                <p className="text-[11px] text-gray-300 mt-0.5">달력의 일정을 여기로 드래그하면 주요 일정으로 등록됩니다</p>
+              <div className={`flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed transition-colors ${dropOver ? 'border-blue-400 bg-blue-50' : 't-border'}`}>
+                <p className="text-[12px] t-text2 font-medium">등록된 주요 일정이 없습니다</p>
+                <p className="text-[11px] t-text3 mt-0.5">달력의 일정을 여기로 드래그하면 주요 일정으로 등록됩니다</p>
               </div>
             ) : isGlobal ? (
               <div className={`space-y-4 rounded-2xl border-2 border-dashed transition-colors p-2 ${dropOver ? 'border-blue-400 bg-blue-50/30' : 'border-transparent'}`}>
@@ -435,7 +435,7 @@ export default function CalendarView({
                   const projName = projects.find(p => p.id === projId)?.name ?? projId
                   return (
                     <div key={projId}>
-                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 px-1">
+                      <p className="text-[11px] font-semibold t-text3 uppercase tracking-wide mb-1.5 px-1">
                         {projName}
                       </p>
                       <div className="space-y-1.5">
@@ -504,21 +504,21 @@ export default function CalendarView({
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 22, stiffness: 300 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-2xl w-full max-w-xs p-5"
-              style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
+              className="t-surface rounded-2xl w-full max-w-xs p-5"
+              style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
             >
               <div className="flex items-center gap-2.5 mb-3">
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: selectedEntry.event.color }} />
-                <h3 className="text-sm font-bold text-gray-900 flex-1">{selectedEntry.event.title}</h3>
+                <h3 className="text-sm font-bold t-text flex-1">{selectedEntry.event.title}</h3>
                 {selectedEntry.event.important && <span className="text-sm">⭐</span>}
               </div>
-              <p className="text-[11px] text-gray-400 mb-1">
+              <p className="text-[11px] t-text2 mb-1">
                 📅 {selectedEntry.event.date}
                 {selectedEntry.event.endDate && ` ~ ${selectedEntry.event.endDate}`}
               </p>
-              <p className="text-[11px] text-gray-400 mb-3">📁 {selectedEntry.projectName}</p>
+              <p className="text-[11px] t-text2 mb-3">📁 {selectedEntry.projectName}</p>
               {selectedEntry.event.description && (
-                <p className="text-[12px] text-gray-600 bg-gray-50 rounded-xl px-3 py-2 mb-3 leading-relaxed">
+                <p className="text-[12px] t-text2 t-surface2 rounded-xl px-3 py-2 mb-3 leading-relaxed">
                   {selectedEntry.event.description}
                 </p>
               )}

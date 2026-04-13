@@ -130,34 +130,34 @@ export default function DashboardView({
       {/* 리사이저 핸들 */}
       <div
         onMouseDown={onResizerMouseDown}
-        className="flex-shrink-0 flex items-center justify-center border-t"
+        className="flex-shrink-0 flex items-center justify-center"
         style={{
           height: 8,
-          borderColor: 'rgba(0,0,0,0.07)',
+          borderTop: '1px solid var(--t-border)',
           cursor: isAdmin ? 'ns-resize' : 'default',
-          background: isAdmin ? 'rgba(0,0,0,0.02)' : 'transparent',
+          background: isAdmin ? 'var(--t-hover)' : 'transparent',
         }}
       >
         {isAdmin && (
-          <div className="w-8 h-1 rounded-full bg-gray-300 hover:bg-blue-400 transition-colors" />
+          <div className="w-8 h-1 rounded-full t-border" style={{ background: 'var(--t-text3)' }} />
         )}
       </div>
 
       {/* 하단 정보 패널 */}
       <div
         className="grid grid-cols-2 gap-0 flex-shrink-0"
-        style={{ height: panelH, minHeight: 0 }}
+        style={{ height: panelH, minHeight: 0, background: 'var(--t-surface)' }}
       >
         {/* 2주 내 주요 일정 */}
-        <div className="flex flex-col min-h-0 border-r" style={{ borderColor: 'rgba(0,0,0,0.07)' }}>
+        <div className="flex flex-col min-h-0" style={{ borderRight: '1px solid var(--t-border)' }}>
           <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
             <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
-            <h3 className="text-[12px] font-bold text-gray-700">2주 내 주요 일정</h3>
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full ml-auto">{upcomingEvents.length}</span>
+            <h3 className="text-[12px] font-bold t-text">2주 내 주요 일정</h3>
+            <span className="text-[10px] t-text3 t-surface2 px-1.5 py-0.5 rounded-full ml-auto">{upcomingEvents.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pb-3">
             {upcomingEvents.length === 0 ? (
-              <p className="text-[11px] text-gray-300 py-3 text-center">예정된 일정이 없습니다</p>
+              <p className="text-[11px] t-text3 py-3 text-center">예정된 일정이 없습니다</p>
             ) : (
               <div className="space-y-1">
                 {upcomingEvents.map((ev, i) => {
@@ -165,18 +165,18 @@ export default function DashboardView({
                   return (
                     <div
                       key={i}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 group transition-colors cursor-pointer"
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg t-hover group transition-colors cursor-pointer"
                       onClick={() => onSelectProject?.(ev.projectId)}
                     >
                       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ev.color }} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-semibold text-gray-800 truncate">{ev.title}</p>
-                        <p className="text-[10px] text-gray-400 truncate">{ev.projectName}</p>
+                        <p className="text-[11px] font-semibold t-text truncate">{ev.title}</p>
+                        <p className="text-[10px] t-text3 truncate">{ev.projectName}</p>
                       </div>
-                      <span className={`text-[10px] font-semibold flex-shrink-0 ${urgent ? 'text-red-500' : 'text-gray-400'}`}>{label}</span>
+                      <span className={`text-[10px] font-semibold flex-shrink-0 ${urgent ? 'text-red-500' : 't-text3'}`}>{label}</span>
                       <button
                         onClick={e => { e.stopPropagation(); onDeleteEvent(ev.projectId, ev.eventId) }}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all flex-shrink-0"
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded t-text3 hover:text-red-400 hover:bg-red-50 transition-all flex-shrink-0"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -191,13 +191,13 @@ export default function DashboardView({
         {/* 마감 임박 태스크 */}
         <div className="flex flex-col min-h-0">
           <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
-            <AlertCircle className="w-3.5 h-3.5" style={{ color: '#ff3b30' }} />
-            <h3 className="text-[12px] font-bold text-gray-700">마감 임박 태스크</h3>
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full ml-auto">{urgentTasks.length}</span>
+            <AlertCircle className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+            <h3 className="text-[12px] font-bold t-text">마감 임박 태스크</h3>
+            <span className="text-[10px] t-text3 t-surface2 px-1.5 py-0.5 rounded-full ml-auto">{urgentTasks.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pb-3">
             {urgentTasks.length === 0 ? (
-              <p className="text-[11px] text-gray-300 py-3 text-center">마감 임박 태스크가 없습니다</p>
+              <p className="text-[11px] t-text3 py-3 text-center">마감 임박 태스크가 없습니다</p>
             ) : (
               <div className="space-y-1">
                 {urgentTasks.map((task, i) => {
@@ -205,24 +205,24 @@ export default function DashboardView({
                   return (
                     <div
                       key={i}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg t-hover cursor-pointer transition-colors"
                       onClick={() => onSelectProject?.(task.projectId)}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-semibold text-gray-800 truncate">{task.title}</p>
+                        <p className="text-[11px] font-semibold t-text truncate">{task.title}</p>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <p className="text-[10px] text-gray-400 truncate">{task.projectName}</p>
-                          <span className="text-[10px] text-gray-300">·</span>
-                          <p className="text-[10px] text-gray-400">{task.columnTitle}</p>
+                          <p className="text-[10px] t-text3 truncate">{task.projectName}</p>
+                          <span className="text-[10px] t-text3">·</span>
+                          <p className="text-[10px] t-text3">{task.columnTitle}</p>
                           {task.assignee && (
                             <>
-                              <span className="text-[10px] text-gray-300">·</span>
-                              <p className="text-[10px] text-gray-400">{task.assignee}</p>
+                              <span className="text-[10px] t-text3">·</span>
+                              <p className="text-[10px] t-text3">{task.assignee}</p>
                             </>
                           )}
                         </div>
                       </div>
-                      <span className={`text-[10px] font-semibold flex-shrink-0 ${urgent ? 'text-red-500' : 'text-gray-400'}`}>{label}</span>
+                      <span className={`text-[10px] font-semibold flex-shrink-0 ${urgent ? 'text-red-500' : 't-text3'}`}>{label}</span>
                     </div>
                   )
                 })}

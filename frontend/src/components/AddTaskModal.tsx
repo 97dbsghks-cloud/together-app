@@ -56,13 +56,13 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ type: 'spring', damping: 20, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
-        style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.08)' }}
+        className="t-surface rounded-2xl w-full max-w-md overflow-hidden"
+        style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.28), 0 8px 20px rgba(0,0,0,0.12)' }}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 className="text-base font-semibold text-gray-900">새 태스크 추가</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+        <div className="flex items-center justify-between px-5 py-4 border-b t-border">
+          <h3 className="text-base font-semibold t-text">새 태스크 추가</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg t-text3 t-hover transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>

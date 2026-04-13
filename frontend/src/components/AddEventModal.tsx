@@ -63,47 +63,47 @@ export default function AddEventModal({
         exit={{ scale: 0.96, opacity: 0 }}
         transition={{ type: 'spring', damping: 22, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-sm overflow-hidden"
-        style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.18)' }}
+        className="t-surface rounded-2xl w-full max-w-sm overflow-hidden"
+        style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.28)' }}
       >
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-900">{isEditing ? '일정 수정' : '일정 추가'}</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b t-border">
+          <h3 className="text-sm font-bold t-text">{isEditing ? '일정 수정' : '일정 추가'}</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg t-text3 t-hover transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="px-5 py-4 space-y-4">
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">제목</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">제목</label>
             <input
               autoFocus
               value={title}
               onChange={e => setTitle(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
               placeholder="일정 제목을 입력하세요"
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">시작일</label>
-              <SmartDateInput value={startDate} onChange={setStartDate} className="w-full bg-gray-50 rounded-xl" />
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">시작일</label>
+              <SmartDateInput value={startDate} onChange={setStartDate} className="w-full t-surface2 rounded-xl" />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">종료일 (선택)</label>
-              <SmartDateInput value={endDate} onChange={setEndDate} className="w-full bg-gray-50 rounded-xl" />
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">종료일 (선택)</label>
+              <SmartDateInput value={endDate} onChange={setEndDate} className="w-full t-surface2 rounded-xl" />
             </div>
           </div>
 
           {!lockedProjectId && (
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">프로젝트</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">프로젝트</label>
               <select
                 value={projectId}
                 onChange={e => setProjectId(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                className="w-full px-3 py-2 t-surface2 border t-border rounded-xl text-xs t-text focus:border-blue-400 outline-none transition-all"
               >
                 {projects.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -113,7 +113,7 @@ export default function AddEventModal({
           )}
 
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-2">색상</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-2">색상</label>
             <div className="flex flex-wrap gap-2">
               {COLORS.map(c => (
                 <button
@@ -137,7 +137,7 @@ export default function AddEventModal({
             className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
               important
                 ? 'border-orange-400 bg-orange-50 text-orange-600'
-                : 'border-gray-200 bg-gray-50 text-gray-400 hover:border-gray-300'
+                : 't-border t-surface2 t-text3'
             }`}
           >
             <span className="text-base leading-none">{important ? '⭐' : '☆'}</span>
@@ -146,21 +146,21 @@ export default function AddEventModal({
           </button>
 
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">메모 (선택)</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">메모 (선택)</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={2}
               placeholder="간단한 메모..."
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all resize-none"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all resize-none"
             />
           </div>
         </div>
 
-        <div className="flex gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50/50">
+        <div className="flex gap-2 px-5 py-4 border-t t-border t-surface2">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm font-medium text-gray-500 rounded-xl hover:bg-gray-100 transition-colors"
+            className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors"
           >
             취소
           </button>

@@ -1,42 +1,144 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
+/* ── Theme Variables ───────────────────────────────────── */
+:root, [data-theme="light"] {
+  --t-bg:        #f5f5f7;
+  --t-surface:   #ffffff;
+  --t-surface2:  #f8f8fa;
+  --t-border:    rgba(0, 0, 0, 0.08);
+  --t-border2:   rgba(0, 0, 0, 0.04);
+  --t-text:      #1c1c1e;
+  --t-text2:     #636366;
+  --t-text3:     #aeaeb2;
+  --t-accent:    #6366f1;
+  --t-accent2:   #818cf8;
+  --t-hover:     rgba(0, 0, 0, 0.04);
+  --t-hover2:    rgba(0, 0, 0, 0.06);
+  --t-active-bg: rgba(99, 102, 241, 0.08);
+  --t-shadow:    0 2px 10px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.08);
+  --t-shadow-lg: 0 8px 30px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] {
+  --t-bg:        #0d0d10;
+  --t-surface:   #141417;
+  --t-surface2:  #1a1a1f;
+  --t-border:    rgba(255, 255, 255, 0.07);
+  --t-border2:   rgba(255, 255, 255, 0.04);
+  --t-text:      #e8e8ed;
+  --t-text2:     #8e8e9a;
+  --t-text3:     #55555f;
+  --t-accent:    #6366f1;
+  --t-accent2:   #818cf8;
+  --t-hover:     rgba(255, 255, 255, 0.04);
+  --t-hover2:    rgba(255, 255, 255, 0.07);
+  --t-active-bg: rgba(99, 102, 241, 0.12);
+  --t-shadow:    0 2px 10px rgba(0,0,0,0.3), 0 0 1px rgba(0,0,0,0.4);
+  --t-shadow-lg: 0 8px 30px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(0,0,0,0.4);
+}
+
+/* ── Base ─────────────────────────────────────────────── */
 * {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
 }
 
-body {
-  background: linear-gradient(135deg, #f2f2f7 0%, #e8e8ed 100%);
-  color: #1c1c1e;
+html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  background: var(--t-bg);
+  color: var(--t-text);
+  transition: background 0.2s, color 0.2s;
 }
 
+/* ── Sidebar interactive items ────────────────────────── */
+.t-project-item {
+  color: var(--t-text2);
+  transition: background 0.12s, color 0.12s;
+}
+.t-project-item:hover {
+  background: var(--t-hover);
+  color: var(--t-text);
+}
+.t-project-item.active {
+  background: var(--t-active-bg);
+  color: var(--t-accent2);
+}
+
+.t-sidebar-btn {
+  color: var(--t-text3);
+  transition: background 0.12s, color 0.12s;
+}
+.t-sidebar-btn:hover {
+  background: var(--t-hover);
+  color: var(--t-text2);
+}
+.t-sidebar-btn.active {
+  background: var(--t-active-bg);
+  color: var(--t-accent2);
+}
+
+/* ── Tab strip ─────────────────────────────────────────── */
+.t-tab {
+  color: var(--t-text3);
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s, border-color 0.12s;
+}
+.t-tab:hover {
+  color: var(--t-text2);
+}
+.t-tab.active {
+  color: var(--t-accent2);
+  border-bottom-color: var(--t-accent2);
+}
+
+/* ── Topbar buttons ────────────────────────────────────── */
+.t-topbar-btn {
+  color: var(--t-text3);
+  transition: background 0.12s, color 0.12s;
+}
+.t-topbar-btn:hover {
+  background: var(--t-hover);
+  color: var(--t-text);
+}
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--t-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t-text3); }
+
+input:focus, textarea:focus, select:focus { outline: none; }
+
+/* ── Theme utility classes (use instead of Tailwind color classes) ── */
+.t-bg      { background: var(--t-bg) !important; }
+.t-surface { background: var(--t-surface) !important; }
+.t-surface2{ background: var(--t-surface2) !important; }
+.t-text    { color: var(--t-text) !important; }
+.t-text2   { color: var(--t-text2) !important; }
+.t-text3   { color: var(--t-text3) !important; }
+.t-border  { border-color: var(--t-border) !important; }
+.t-border2 { border-color: var(--t-border2) !important; }
+
+/* hover states */
+.t-hover:hover { background: var(--t-hover) !important; }
+.t-hover2:hover { background: var(--t-hover2) !important; }
+
+/* ── Legacy glass/shadow classes (still used in components) */
 .glass-card {
   background: rgba(255, 255, 255, 0.78) !important;
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.9) !important;
 }
-
-.apple-shadow {
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.08) !important;
+[data-theme="dark"] .glass-card {
+  background: rgba(20, 20, 23, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
 }
 
-.apple-shadow-lg {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06) !important;
-}
-
-.apple-shadow-hover {
-  box-shadow: 0 12px 40px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.06) !important;
-}
-
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
-
-input:focus, textarea:focus, select:focus { outline: none; }
+.apple-shadow     { box-shadow: var(--t-shadow) !important; }
+.apple-shadow-lg  { box-shadow: var(--t-shadow-lg) !important; }
+.apple-shadow-hover { box-shadow: 0 12px 40px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.06) !important; }

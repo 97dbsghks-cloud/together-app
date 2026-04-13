@@ -163,23 +163,23 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
   }
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col">
+    <div className="flex-1 overflow-hidden flex flex-col" style={{ background: 'var(--t-bg)' }}>
       {/* Category sub-tabs */}
-      <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b bg-gray-50/60" style={{ borderColor: 'rgba(0,0,0,0.07)', height: 38 }}>
+      <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b t-surface" style={{ borderColor: 'var(--t-border)', height: 38 }}>
         {CATEGORIES.map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={clsx('px-3.5 py-1 rounded-lg text-[11px] font-semibold transition-all mr-1',
-              activeCategory === cat ? 'text-white' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/60'
+              activeCategory === cat ? 'text-white' : 't-text3 t-hover'
             )}
-            style={activeCategory === cat ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+            style={activeCategory === cat ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
           >
             {cat}
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[10px] text-gray-400">{filtered.length}개</span>
+          <span className="text-[10px] t-text3">{filtered.length}개</span>
           <button
             onClick={addNote}
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-white"
@@ -208,20 +208,20 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
             return (
               <div
                 key={note.id}
-                className="bg-white rounded-2xl border overflow-hidden"
-                style={{ borderColor: 'rgba(0,0,0,0.07)', boxShadow: isExpanded ? '0 4px 20px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.04)' }}
+                className="t-surface rounded-2xl border t-border overflow-hidden"
+                style={{ boxShadow: isExpanded ? 'var(--t-shadow-lg)' : 'var(--t-shadow)' }}
               >
                 {/* Header */}
                 <div
-                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50/60 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer t-hover transition-colors"
                   onClick={() => !isEditing && setExpandedId(isExpanded ? null : note.id)}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[13px] font-bold text-gray-800">{d.date}</span>
+                      <span className="text-[13px] font-bold t-text">{d.date}</span>
                       {d.title
-                        ? <span className="text-[13px] font-semibold text-gray-700 truncate max-w-[240px]">{d.title}</span>
-                        : <span className="text-[13px] text-gray-300">제목 없음</span>}
+                        ? <span className="text-[13px] font-semibold t-text truncate max-w-[240px]">{d.title}</span>
+                        : <span className="text-[13px] t-text3">제목 없음</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
@@ -244,7 +244,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
 
                 {/* Body */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t border-gray-50 pt-3 space-y-4">
+                  <div className="px-4 pb-4 border-t t-border pt-3 space-y-4">
                     {/* Meta row */}
                     <div className="grid grid-cols-4 gap-3">
                       <div>

@@ -71,8 +71,8 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
   }))
 
   const containerClass = fullPage
-    ? 'flex-1 flex flex-col bg-white min-h-0'
-    : 'w-80 flex-shrink-0 h-full flex flex-col bg-white border-l border-gray-100'
+    ? 'flex-1 flex flex-col t-surface min-h-0'
+    : 'w-80 flex-shrink-0 h-full flex flex-col t-surface border-l t-border'
 
   const containerStyle = fullPage
     ? {}
@@ -82,15 +82,15 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
     <div className={containerClass} style={containerStyle}>
       {/* Header — only shown in side-panel mode */}
       {!fullPage && (
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-4 border-b t-border flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #ff9f0a, #ff6b35)' }}>
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">팀 채팅</h3>
-              <p className="text-[10px] text-gray-400 truncate max-w-[140px]">{projectName}</p>
+              <h3 className="text-sm font-semibold t-text">팀 채팅</h3>
+              <p className="text-[10px] t-text3 truncate max-w-[140px]">{projectName}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
@@ -143,7 +143,7 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
                       'px-3 py-2 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap break-words',
                       isMine
                         ? 'text-white rounded-tr-md'
-                        : 'bg-gray-100 text-gray-800 rounded-tl-md'
+                        : 't-surface2 t-text rounded-tl-md'
                     )}
                     style={isMine ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
                   >
@@ -168,14 +168,14 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
       </div>
 
       {/* Input */}
-      <div className={clsx('pb-4 pt-3 border-t border-gray-100 space-y-2 flex-shrink-0', fullPage ? 'px-6' : 'px-4')}>
+      <div className={clsx('pb-4 pt-3 border-t t-border space-y-2 flex-shrink-0', fullPage ? 'px-6' : 'px-4')}>
         {/* Author row */}
         <div className="flex items-center gap-2">
           <button
             onClick={toggleAdmin}
             className={clsx(
               'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all flex-shrink-0',
-              isAdmin ? 'text-white' : 'text-gray-400 hover:text-gray-600 bg-gray-100'
+              isAdmin ? 'text-white' : 't-text3 t-hover t-surface2'
             )}
             style={isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
           >
@@ -189,20 +189,20 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
               value={adminCode}
               onChange={e => setAdminCode(e.target.value)}
               placeholder="코드"
-              className="w-20 px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-blue-400 text-center tracking-widest"
+              className="w-20 px-2 py-1 text-xs border t-border rounded-lg t-surface outline-none focus:border-blue-400 text-center tracking-widest t-text"
             />
           ) : userName ? (
             <input
               value={author}
               readOnly
-              className="flex-1 px-2.5 py-1 text-xs border border-gray-200 rounded-lg bg-gray-50 outline-none cursor-default"
+              className="flex-1 px-2.5 py-1 text-xs border t-border rounded-lg t-surface2 outline-none cursor-default t-text"
             />
           ) : (
             <input
               value={author}
               onChange={e => { setAuthor(e.target.value); localStorage.setItem('chat_author', e.target.value) }}
               placeholder="이름 (선택)"
-              className="flex-1 px-2.5 py-1 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-orange-300 transition-colors"
+              className="flex-1 px-2.5 py-1 text-xs border t-border rounded-lg t-surface outline-none focus:border-orange-300 transition-colors t-text"
             />
           )}
         </div>
@@ -215,7 +215,7 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSend() } }}
             rows={1}
             placeholder="메시지를 입력하세요..."
-            className="flex-1 text-sm px-3 py-2.5 border border-gray-200 rounded-xl resize-none outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 bg-white transition-all max-h-24"
+            className="flex-1 text-sm px-3 py-2.5 border t-border rounded-xl resize-none outline-none focus:border-orange-300 t-surface t-text transition-all max-h-24"
           />
           <button
             onClick={handleSend}
