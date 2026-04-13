@@ -259,6 +259,9 @@ function AppInner() {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [seenTabCounts, setSeenTabCounts] = useState<Record<string, number>>(() => {
+    try { return JSON.parse(localStorage.getItem('together_seen_tab_counts') || '{}') } catch { return {} }
+  })
 
   const getReadIds = () => {
     const s = localStorage.getItem(`together_read_announcements_${user.id}`)
@@ -927,15 +930,25 @@ function AppInner() {
                     : tab.key === 'chat'             ? (board.messages?.length ?? 0)
                     : undefined
                   ) : undefined
+                  const seenKey = `${activeProjectId}:${tab.key}`
+                  const badgeCount = (tabCount !== undefined && tabCount > 0 && seenTabCounts[seenKey] !== tabCount)
+                    ? tabCount : undefined
                   return (
                     <SortableTab
                       key={tab.key}
                       id={tab.key}
                       label={tab.label}
-                      count={tabCount}
+                      count={badgeCount}
                       isActive={view === tab.key}
                       isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
-                      onClick={() => setView(tab.key as TabKey)}
+                      onClick={() => {
+                        setView(tab.key as TabKey)
+                        if (tabCount !== undefined) {
+                          const updated = { ...seenTabCounts, [seenKey]: tabCount }
+                          setSeenTabCounts(updated)
+                          localStorage.setItem('together_seen_tab_counts', JSON.stringify(updated))
+                        }
+                      }}
                     />
                   )
                 })}

@@ -52,7 +52,7 @@ function StarPicker({ value, onChange, disabled }: { value?: number; onChange?: 
           <Star
             className="w-3.5 h-3.5"
             fill={n <= cur ? '#ff9f0a' : 'none'}
-            stroke={n <= cur ? '#ff9f0a' : '#d1d5db'}
+            stroke={n <= cur ? '#ff9f0a' : 'var(--t-border)'}
             strokeWidth={1.5}
           />
         </button>
@@ -95,14 +95,15 @@ function SortableRow({
       style={style}
       className={clsx(
         'grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 group',
-        idx < total - 1 && 'border-b border-gray-50',
-        item.done ? 'bg-gray-50/50' : 'hover:bg-gray-50/60',
+        idx < total - 1 ? 'border-b t-border' : '',
+        item.done ? 't-surface2' : 't-hover-row',
         'transition-colors'
       )}
     >
       {/* Drag handle */}
       <div
-        className="flex items-center justify-center cursor-grab active:cursor-grabbing text-gray-200 hover:text-gray-400 transition-colors"
+        className="flex items-center justify-center cursor-grab active:cursor-grabbing t-text3 transition-colors"
+        style={{ opacity: 0.5 }}
         {...attributes}
         {...listeners}
       >
@@ -119,7 +120,7 @@ function SortableRow({
               value={editForm.content}
               onChange={e => setEditForm({ ...editForm, content: e.target.value })}
               onKeyDown={e => { if (e.key === 'Enter') onSaveEdit(item.id); if (e.key === 'Escape') onCancelEdit() }}
-              className="w-full text-[13px] bg-transparent outline-none text-gray-800"
+              className="w-full text-[13px] bg-transparent outline-none t-text"
             />
           </div>
           <div className="px-3 py-3 flex items-center">
@@ -129,7 +130,7 @@ function SortableRow({
             <select
               value={editForm.stage}
               onChange={e => setEditForm({ ...editForm, stage: e.target.value })}
-              className="text-[12px] bg-transparent outline-none text-gray-700 cursor-pointer"
+              className="text-[12px] bg-transparent outline-none t-text2 cursor-pointer"
             >
               {STAGES.map(s => <option key={s}>{s}</option>)}
             </select>
@@ -138,21 +139,21 @@ function SortableRow({
             <input
               value={editForm.assignee}
               onChange={e => setEditForm({ ...editForm, assignee: e.target.value })}
-              className="w-full text-[13px] bg-transparent outline-none text-gray-700"
+              className="w-full text-[13px] bg-transparent outline-none t-text2"
             />
           </div>
           <div className="px-1 py-1">
             <SmartDateInput
               value={editForm.deadline}
               onChange={v => setEditForm({ ...editForm, deadline: v })}
-              className="bg-transparent border-gray-200"
+              className="bg-transparent t-border"
             />
           </div>
           <div className="flex items-center justify-center gap-1 pr-2">
             <button onClick={() => onSaveEdit(item.id)} className="p-1 rounded-md bg-blue-500 text-white">
               <Check className="w-3 h-3" />
             </button>
-            <button onClick={onCancelEdit} className="p-1 rounded-md text-gray-400 hover:bg-gray-100">
+            <button onClick={onCancelEdit} className="p-1 rounded-md t-text3 t-hover">
               <X className="w-3 h-3" />
             </button>
           </div>
@@ -165,9 +166,13 @@ function SortableRow({
               onClick={() => onToggleDone(item.id)}
               className={clsx(
                 'rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0',
-                item.done ? 'border-blue-500 bg-blue-500' : 'border-gray-300 hover:border-blue-400'
+                item.done ? 'border-blue-500 bg-blue-500' : 'hover:border-blue-400'
               )}
-              style={{ width: 18, height: 18 }}
+              style={{
+                width: 18,
+                height: 18,
+                borderColor: item.done ? undefined : 'var(--t-border)',
+              }}
             >
               {item.done && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
             </button>
@@ -175,7 +180,7 @@ function SortableRow({
 
           {/* Content */}
           <div className="px-3 py-3.5 cursor-pointer" onClick={() => !item.done && onStartEdit(item)}>
-            <p className={clsx('text-[13px] leading-snug', item.done ? 'line-through text-gray-400' : 'text-gray-800')}>
+            <p className={clsx('text-[13px] leading-snug', item.done ? 'line-through t-text3' : 't-text')}>
               {item.content}
             </p>
           </div>
@@ -198,7 +203,7 @@ function SortableRow({
 
           {/* Assignee */}
           <div className="px-3 py-3.5 flex items-center">
-            <span className={clsx('text-[13px]', item.done ? 'text-gray-400 line-through' : 'text-gray-600')}>
+            <span className={clsx('text-[13px]', item.done ? 't-text3 line-through' : 't-text2')}>
               {item.assignee || '—'}
             </span>
           </div>
@@ -207,8 +212,8 @@ function SortableRow({
           <div className="px-3 py-3.5 flex items-center">
             <span className={clsx(
               'text-[12px]',
-              item.done ? 'text-gray-400 line-through' :
-              item.deadline && new Date(item.deadline) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'
+              item.done ? 't-text3 line-through' :
+              item.deadline && new Date(item.deadline) < new Date() ? 'text-red-500 font-semibold' : 't-text2'
             )}>
               {item.deadline || '—'}
             </span>
@@ -218,14 +223,14 @@ function SortableRow({
           <div className="flex items-center justify-center gap-0.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onStartEdit(item)}
-              className="p-1 rounded-md text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+              className="p-1 rounded-md t-text3 hover:text-blue-500 hover:bg-blue-50 transition-colors"
               title="수정"
             >
               <Pencil className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onDelete(item.id)}
-              className="p-1 rounded-md text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+              className="p-1 rounded-md t-text3 hover:text-red-400 hover:bg-red-50 transition-colors"
               title="삭제"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -294,8 +299,8 @@ export default function RememberView({ items, onChange, userName }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-base font-bold text-gray-900">리멤버</h2>
-            <p className="text-[11px] text-gray-400 mt-0.5">꼭 반영해야 할 내용을 기록해두세요</p>
+            <h2 className="text-base font-bold t-text">리멤버</h2>
+            <p className="text-[11px] t-text3 mt-0.5">꼭 반영해야 할 내용을 기록해두세요</p>
           </div>
           <button
             onClick={() => { setAdding(true); setForm({ ...EMPTY }) }}
@@ -308,17 +313,17 @@ export default function RememberView({ items, onChange, userName }: Props) {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
+        <div className="t-surface rounded-2xl border t-border overflow-hidden" style={{ boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
           {/* Table Header */}
-          <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b border-gray-100 bg-gray-50/60">
+          <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b t-border t-surface2">
             {['', '', '내용', '중요도', '설계단계', '담당자', '기한', ''].map((h, i) => (
-              <div key={i} className="px-3 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{h}</div>
+              <div key={i} className="px-3 py-3 text-[11px] font-semibold t-text3 uppercase tracking-wide">{h}</div>
             ))}
           </div>
 
           {/* Add row */}
           {adding && (
-            <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b border-blue-100 bg-blue-50/30">
+            <div className="grid grid-cols-[28px_28px_2fr_80px_1fr_1fr_1fr_72px] gap-0 border-b border-blue-200/50" style={{ background: 'rgba(99,102,241,0.06)' }}>
               <div /><div />
               <div className="px-3 py-3">
                 <input
@@ -327,7 +332,8 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   onKeyDown={e => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') setAdding(false) }}
                   placeholder="내용을 입력하세요"
-                  className="w-full text-[13px] bg-transparent outline-none text-gray-800 placeholder-gray-300"
+                  className="w-full text-[13px] bg-transparent outline-none t-text"
+                  style={{ '--placeholder-color': 'var(--t-text3)' } as React.CSSProperties}
                 />
               </div>
               <div className="px-3 py-3 flex items-center">
@@ -337,7 +343,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
                 <select
                   value={form.stage}
                   onChange={e => setForm(f => ({ ...f, stage: e.target.value as Stage }))}
-                  className="text-[12px] bg-transparent outline-none text-gray-700 cursor-pointer"
+                  className="text-[12px] bg-transparent outline-none t-text2 cursor-pointer"
                 >
                   {STAGES.map(s => <option key={s}>{s}</option>)}
                 </select>
@@ -347,21 +353,21 @@ export default function RememberView({ items, onChange, userName }: Props) {
                   value={form.assignee}
                   onChange={e => setForm(f => ({ ...f, assignee: e.target.value }))}
                   placeholder="이름"
-                  className="w-full text-[13px] bg-transparent outline-none text-gray-700 placeholder-gray-300"
+                  className="w-full text-[13px] bg-transparent outline-none t-text2"
                 />
               </div>
               <div className="px-1 py-1">
                 <SmartDateInput
                   value={form.deadline}
                   onChange={v => setForm(f => ({ ...f, deadline: v }))}
-                  className="bg-transparent border-gray-200"
+                  className="bg-transparent t-border"
                 />
               </div>
               <div className="flex items-center justify-center gap-1 pr-2">
                 <button onClick={handleAdd} className="p-1 rounded-md bg-blue-500 text-white hover:bg-blue-600">
                   <Check className="w-3 h-3" />
                 </button>
-                <button onClick={() => setAdding(false)} className="p-1 rounded-md text-gray-400 hover:bg-gray-100">
+                <button onClick={() => setAdding(false)} className="p-1 rounded-md t-text3 t-hover">
                   <X className="w-3 h-3" />
                 </button>
               </div>
@@ -374,8 +380,8 @@ export default function RememberView({ items, onChange, userName }: Props) {
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3" style={{ background: 'rgba(0,122,255,0.08)' }}>
                 <span className="text-lg">🔖</span>
               </div>
-              <p className="text-[12px] text-gray-400 font-medium">아직 기록된 내용이 없습니다</p>
-              <p className="text-[11px] text-gray-300 mt-0.5">위 추가 버튼으로 기록을 시작해보세요</p>
+              <p className="text-[12px] t-text3 font-medium">아직 기록된 내용이 없습니다</p>
+              <p className="text-[11px] t-text3 mt-0.5 opacity-60">위 추가 버튼으로 기록을 시작해보세요</p>
             </div>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

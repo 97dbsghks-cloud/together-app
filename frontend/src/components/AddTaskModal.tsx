@@ -70,37 +70,37 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
         <div className="px-5 py-4 space-y-4">
           {/* Title */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">제목 *</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">제목 *</label>
             <input
               autoFocus
               value={title}
               onChange={e => setTitle(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
               placeholder="태스크 이름을 입력하세요"
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">설명</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">설명</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={2}
               placeholder="태스크에 대한 설명을 입력하세요"
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all resize-none"
             />
           </div>
 
           {/* Row: Priority + Column */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">우선순위</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">우선순위</label>
               <select
                 value={priority}
                 onChange={e => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full px-3 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
               >
                 <option value="low">🟢 낮음</option>
                 <option value="medium">🟡 중간</option>
@@ -108,11 +108,11 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">열(Column)</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">열(Column)</label>
               <select
                 value={colId}
                 onChange={e => setColId(e.target.value)}
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full px-3 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
               >
                 {columns.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
               </select>
@@ -122,39 +122,39 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
           {/* Row: Assignee + Due Date */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">담당자</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">담당자</label>
               <input
                 value={assignee}
                 onChange={e => setAssignee(e.target.value)}
                 placeholder="홍길동"
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">마감일</label>
-              <SmartDateInput value={dueDate} onChange={setDueDate} className="w-full px-3 py-2.5 bg-gray-50 rounded-xl" />
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">마감일</label>
+              <SmartDateInput value={dueDate} onChange={setDueDate} className="w-full t-surface2 rounded-xl" />
             </div>
           </div>
 
           {/* Tags */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">태그 (쉼표로 구분)</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">태그 (쉼표로 구분)</label>
             <input
               value={tags}
               onChange={e => setTags(e.target.value)}
               placeholder="도면, 내역, 인허가"
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
             />
           </div>
 
           {/* Checklist */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">체크리스트</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest mb-1.5 block">체크리스트</label>
             <div className="space-y-1.5 mb-2">
               {checklist.map(item => (
                 <div key={item.id} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600 flex-1 bg-gray-50 px-2 py-1 rounded-lg">✓ {item.text}</span>
-                  <button onClick={() => setChecklist(prev => prev.filter(c => c.id !== item.id))} className="text-gray-300 hover:text-red-400 transition-colors">
+                  <span className="text-xs t-text2 flex-1 t-surface2 px-2 py-1 rounded-lg">✓ {item.text}</span>
+                  <button onClick={() => setChecklist(prev => prev.filter(c => c.id !== item.id))} className="t-text3 hover:text-red-400 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -166,9 +166,9 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
                 onChange={e => setNewCheckItem(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addCheckItem()}
                 placeholder="항목 입력 후 Enter"
-                className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="flex-1 px-3.5 py-2 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
               />
-              <button onClick={addCheckItem} className="px-3 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-colors">
+              <button onClick={addCheckItem} className="px-3 py-2 t-surface2 t-text2 t-hover rounded-xl transition-colors">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -176,15 +176,15 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50/50">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all">
+        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t t-border t-surface2">
+          <button onClick={onClose} className="px-4 py-2 text-sm font-medium t-text2 rounded-xl t-hover transition-all">
             취소
           </button>
           <button
             onClick={handleSubmit}
             disabled={!title.trim()}
             className="px-5 py-2 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: title.trim() ? 'linear-gradient(135deg, #007aff, #5856d6)' : '#9ca3af' }}
+            style={{ background: title.trim() ? 'linear-gradient(135deg, #007aff, #5856d6)' : undefined }}
           >
             태스크 추가
           </button>

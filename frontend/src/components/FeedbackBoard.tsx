@@ -70,47 +70,47 @@ function NewPostModal({ onClose, onSubmit, userName }: { onClose: () => void; on
         exit={{ scale: 0.96, opacity: 0 }}
         transition={{ type: 'spring', damping: 22, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-md overflow-hidden"
-        style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.18)' }}
+        className="t-surface rounded-2xl w-full max-w-md overflow-hidden"
+        style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.28)' }}
       >
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-900">피드백 남기기</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b t-border">
+          <h3 className="text-sm font-bold t-text">피드백 남기기</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg t-text3 t-hover transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
         <div className="px-5 py-4 space-y-4">
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">제목</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">제목</label>
             <input
               autoFocus
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="기능 제안 또는 버그 제목"
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
             />
           </div>
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">내용</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">내용</label>
             <textarea
               value={content}
               onChange={e => setContent(e.target.value)}
               rows={4}
               placeholder="어떤 기능이 있으면 좋을까요? 또는 어떤 문제가 있나요?"
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all resize-none"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all resize-none"
             />
           </div>
           <div>
-            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1.5">작성자</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">작성자</label>
             <input
               value={author}
               readOnly
-              className="w-full px-3.5 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-sm text-gray-600 outline-none cursor-default"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text2 outline-none cursor-default"
             />
           </div>
         </div>
-        <div className="flex gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50/50">
-          <button onClick={onClose} className="flex-1 py-2.5 text-sm font-medium text-gray-500 rounded-xl hover:bg-gray-100 transition-colors">취소</button>
+        <div className="flex gap-2 px-5 py-4 border-t t-border t-surface2">
+          <button onClick={onClose} className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors">취소</button>
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || !content.trim()}
@@ -178,12 +178,12 @@ function PostCard({
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl overflow-hidden"
-      style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)' }}
+      className="t-surface rounded-2xl overflow-hidden"
+      style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)' }}
     >
       {/* Post Header */}
       <div
-        className="px-5 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors"
+        className="px-5 py-4 cursor-pointer t-hover transition-colors"
         onClick={() => setExpanded(v => !v)}
       >
         <div className="flex items-start justify-between gap-3">
@@ -195,31 +195,31 @@ function PostCard({
               >
                 {status.label}
               </span>
-              <span className="text-[10px] text-gray-400">{post.author} · {formatDate(post.createdAt)}</span>
+              <span className="text-[10px] t-text3">{post.author} · {formatDate(post.createdAt)}</span>
               {post.comments.length > 0 && (
-                <span className="text-[10px] text-gray-400">댓글 {post.comments.length}</span>
+                <span className="text-[10px] t-text3">댓글 {post.comments.length}</span>
               )}
             </div>
-            <h3 className="text-[14px] font-semibold text-gray-900 leading-snug">{post.title}</h3>
+            <h3 className="text-[14px] font-semibold t-text leading-snug">{post.title}</h3>
             {!expanded && (
-              <p className="text-[12px] text-gray-400 mt-1 line-clamp-1">{post.content}</p>
+              <p className="text-[12px] t-text3 mt-1 line-clamp-1">{post.content}</p>
             )}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={e => { e.stopPropagation(); setShowStatusPanel(v => !v) }}
-              className="p-1.5 rounded-lg text-gray-300 hover:text-blue-400 hover:bg-blue-50 transition-all"
+              className="p-1.5 rounded-lg t-text3 hover:text-blue-400 hover:bg-blue-50/20 transition-all"
               title="상태 변경 (관리자)"
             >
               <Shield className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={e => { e.stopPropagation(); onDelete(post.id) }}
-              className="p-1.5 rounded-lg text-gray-200 hover:text-red-400 hover:bg-red-50 transition-all"
+              className="p-1.5 rounded-lg t-text3 hover:text-red-400 hover:bg-red-50/20 transition-all"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
-            {expanded ? <ChevronUp className="w-4 h-4 text-gray-300" /> : <ChevronDown className="w-4 h-4 text-gray-300" />}
+            {expanded ? <ChevronUp className="w-4 h-4 t-text3" /> : <ChevronDown className="w-4 h-4 t-text3" />}
           </div>
         </div>
       </div>
@@ -229,17 +229,17 @@ function PostCard({
         {showStatusPanel && (
           <motion.div
             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-gray-100"
+            className="overflow-hidden border-t t-border"
           >
-            <div className="px-5 py-3 bg-gray-50/80 space-y-2">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">관리자 코드 입력 후 상태 변경</p>
+            <div className="px-5 py-3 t-surface2 space-y-2">
+              <p className="text-[10px] font-semibold t-text3 uppercase tracking-widest">관리자 코드 입력 후 상태 변경</p>
               <input
                 type="password"
                 maxLength={4}
                 value={statusCode}
                 onChange={e => setStatusCode(e.target.value)}
                 placeholder="코드 입력"
-                className="w-28 px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-blue-400 text-center tracking-widest"
+                className="w-28 px-2.5 py-1.5 text-xs border t-border rounded-lg t-surface t-text outline-none focus:border-blue-400 text-center tracking-widest"
               />
               <div className="flex flex-wrap gap-1.5">
                 {(Object.entries(STATUS_META) as [Post['status'], typeof STATUS_META[keyof typeof STATUS_META]][]).map(([key, meta]) => (
@@ -267,14 +267,14 @@ function PostCard({
             className="overflow-hidden"
           >
             {/* Post body */}
-            <div className="px-5 pb-4 border-t border-gray-50">
-              <p className="text-[13px] text-gray-600 leading-relaxed pt-3 whitespace-pre-wrap">{post.content}</p>
+            <div className="px-5 pb-4 border-t t-border">
+              <p className="text-[13px] t-text2 leading-relaxed pt-3 whitespace-pre-wrap">{post.content}</p>
             </div>
 
             {/* Comments */}
             {post.comments.length > 0 && (
-              <div className="px-5 pb-3 space-y-2.5 border-t border-gray-50">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest pt-3">댓글 {post.comments.length}개</p>
+              <div className="px-5 pb-3 space-y-2.5 border-t t-border">
+                <p className="text-[10px] font-semibold t-text3 uppercase tracking-widest pt-3">댓글 {post.comments.length}개</p>
                 {post.comments.map(c => (
                   <div key={c.id} className={clsx('flex gap-2.5', c.isAdmin ? 'flex-row-reverse' : '')}>
                     <div
@@ -282,16 +282,16 @@ function PostCard({
                         'max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed',
                         c.isAdmin
                           ? 'text-white rounded-tr-md'
-                          : 'bg-gray-50 text-gray-700 rounded-tl-md border border-gray-100'
+                          : 't-surface2 t-text rounded-tl-md border t-border'
                       )}
                       style={c.isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
                     >
                       <div className={clsx('flex items-center gap-1.5 mb-1', c.isAdmin ? 'justify-end' : '')}>
                         {c.isAdmin && <Shield className="w-2.5 h-2.5 text-white/70" />}
-                        <span className={clsx('text-[10px] font-semibold', c.isAdmin ? 'text-white/80' : 'text-gray-400')}>
+                        <span className={clsx('text-[10px] font-semibold', c.isAdmin ? 'text-white/80' : 't-text3')}>
                           {c.author}
                         </span>
-                        <span className={clsx('text-[9px]', c.isAdmin ? 'text-white/60' : 'text-gray-300')}>
+                        <span className={clsx('text-[9px]', c.isAdmin ? 'text-white/60' : 't-text3')}>
                           {formatDate(c.createdAt)}
                         </span>
                       </div>
@@ -304,14 +304,14 @@ function PostCard({
             )}
 
             {/* Comment input */}
-            <div className="px-5 pb-4 pt-3 border-t border-gray-100 space-y-2">
+            <div className="px-5 pb-4 pt-3 border-t t-border space-y-2">
               {/* Admin toggle */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsAdmin(v => !v)}
                   className={clsx(
                     'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all',
-                    isAdmin ? 'text-white' : 'text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-150'
+                    isAdmin ? 'text-white' : 't-text3 t-hover t-surface2'
                   )}
                   style={isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
                 >
@@ -325,14 +325,14 @@ function PostCard({
                     value={adminCode}
                     onChange={e => setAdminCode(e.target.value)}
                     placeholder="코드"
-                    className="w-20 px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-blue-400 text-center tracking-widest"
+                    className="w-20 px-2 py-1 text-xs border t-border rounded-lg t-surface t-text outline-none focus:border-blue-400 text-center tracking-widest"
                   />
                 )}
                 {!isAdmin && (
                   <input
                     value={commentAuthor}
                     readOnly
-                    className="flex-1 px-2.5 py-1 text-xs border border-gray-200 rounded-lg bg-gray-50 outline-none cursor-default"
+                    className="flex-1 px-2.5 py-1 text-xs border t-border rounded-lg t-surface2 t-text2 outline-none cursor-default"
                   />
                 )}
               </div>
@@ -343,7 +343,7 @@ function PostCard({
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment() } }}
                   placeholder="댓글을 입력하세요..."
                   rows={2}
-                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                  className="flex-1 px-3 py-2 text-sm border t-border rounded-xl t-surface2 t-text outline-none focus:border-blue-400 transition-all resize-none"
                 />
                 <button
                   onClick={submitComment}
@@ -408,8 +408,8 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
       <div className="px-6 pt-6 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold text-gray-900">이용자 피드백</h2>
-            <p className="text-[11px] text-gray-400 mt-0.5">기능 제안, 버그 리포트 등 자유롭게 남겨주세요</p>
+            <h2 className="text-base font-bold t-text">이용자 피드백</h2>
+            <p className="text-[11px] t-text3 mt-0.5">기능 제안, 버그 리포트 등 자유롭게 남겨주세요</p>
           </div>
           <button
             onClick={() => setShowNew(true)}
@@ -422,14 +422,14 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
         </div>
 
         {/* Filter tabs */}
-        <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-0.5 w-fit">
+        <div className="flex items-center gap-1 t-surface2 rounded-xl p-0.5 w-fit">
           {([['all', '전체'], ['pending', '검토 대기'], ['reviewing', '검토 중'], ['planned', '반영 예정'], ['done', '반영 완료']] as const).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setFilterStatus(key)}
               className={clsx(
                 'px-3 py-1.5 rounded-[10px] text-[11px] font-semibold transition-all whitespace-nowrap',
-                filterStatus === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                filterStatus === key ? 't-surface t-text shadow-sm' : 't-text3 t-hover'
               )}
             >
               {label}
@@ -446,8 +446,8 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-gray-300 text-[13px]">아직 피드백이 없습니다</p>
-            <p className="text-gray-300 text-[11px] mt-1">첫 번째 피드백을 남겨보세요!</p>
+            <p className="t-text3 text-[13px]">아직 피드백이 없습니다</p>
+            <p className="t-text3 text-[11px] mt-1 opacity-60">첫 번째 피드백을 남겨보세요!</p>
           </div>
         ) : (
           <AnimatePresence>

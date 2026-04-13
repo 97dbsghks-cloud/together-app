@@ -126,6 +126,7 @@ input:focus, textarea:focus, select:focus { outline: none; }
 /* hover states */
 .t-hover:hover { background: var(--t-hover) !important; }
 .t-hover2:hover { background: var(--t-hover2) !important; }
+.t-hover-row:hover { background: var(--t-hover); }
 
 /* ── Legacy glass/shadow classes (still used in components) */
 .glass-card {
