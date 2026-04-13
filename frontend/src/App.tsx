@@ -162,8 +162,8 @@ const ALL_TABS = [
 
 type TabKey = typeof ALL_TABS[number]['key']
 
-function SortableTab({ id, label, isActive, isAdmin, onClick }: {
-  id: string; label: string; isActive: boolean; isAdmin: boolean; onClick: () => void
+function SortableTab({ id, label, count, isActive, isAdmin, onClick }: {
+  id: string; label: string; count?: number; isActive: boolean; isAdmin: boolean; onClick: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   return (
@@ -182,6 +182,17 @@ function SortableTab({ id, label, isActive, isAdmin, onClick }: {
     >
       {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
       {label}
+      {count !== undefined && count > 0 && (
+        <span
+          className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none"
+          style={{
+            background: isActive ? 'var(--t-accent)' : 'var(--t-hover2)',
+            color: isActive ? '#fff' : 'var(--t-text3)',
+          }}
+        >
+          {count}
+        </span>
+      )}
     </button>
   )
 }
@@ -200,14 +211,23 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
       <button
         onClick={onSelect}
         className={clsx(
-          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-start gap-2.5 t-project-item',
+          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 t-project-item',
           isAdmin ? 'pl-7' : '',
           isActive && 'active',
         )}
       >
-        <div className="flex-1 min-w-0 pr-5">
-          <p className="text-[14px] font-semibold truncate leading-snug">{proj.name}</p>
-        </div>
+        <p className="text-[14px] font-semibold truncate leading-snug flex-1 min-w-0 pr-1">{proj.name}</p>
+        {proj.taskCount > 0 && (
+          <span
+            className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+            style={{
+              background: isActive ? 'rgba(129,140,248,0.25)' : 'var(--t-hover2)',
+              color: isActive ? 'var(--t-accent2)' : 'var(--t-text3)',
+            }}
+          >
+            {proj.taskCount}
+          </span>
+        )}
       </button>
       {/* Drag handle — admin only */}
       {isAdmin && (
@@ -898,16 +918,27 @@ function AppInner() {
           <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', height: 40 }}>
             <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
               <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
-                {orderedTabs.map(tab => (
-                  <SortableTab
-                    key={tab.key}
-                    id={tab.key}
-                    label={tab.label}
-                    isActive={view === tab.key}
-                    isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
-                    onClick={() => setView(tab.key as TabKey)}
-                  />
-                ))}
+                {orderedTabs.map(tab => {
+                  const tabCount = board ? (
+                    tab.key === 'board'            ? board.tasks.length
+                    : tab.key === 'project-calendar' ? (board.events?.length ?? 0)
+                    : tab.key === 'meeting'          ? (board.meetings?.length ?? 0)
+                    : tab.key === 'milestone'        ? (board.gantt?.rows.length ?? 0)
+                    : tab.key === 'chat'             ? (board.messages?.length ?? 0)
+                    : undefined
+                  ) : undefined
+                  return (
+                    <SortableTab
+                      key={tab.key}
+                      id={tab.key}
+                      label={tab.label}
+                      count={tabCount}
+                      isActive={view === tab.key}
+                      isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
+                      onClick={() => setView(tab.key as TabKey)}
+                    />
+                  )
+                })}
               </SortableContext>
             </DndContext>
           </div>
@@ -970,18 +1001,16 @@ function AppInner() {
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Board sub-tabs */}
-              <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b bg-gray-50/60" style={{ borderColor: 'rgba(0,0,0,0.07)', height: 38 }}>
+              <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b t-surface" style={{ borderColor: 'var(--t-border)', height: 38 }}>
                 {(['todo', 'remember'] as const).map(t => (
                   <button
                     key={t}
                     onClick={() => setBoardTab(t)}
                     className={clsx(
                       'px-3.5 py-1 rounded-lg text-[11px] font-semibold transition-all mr-1',
-                      boardTab === t
-                        ? 'text-white'
-                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/60'
+                      boardTab === t ? 'text-white' : 't-text3 t-hover'
                     )}
-                    style={boardTab === t ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+                    style={boardTab === t ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                   >
                     {t === 'todo' ? '할 일' : '리멤버'}
                   </button>

@@ -218,13 +218,13 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white overflow-hidden">
+    <div className="flex-1 flex flex-col min-w-0 min-h-0 t-surface overflow-hidden">
 
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-white">
+      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 border-b t-border t-surface">
         <button
           onClick={() => { setSettDate(g.startDate); setSettWeeks(g.weekCount); setShowSettings(true) }}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold t-text2 border t-border rounded-lg t-hover transition-colors"
         >
           <Settings className="w-3.5 h-3.5" /> 설정
         </button>
@@ -235,7 +235,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
         >
           <Plus className="w-3.5 h-3.5" /> 행 추가
         </button>
-        <p className="text-[11px] text-gray-400 ml-1 hidden lg:block">
+        <p className="text-[11px] t-text3 ml-1 hidden lg:block">
           드래그 → 바 생성 &nbsp;|&nbsp; 더블클릭 → 마일스톤 추가 &nbsp;|&nbsp; 바 클릭 → 편집 &nbsp;|&nbsp; 공정명 더블클릭 → 이름 수정
         </p>
       </div>
@@ -252,20 +252,20 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
           <div className="sticky top-0 z-20 flex" style={{ height: HDR_H }}>
             {/* Corner cell */}
             <div
-              className="sticky left-0 z-30 flex-shrink-0 flex items-end pb-2 px-3 border-b border-r border-gray-300"
-              style={{ width: LEFT_W, height: HDR_H, background: '#3a3530' }}
+              className="sticky left-0 z-30 flex-shrink-0 flex items-end pb-2 px-3 border-b border-r"
+              style={{ width: LEFT_W, height: HDR_H, background: 'var(--t-surface2)', borderColor: 'var(--t-border)' }}
             >
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">공정명</span>
+              <span className="text-[10px] font-bold t-text3 uppercase tracking-widest">공정명</span>
             </div>
 
             {/* Year / Month / Week */}
-            <div className="relative flex-shrink-0 border-b border-gray-200" style={{ width: totalW, height: HDR_H }}>
+            <div className="relative flex-shrink-0 border-b t-border" style={{ width: totalW, height: HDR_H }}>
               {/* Year row */}
               {header.years.map(y => (
                 <div
                   key={y.year}
-                  className="absolute flex items-center justify-center text-[11px] font-bold text-white border-r border-gray-600"
-                  style={{ left: y.s * WEEK_W, width: y.n * WEEK_W, top: 0, height: HDR_YEAR, background: '#3a3530' }}
+                  className="absolute flex items-center justify-center text-[11px] font-bold text-white border-r"
+                  style={{ left: y.s * WEEK_W, width: y.n * WEEK_W, top: 0, height: HDR_YEAR, background: 'var(--t-accent)', borderColor: 'var(--t-border)', opacity: 0.85 }}
                 >
                   '{String(y.year).slice(2)}
                 </div>
@@ -274,8 +274,8 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {header.months.map((m, i) => (
                 <div
                   key={i}
-                  className="absolute flex items-center justify-center text-[10px] font-semibold text-gray-700 border-r border-gray-200"
-                  style={{ left: m.s * WEEK_W, width: m.n * WEEK_W, top: HDR_YEAR, height: HDR_MONTH, background: '#f5f0ea' }}
+                  className="absolute flex items-center justify-center text-[10px] font-semibold t-text2 border-r t-border"
+                  style={{ left: m.s * WEEK_W, width: m.n * WEEK_W, top: HDR_YEAR, height: HDR_MONTH, background: 'var(--t-surface2)' }}
                 >
                   {MONTH_KO[m.mo]}
                 </div>
@@ -284,11 +284,11 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {header.weeks.map(w => (
                 <div
                   key={w.i}
-                  className="absolute flex items-center justify-center text-[9px] border-r border-gray-100"
+                  className="absolute flex items-center justify-center text-[9px] border-r t-border"
                   style={{
                     left: w.i * WEEK_W, width: WEEK_W, top: HDR_YEAR + HDR_MONTH, height: HDR_WEEK,
-                    background: w.i === todayWeekIdx ? 'rgba(0,122,255,0.12)' : 'white',
-                    color: w.i === todayWeekIdx ? '#007aff' : '#9ca3af',
+                    background: w.i === todayWeekIdx ? 'rgba(99,102,241,0.15)' : 'var(--t-surface)',
+                    color: w.i === todayWeekIdx ? 'var(--t-accent2)' : 'var(--t-text3)',
                     fontWeight: w.i === todayWeekIdx ? 700 : 400,
                   }}
                 >
@@ -311,8 +311,8 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
 
               {/* Name cell */}
               <div
-                className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-0.5 border-b border-r border-gray-100"
-                style={{ width: LEFT_W, paddingLeft: 8 + row.indent * 16, background: row.isGroup ? '#faf7f3' : 'white' }}
+                className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-0.5 border-b border-r t-border"
+                style={{ width: LEFT_W, paddingLeft: 8 + row.indent * 16, background: row.isGroup ? 'var(--t-surface2)' : 'var(--t-surface)' }}
               >
                 {editRowId === row.id ? (
                   <input
@@ -332,8 +332,8 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                     onDoubleClick={() => { setEditRowId(row.id); setEditRowName(row.name) }}
                     title="더블클릭으로 이름 수정"
                   >
-                    {row.indent > 0 && <span className="text-gray-300 mr-0.5 text-[11px]">-</span>}
-                    <span className={`text-[12px] ${row.isGroup ? 'font-bold text-gray-800' : 'font-medium text-gray-600'}`}>
+                    {row.indent > 0 && <span className="t-text3 mr-0.5 text-[11px]">-</span>}
+                    <span className={`text-[12px] ${row.isGroup ? 'font-bold t-text' : 'font-medium t-text2'}`}>
                       {row.name}
                     </span>
                   </button>
@@ -368,8 +368,8 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
 
               {/* Timeline cell */}
               <div
-                className="relative flex-shrink-0 border-b border-gray-100"
-                style={{ width: totalW, height: ROW_H, background: row.isGroup ? '#fdf9f5' : 'white' }}
+                className="relative flex-shrink-0 border-b t-border"
+                style={{ width: totalW, height: ROW_H, background: row.isGroup ? 'var(--t-surface2)' : 'var(--t-surface)' }}
                 onMouseDown={e => {
                   if (row.isGroup || e.button !== 0) return
                   const wk = wkFromClientX(e.clientX)
@@ -504,25 +504,25 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
         const bar = row?.bars.find(b => b.id === editBar.bId)
         if (!bar) return null
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.22)' }} onClick={() => setEditBar(null)}>
-            <div className="bg-white rounded-2xl shadow-2xl p-4 w-64 space-y-3" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }} onClick={() => setEditBar(null)}>
+            <div className="t-surface rounded-2xl p-4 w-64 space-y-3" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">바 편집</span>
-                <button onClick={() => setEditBar(null)} className="text-gray-300 hover:text-gray-600"><X className="w-4 h-4" /></button>
+                <span className="text-xs font-bold t-text2 uppercase tracking-wider">바 편집</span>
+                <button onClick={() => setEditBar(null)} className="t-text3 t-hover rounded p-0.5"><X className="w-4 h-4" /></button>
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">레이블</label>
+                <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1">레이블</label>
                 <input
                   value={bar.label ?? ''}
                   onChange={e => commit({ ...g, rows: g.rows.map(r => r.id === editBar.rId
                     ? { ...r, bars: r.bars.map(b => b.id === editBar.bId ? { ...b, label: e.target.value } : b) }
                     : r) })}
                   placeholder="레이블 (선택)"
-                  className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                  className="w-full px-3 py-1.5 text-xs border t-border t-surface2 t-text rounded-xl outline-none focus:border-blue-400 transition-all"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">색상</label>
+                <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">색상</label>
                 <div className="flex gap-1.5 flex-wrap">
                   {BAR_COLORS.map(c => (
                     <button key={c}
@@ -530,7 +530,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                         ? { ...r, bars: r.bars.map(b => b.id === editBar.bId ? { ...b, color: c } : b) }
                         : r) })}
                       className="w-5 h-5 rounded-full border-2 transition-all"
-                      style={{ background: c, borderColor: bar.color === c ? '#1d1d1f' : 'transparent' }}
+                      style={{ background: c, borderColor: bar.color === c ? 'var(--t-text)' : 'transparent' }}
                     />
                   ))}
                 </div>
@@ -557,24 +557,24 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
         const ms  = row?.milestones.find(m => m.id === editMs.mId)
         if (!ms) return null
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.22)' }} onClick={() => setEditMs(null)}>
-            <div className="bg-white rounded-2xl shadow-2xl p-4 w-56 space-y-3" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }} onClick={() => setEditMs(null)}>
+            <div className="t-surface rounded-2xl p-4 w-56 space-y-3" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">마일스톤 편집</span>
-                <button onClick={() => setEditMs(null)} className="text-gray-300 hover:text-gray-600"><X className="w-4 h-4" /></button>
+                <span className="text-xs font-bold t-text2 uppercase tracking-wider">마일스톤 편집</span>
+                <button onClick={() => setEditMs(null)} className="t-text3 t-hover rounded p-0.5"><X className="w-4 h-4" /></button>
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">레이블</label>
+                <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1">레이블</label>
                 <input
                   value={ms.label}
                   onChange={e => commit({ ...g, rows: g.rows.map(r => r.id === editMs.rId
                     ? { ...r, milestones: r.milestones.map(m => m.id === editMs.mId ? { ...m, label: e.target.value } : m) }
                     : r) })}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                  className="w-full px-3 py-1.5 text-xs border t-border t-surface2 t-text rounded-xl outline-none focus:border-blue-400 transition-all"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">색상</label>
+                <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">색상</label>
                 <div className="flex gap-1.5 flex-wrap">
                   {MS_COLORS.map(c => (
                     <button key={c}
@@ -582,7 +582,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                         ? { ...r, milestones: r.milestones.map(m => m.id === editMs.mId ? { ...m, color: c } : m) }
                         : r) })}
                       className="w-5 h-5 rounded-full border-2 transition-all"
-                      style={{ background: c, borderColor: ms.color === c ? '#1d1d1f' : 'transparent' }}
+                      style={{ background: c, borderColor: ms.color === c ? 'var(--t-text)' : 'transparent' }}
                     />
                   ))}
                 </div>
@@ -605,32 +605,32 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
 
       {/* ── Add Row Modal ──────────────────────────────────────────────────── */}
       {showAddRow && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.22)' }} onClick={() => setShowAddRow(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-5 w-72 space-y-3" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }} onClick={() => setShowAddRow(false)}>
+          <div className="t-surface rounded-2xl p-5 w-72 space-y-3" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-800">행 추가</span>
-              <button onClick={() => setShowAddRow(false)} className="text-gray-300 hover:text-gray-600"><X className="w-4 h-4" /></button>
+              <span className="text-sm font-bold t-text">행 추가</span>
+              <button onClick={() => setShowAddRow(false)} className="t-text3 t-hover rounded p-0.5"><X className="w-4 h-4" /></button>
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">공정명</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1">공정명</label>
               <input
                 autoFocus value={rowName} onChange={e => setRowName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && doAddRow()}
                 placeholder="예: 토공사, 굴착공사, 마감공사"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                className="w-full px-3 py-2 text-sm border t-border t-surface2 t-text rounded-xl outline-none focus:border-blue-400 transition-all"
               />
             </div>
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input type="checkbox" checked={rowGroup} onChange={e => setRowGroup(e.target.checked)} className="rounded" />
-              <span className="text-xs font-medium text-gray-600">그룹 헤더 (굵게 + 배경색)</span>
+              <span className="text-xs font-medium t-text2">그룹 헤더 (굵게 + 배경색)</span>
             </label>
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">들여쓰기</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">들여쓰기</label>
               <div className="flex gap-1.5">
                 {(['없음', '1단', '2단'] as const).map((label, n) => (
                   <button key={n} onClick={() => setRowIndent(n)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${rowIndent === n ? 'text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                    style={rowIndent === n ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}>
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${rowIndent === n ? 'text-white' : 't-surface2 t-text2 t-hover'}`}
+                    style={rowIndent === n ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}>
                     {label}
                   </button>
                 ))}
@@ -639,7 +639,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
             <button
               onClick={doAddRow} disabled={!rowName.trim()}
               className="w-full py-2 text-sm font-semibold text-white rounded-xl disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
             >
               추가
             </button>
@@ -649,27 +649,27 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
 
       {/* ── Settings Modal ─────────────────────────────────────────────────── */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.22)' }} onClick={() => setShowSettings(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-5 w-72 space-y-3" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }} onClick={() => setShowSettings(false)}>
+          <div className="t-surface rounded-2xl p-5 w-72 space-y-3" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-800">간트 설정</span>
-              <button onClick={() => setShowSettings(false)} className="text-gray-300 hover:text-gray-600"><X className="w-4 h-4" /></button>
+              <span className="text-sm font-bold t-text">간트 설정</span>
+              <button onClick={() => setShowSettings(false)} className="t-text3 t-hover rounded p-0.5"><X className="w-4 h-4" /></button>
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">시작일</label>
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1">시작일</label>
               <input
                 type="date" value={settDate} onChange={e => setSettDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                className="w-full px-3 py-2 text-sm border t-border t-surface2 t-text rounded-xl outline-none focus:border-blue-400 transition-all"
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-semibold t-text3 uppercase tracking-wider block mb-1">
                 표시 기간 (주 단위, 4 ~ 104주)
               </label>
               <input
                 type="number" min={4} max={104} value={settWeeks}
                 onChange={e => setSettWeeks(Number(e.target.value))}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                className="w-full px-3 py-2 text-sm border t-border t-surface2 t-text rounded-xl outline-none focus:border-blue-400 transition-all"
               />
             </div>
             <button
@@ -678,7 +678,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                 setShowSettings(false)
               }}
               className="w-full py-2 text-sm font-semibold text-white rounded-xl"
-              style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
             >
               적용
             </button>
