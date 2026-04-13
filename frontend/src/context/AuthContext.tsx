@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 export type AuthUser = {
   id: string
   name: string
-  role: 'admin' | 'member'
+  role: 'admin' | 'sub_admin' | 'member'
   projectIds: string[]
 }
 

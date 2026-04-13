@@ -89,6 +89,9 @@ class AssignProjectsRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     password: str
 
+class ChangeRoleRequest(BaseModel):
+    role: str
+
 class CreateProjectRequest(BaseModel):
     name: str
     emoji: Optional[str] = "📁"
@@ -440,6 +443,20 @@ def change_password(user_id: str, req: ChangePasswordRequest):
             return {"status": "success"}
     raise HTTPException(status_code=404, detail="User not found")
 
+@app.put("/api/users/{user_id}/role")
+def change_role(user_id: str, req: ChangeRoleRequest):
+    if req.role not in ("member", "sub_admin"):
+        raise HTTPException(status_code=400, detail="Invalid role")
+    users = load_users()
+    for user in users:
+        if user["id"] == user_id:
+            if user["role"] == "admin":
+                raise HTTPException(status_code=403, detail="관리자 권한은 변경할 수 없습니다.")
+            user["role"] = req.role
+            save_users(users)
+            return {"status": "success"}
+    raise HTTPException(status_code=404, detail="User not found")
+
 # ── Projects ──────────────────────────────────────────────────────────────────
 @app.get("/api/projects")
 def list_projects(userId: Optional[str] = None):
@@ -453,7 +470,7 @@ def list_projects(userId: Optional[str] = None):
     if userId:
         users = load_users()
         user = next((u for u in users if u["id"] == userId), None)
-        if user and user["role"] != "admin":
+        if user and user["role"] not in ("admin", "sub_admin"):
             allowed = set(user.get("projectIds", []))
             projects_meta = [p for p in projects_meta if p["id"] in allowed]
     return {"projects": projects_meta}

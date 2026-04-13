@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { X, Trash2, Shield, UserCheck, KeyRound, Check } from 'lucide-react'
+import { X, Trash2, Shield, ShieldHalf, UserCheck, KeyRound, Check } from 'lucide-react'
 import axios from 'axios'
 import type { ProjectMeta } from '../App'
 
@@ -9,7 +9,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 type AppUser = {
   id: string
   name: string
-  role: 'admin' | 'member'
+  role: 'admin' | 'sub_admin' | 'member'
   projectIds: string[]
 }
 
@@ -37,9 +37,7 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
       ? current.filter(id => id !== projectId)
       : [...current, projectId]
     await axios.put(`${API}/api/users/${user.id}/projects`, { projectIds: next })
-    setUsers(prev =>
-      prev.map(u => u.id === user.id ? { ...u, projectIds: next } : u)
-    )
+    setUsers(prev => prev.map(u => u.id === user.id ? { ...u, projectIds: next } : u))
   }
 
   const deleteUser = async (userId: string) => {
@@ -54,6 +52,24 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
     setPwEdit(prev => ({ ...prev, [userId]: '' }))
     setPwSaved(prev => ({ ...prev, [userId]: true }))
     setTimeout(() => setPwSaved(prev => ({ ...prev, [userId]: false })), 2000)
+  }
+
+  const toggleSubAdmin = async (user: AppUser) => {
+    const newRole = user.role === 'sub_admin' ? 'member' : 'sub_admin'
+    await axios.put(`${API}/api/users/${user.id}/role`, { role: newRole })
+    setUsers(prev => prev.map(u => u.id === user.id ? { ...u, role: newRole } : u))
+  }
+
+  const roleLabel = (role: AppUser['role']) => {
+    if (role === 'admin') return '관리자 (전체 접근)'
+    if (role === 'sub_admin') return '부관리자 (전체 접근)'
+    return '일반 멤버'
+  }
+
+  const roleColor = (role: AppUser['role']) => {
+    if (role === 'admin') return 'linear-gradient(135deg, #007aff, #5856d6)'
+    if (role === 'sub_admin') return 'linear-gradient(135deg, #ff9500, #ff6b00)'
+    return 'linear-gradient(135deg, #34c759, #30d158)'
   }
 
   return (
@@ -101,20 +117,17 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
             >
               <div
                 className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-white text-[13px] font-bold"
-                style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #007aff, #5856d6)' : 'linear-gradient(135deg, #34c759, #30d158)' }}
+                style={{ background: roleColor(user.role) }}
               >
                 {user.name[0]}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className="text-[13px] font-semibold text-gray-800 truncate">{user.name}</p>
-                  {user.role === 'admin' && (
-                    <Shield className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                  )}
+                  {user.role === 'admin' && <Shield className="w-3 h-3 text-blue-500 flex-shrink-0" />}
+                  {user.role === 'sub_admin' && <ShieldHalf className="w-3 h-3 text-orange-400 flex-shrink-0" />}
                 </div>
-                <p className="text-[10px] text-gray-400">
-                  {user.role === 'admin' ? '관리자 (전체 접근)' : `${user.projectIds?.length ?? 0}개 프로젝트`}
-                </p>
+                <p className="text-[10px] text-gray-400">{roleLabel(user.role)}</p>
               </div>
               {user.role !== 'admin' && (
                 <button
@@ -129,6 +142,24 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
             {/* Expanded settings */}
             {expandedId === user.id && (
               <div className="border-t border-gray-100 px-3 py-3 bg-gray-50/50 space-y-3">
+
+                {/* Sub-admin toggle — non-admin only */}
+                {user.role !== 'admin' && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">권한</p>
+                    <button
+                      onClick={() => toggleSubAdmin(user)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all border ${
+                        user.role === 'sub_admin'
+                          ? 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100'
+                          : 'bg-white text-gray-500 border-gray-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'
+                      }`}
+                    >
+                      <ShieldHalf className="w-3.5 h-3.5" />
+                      {user.role === 'sub_admin' ? '부관리자 권한 회수' : '부관리자 권한 부여'}
+                    </button>
+                  </div>
+                )}
 
                 {/* Password change */}
                 <div>
@@ -156,8 +187,8 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
                   </div>
                 </div>
 
-                {/* Project toggles — members only */}
-                {user.role !== 'admin' && (
+                {/* Project toggles — member only (sub_admin has full access) */}
+                {user.role === 'member' && (
                   <div>
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">접근 가능 프로젝트</p>
                     {projects.length === 0 && (
@@ -187,6 +218,10 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
                       )
                     })}
                   </div>
+                )}
+
+                {user.role === 'sub_admin' && (
+                  <p className="text-[11px] text-gray-400 px-1">부관리자는 모든 프로젝트에 접근할 수 있습니다.</p>
                 )}
               </div>
             )}

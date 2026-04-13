@@ -301,7 +301,7 @@ function AppInner() {
 
   // Load project list — filtered by userId for members
   const loadProjects = useCallback(async () => {
-    const params = user.role === 'admin' ? {} : { userId: user.id }
+    const params = (user.role === 'admin' || user.role === 'sub_admin') ? {} : { userId: user.id }
     const [projRes, orderRes] = await Promise.all([
       axios.get<{ projects: ProjectMeta[] }>(`${API}/api/projects`, { params }),
       axios.get<{ order: string[] }>(`${API}/api/projects/order`).catch(() => ({ data: { order: [] as string[] } })),
@@ -727,7 +727,7 @@ function AppInner() {
                   key={proj.id}
                   proj={proj}
                   isActive={proj.id === activeProjectId && view !== 'global-calendar' && view !== 'dashboard'}
-                  isAdmin={user.role === 'admin'}
+                  isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
                   onSelect={() => {
                     setActiveProjectId(proj.id)
                     if (viewRef.current === 'global-calendar' || viewRef.current === 'dashboard' || viewRef.current === 'feedback') setView('project-calendar')
@@ -739,8 +739,8 @@ function AppInner() {
           </SortableContext>
         </DndContext>
 
-        {/* New Project Button (admin only) */}
-        {user.role === 'admin' && (
+        {/* New Project Button (admin/sub_admin only) */}
+        {(user.role === 'admin' || user.role === 'sub_admin') && (
           <div className="px-3 pt-3 pb-1">
             <button
               onClick={() => setShowNewProject(true)}
@@ -772,7 +772,7 @@ function AppInner() {
 
         {/* User info + actions */}
         <div className="px-3 pb-3 pt-1 border-t border-gray-100 mt-1">
-          {/* User management — admin only */}
+          {/* User management — admin only (not sub_admin) */}
           {user.role === 'admin' && (
             <button
               onClick={() => setUserMgmtOpen(v => !v)}
@@ -788,7 +788,7 @@ function AppInner() {
           {/* Current user + logout */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
-              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #007aff, #5856d6)' : 'linear-gradient(135deg, #34c759, #30d158)' }}>
+              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #007aff, #5856d6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #34c759, #30d158)' }}>
               {user.name[0]}
             </div>
             <span className="text-[12px] font-semibold text-gray-700 flex-1 truncate">{user.name}</span>
@@ -890,7 +890,7 @@ function AppInner() {
                     id={tab.key}
                     label={tab.label}
                     isActive={view === tab.key}
-                    isAdmin={user.role === 'admin'}
+                    isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
                     onClick={() => setView(tab.key as TabKey)}
                   />
                 ))}
@@ -902,13 +902,13 @@ function AppInner() {
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
           {view === 'feedback' ? (
-            <FeedbackBoard userName={user.name} isAdmin={user.role === 'admin'} />
+            <FeedbackBoard userName={user.name} isAdmin={user.role === 'admin' || user.role === 'sub_admin'} />
           ) : view === 'dashboard' ? (
             <DashboardView
               allBoards={allBoards}
               projects={projects}
               activeProjectId={activeProjectId}
-              isAdmin={user.role === 'admin'}
+              isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
               onSelectProject={(pid) => { setActiveProjectId(pid); setView('project-calendar') }}
               onAddEvent={addEvent}
               onDeleteEvent={deleteEvent}
@@ -975,7 +975,7 @@ function AppInner() {
               </div>
 
               {boardTab === 'remember' && board ? (
-                <RememberView items={board.remember ?? []} onChange={saveRemember} isAdmin={user.role === 'admin'} userName={user.name} />
+                <RememberView items={board.remember ?? []} onChange={saveRemember} isAdmin={user.role === 'admin' || user.role === 'sub_admin'} userName={user.name} />
               ) : (
             <div className="flex-1 overflow-x-auto">
               {loadingProject ? (
@@ -1032,7 +1032,7 @@ function AppInner() {
           <AnimatePresence>
             {announcementOpen && (
               <AnnouncementPanel
-                isAdmin={user.role === 'admin'}
+                isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
                 userName={user.name}
                 onClose={() => setAnnouncementOpen(false)}
                 onRead={markRead}
@@ -1041,7 +1041,7 @@ function AppInner() {
           </AnimatePresence>
           {/* User Management Panel (admin) */}
           <AnimatePresence>
-            {userMgmtOpen && user.role === 'admin' && (
+            {userMgmtOpen && (user.role === 'admin') && (
               <UserManagementPanel projects={projects} onClose={() => setUserMgmtOpen(false)} />
             )}
           </AnimatePresence>
