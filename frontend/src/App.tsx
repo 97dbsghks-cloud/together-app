@@ -162,8 +162,8 @@ const ALL_TABS = [
 
 type TabKey = typeof ALL_TABS[number]['key']
 
-function SortableTab({ id, label, count, isActive, isAdmin, onClick }: {
-  id: string; label: string; count?: number; isActive: boolean; isAdmin: boolean; onClick: () => void
+function SortableTab({ id, label, isActive, isAdmin, onClick }: {
+  id: string; label: string; isActive: boolean; isAdmin: boolean; onClick: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   return (
@@ -182,17 +182,6 @@ function SortableTab({ id, label, count, isActive, isAdmin, onClick }: {
     >
       {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
       {label}
-      {count !== undefined && count > 0 && (
-        <span
-          className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none"
-          style={{
-            background: isActive ? 'var(--t-accent)' : 'var(--t-hover2)',
-            color: isActive ? '#fff' : 'var(--t-text3)',
-          }}
-        >
-          {count}
-        </span>
-      )}
     </button>
   )
 }
@@ -216,18 +205,7 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
           isActive && 'active',
         )}
       >
-        <p className="text-[14px] font-semibold truncate leading-snug flex-1 min-w-0 pr-1">{proj.name}</p>
-        {proj.taskCount > 0 && (
-          <span
-            className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-            style={{
-              background: isActive ? 'rgba(129,140,248,0.25)' : 'var(--t-hover2)',
-              color: isActive ? 'var(--t-accent2)' : 'var(--t-text3)',
-            }}
-          >
-            {proj.taskCount}
-          </span>
-        )}
+        <p className="text-[14px] font-semibold truncate leading-snug flex-1 min-w-0">{proj.name}</p>
       </button>
       {/* Drag handle — admin only */}
       {isAdmin && (
@@ -259,9 +237,6 @@ function AppInner() {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-  const [seenTabCounts, setSeenTabCounts] = useState<Record<string, number>>(() => {
-    try { return JSON.parse(localStorage.getItem('together_seen_tab_counts') || '{}') } catch { return {} }
-  })
 
   const getReadIds = () => {
     const s = localStorage.getItem(`together_read_announcements_${user.id}`)
@@ -846,15 +821,15 @@ function AppInner() {
               <Home className="w-4 h-4" />
             </button>
             {view === 'dashboard' ? (
-              <h2 className="text-[14px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 대시보드</h2>
+              <h2 className="text-[18px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 대시보드</h2>
             ) : view === 'global-calendar' ? (
-              <h2 className="text-[14px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 종합 캘린더</h2>
+              <h2 className="text-[18px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 종합 캘린더</h2>
             ) : board && (
               <>
                 {editingProjectName ? (
                   <div className="flex items-center gap-2 ml-1">
                     <input autoFocus value={editNameVal} onChange={e => setEditNameVal(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveProjectName(); if (e.key === 'Escape') setEditingProjectName(false) }}
-                      className="text-[14px] font-semibold border-b-2 bg-transparent outline-none px-1"
+                      className="text-[18px] font-semibold border-b-2 bg-transparent outline-none px-1"
                       style={{ color: 'var(--t-text)', borderColor: 'var(--t-accent)' }}
                     />
                     <button onClick={saveProjectName} className="p-1 rounded-lg text-white" style={{ background: 'var(--t-accent)' }}><Check className="w-3 h-3" /></button>
@@ -862,7 +837,7 @@ function AppInner() {
                   </div>
                 ) : (
                   <button className="flex items-center gap-1.5 group ml-1" onClick={() => { setEditNameVal(board.name); setEditingProjectName(true) }}>
-                    <h2 className="text-[14px] font-semibold" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>{board.name}</h2>
+                    <h2 className="text-[18px] font-semibold" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>{board.name}</h2>
                     <Edit2 className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--t-text3)' }} />
                   </button>
                 )}
@@ -921,37 +896,16 @@ function AppInner() {
           <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', height: 40 }}>
             <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
               <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
-                {orderedTabs.map(tab => {
-                  const tabCount = board ? (
-                    tab.key === 'board'            ? board.tasks.length
-                    : tab.key === 'project-calendar' ? (board.events?.length ?? 0)
-                    : tab.key === 'meeting'          ? (board.meetings?.length ?? 0)
-                    : tab.key === 'milestone'        ? (board.gantt?.rows.length ?? 0)
-                    : tab.key === 'chat'             ? (board.messages?.length ?? 0)
-                    : undefined
-                  ) : undefined
-                  const seenKey = `${activeProjectId}:${tab.key}`
-                  const badgeCount = (tabCount !== undefined && tabCount > 0 && seenTabCounts[seenKey] !== tabCount)
-                    ? tabCount : undefined
-                  return (
-                    <SortableTab
-                      key={tab.key}
-                      id={tab.key}
-                      label={tab.label}
-                      count={badgeCount}
-                      isActive={view === tab.key}
-                      isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
-                      onClick={() => {
-                        setView(tab.key as TabKey)
-                        if (tabCount !== undefined) {
-                          const updated = { ...seenTabCounts, [seenKey]: tabCount }
-                          setSeenTabCounts(updated)
-                          localStorage.setItem('together_seen_tab_counts', JSON.stringify(updated))
-                        }
-                      }}
-                    />
-                  )
-                })}
+                {orderedTabs.map(tab => (
+                  <SortableTab
+                    key={tab.key}
+                    id={tab.key}
+                    label={tab.label}
+                    isActive={view === tab.key}
+                    isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
+                    onClick={() => setView(tab.key as TabKey)}
+                  />
+                ))}
               </SortableContext>
             </DndContext>
           </div>
