@@ -8,11 +8,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, Users, GripVertical,
-  Home, ChevronLeft, RefreshCw,
+  Home, ChevronLeft, RefreshCw, Sun, Moon,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
 import clsx from 'clsx'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 
 import KanbanColumn from './components/KanbanColumn'
 import TaskCard from './components/TaskCard'
@@ -137,9 +138,11 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AuthGate />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
@@ -169,15 +172,13 @@ function SortableTab({ id, label, isActive, isAdmin, onClick }: {
       onClick={onClick}
       {...(isAdmin ? attributes : {})}
       {...(isAdmin ? listeners : {})}
-      className={clsx(
-        'px-4 h-full text-[14px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5',
-        isActive ? 'text-blue-600 border-blue-500' : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300',
-        isDragging && 'opacity-50',
-      )}
+      className={clsx('px-4 h-full text-[14px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5 select-none', isDragging && 'opacity-50')}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+        color: isActive ? 'var(--t-text)' : 'var(--t-text3)',
+        borderBottomColor: isActive ? 'var(--t-accent2)' : 'transparent',
       }}
     >
       {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
@@ -202,12 +203,16 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
         className={clsx(
           'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-start gap-2.5',
           isAdmin ? 'pl-7' : '',
-          isActive ? 'text-blue-700' : 'text-gray-600 hover:bg-gray-100'
         )}
-        style={isActive ? { background: 'rgba(0,122,255,0.1)' } : {}}
+        style={isActive
+          ? { background: 'rgba(99,102,241,0.1)', color: 'var(--t-accent2)' }
+          : { color: 'var(--t-text2)' }
+        }
+        onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)' }}
+        onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = '' }}
       >
         <div className="flex-1 min-w-0 pr-5">
-          <p className={clsx('text-[14px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
+          <p className="text-[14px] font-semibold truncate leading-snug">{proj.name}</p>
         </div>
       </button>
       {/* Drag handle — admin only */}
@@ -236,6 +241,7 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
 function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
+  const { theme, toggle: toggleTheme } = useTheme()
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -698,24 +704,24 @@ function AppInner() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#f2f2f7' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
       {/* Left Sidebar - Project Tabs */}
-      <aside className="w-56 flex-shrink-0 flex flex-col border-r" style={{ background: 'rgba(255,255,255,0.82)', borderColor: 'rgba(0,0,0,0.08)', backdropFilter: 'blur(20px)' }}>
+      <aside className="w-56 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', backdropFilter: 'blur(20px)' }}>
         {/* Logo */}
         <div className="px-4 pt-5 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #007aff 0%, #5856d6 100%)' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 0 16px rgba(99,102,241,0.35)' }}>
               <Users className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-[13px] font-bold text-gray-900 leading-none">Together</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">함께하는 프로젝트</p>
+              <p className="text-[13px] font-bold leading-none" style={{ color: 'var(--t-text)' }}>Together</p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--t-text3)' }}>함께하는 프로젝트</p>
             </div>
           </div>
         </div>
 
         <div className="px-3 mb-2">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">프로젝트</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-1" style={{ color: 'var(--t-text3)' }}>프로젝트</p>
         </div>
 
         {/* Project List */}
@@ -771,7 +777,7 @@ function AppInner() {
         </div>
 
         {/* User info + actions */}
-        <div className="px-3 pb-3 pt-1 border-t border-gray-100 mt-1">
+        <div className="px-3 pb-3 pt-1 mt-1" style={{ borderTop: '1px solid var(--t-border)' }}>
           {/* User management — admin only (not sub_admin) */}
           {user.role === 'admin' && (
             <button
@@ -786,13 +792,13 @@ function AppInner() {
             </button>
           )}
           {/* Current user + logout */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'var(--t-surface3)' }}>
             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
-              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #007aff, #5856d6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #34c759, #30d158)' }}>
+              style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #34c759, #30d158)' }}>
               {user.name[0]}
             </div>
-            <span className="text-[12px] font-semibold text-gray-700 flex-1 truncate">{user.name}</span>
-            <button onClick={logout} className="p-1 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex-shrink-0" title="로그아웃">
+            <span className="text-[12px] font-semibold flex-1 truncate" style={{ color: 'var(--t-text)' }}>{user.name}</span>
+            <button onClick={logout} className="p-1 rounded-lg transition-colors flex-shrink-0 hover:bg-red-50 hover:text-red-400" style={{ color: 'var(--t-text3)' }} title="로그아웃">
               <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -802,7 +808,7 @@ function AppInner() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Bar */}
-        <header className="h-[60px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', backdropFilter: 'blur(20px)' }}>
+        <header className="h-[60px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', backdropFilter: 'blur(20px)' }}>
           <div className="flex items-center gap-3">
             {/* 뒤로가기 / 홈 */}
             <button
@@ -846,6 +852,15 @@ function AppInner() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* 테마 토글 */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl transition-colors"
+              style={{ color: 'var(--t-text3)' }}
+              title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             {/* 동기화 */}
             <button
               onClick={syncProject}
@@ -858,8 +873,10 @@ function AppInner() {
             {/* 공지사항 */}
             <button
               onClick={() => setAnnouncementOpen(v => !v)}
-              className={clsx('relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', announcementOpen ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
-              style={announcementOpen ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)' } : {}}
+              className={clsx('relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', announcementOpen ? 'text-white' : 'border')}
+              style={announcementOpen
+                ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)' }
+                : { background: 'var(--t-surface2)', borderColor: 'var(--t-border)', color: 'var(--t-text2)' }}
             >
               <Megaphone className="w-4 h-4" />
               {unreadCount > 0 && !announcementOpen && (
@@ -870,8 +887,10 @@ function AppInner() {
             </button>
             <button
               onClick={() => setAiOpen(v => !v)}
-              className={clsx('flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', aiOpen ? 'text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200')}
-              style={aiOpen ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+              className={clsx('flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all', aiOpen ? 'text-white' : 'border')}
+              style={aiOpen
+                ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }
+                : { background: 'var(--t-surface2)', borderColor: 'var(--t-border)', color: 'var(--t-text2)' }}
             >
               <Bot className="w-4 h-4" />
               <span className="hidden sm:inline">AI Agent</span>
@@ -881,7 +900,7 @@ function AppInner() {
 
         {/* Per-project Tab Strip */}
         {board && !['global-calendar', 'dashboard', 'feedback'].includes(view) && (
-          <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(0,0,0,0.07)', height: 40 }}>
+          <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', height: 40 }}>
             <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
               <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
                 {orderedTabs.map(tab => (
@@ -900,7 +919,7 @@ function AppInner() {
         )}
 
         {/* Main Content */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden" style={{ background: 'var(--t-bg)' }}>
           {view === 'feedback' ? (
             <FeedbackBoard userName={user.name} isAdmin={user.role === 'admin' || user.role === 'sub_admin'} />
           ) : view === 'dashboard' ? (
