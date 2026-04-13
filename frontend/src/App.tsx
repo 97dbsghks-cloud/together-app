@@ -170,7 +170,7 @@ function SortableTab({ id, label, isActive, isAdmin, onClick }: {
       {...(isAdmin ? attributes : {})}
       {...(isAdmin ? listeners : {})}
       className={clsx(
-        'px-4 h-full text-[12px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5',
+        'px-4 h-full text-[13px] font-semibold transition-all border-b-2 -mb-px flex items-center gap-1.5',
         isActive ? 'text-blue-600 border-blue-500' : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300',
         isDragging && 'opacity-50',
       )}
@@ -207,7 +207,7 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick 
         style={isActive ? { background: 'rgba(0,122,255,0.1)' } : {}}
       >
         <div className="flex-1 min-w-0 pr-5">
-          <p className={clsx('text-[12px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
+          <p className={clsx('text-[13px] font-semibold truncate leading-snug', isActive ? 'text-blue-700' : 'text-gray-700')}>{proj.name}</p>
         </div>
       </button>
       {/* Drag handle — admin only */}
@@ -908,6 +908,7 @@ function AppInner() {
               allBoards={allBoards}
               projects={projects}
               activeProjectId={activeProjectId}
+              isAdmin={user.role === 'admin'}
               onSelectProject={(pid) => { setActiveProjectId(pid); setView('project-calendar') }}
               onAddEvent={addEvent}
               onDeleteEvent={deleteEvent}
