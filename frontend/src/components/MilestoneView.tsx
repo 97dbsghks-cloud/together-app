@@ -312,7 +312,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {/* Name cell */}
               <div
                 className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-0.5 border-b border-r border-gray-100"
-                style={{ width: LEFT_W, paddingLeft: 8 + row.indent * 16, background: row.isGroup ? 'var(--t-surface3)' : 'var(--t-surface2)' }}
+                style={{ width: LEFT_W, paddingLeft: 8 + row.indent * 16, background: row.isGroup ? '#faf7f3' : 'white' }}
               >
                 {editRowId === row.id ? (
                   <input
@@ -369,7 +369,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {/* Timeline cell */}
               <div
                 className="relative flex-shrink-0 border-b border-gray-100"
-                style={{ width: totalW, height: ROW_H, background: row.isGroup ? 'var(--t-surface3)' : 'var(--t-surface2)' }}
+                style={{ width: totalW, height: ROW_H, background: row.isGroup ? '#fdf9f5' : 'white' }}
                 onMouseDown={e => {
                   if (row.isGroup || e.button !== 0) return
                   const wk = wkFromClientX(e.clientX)
