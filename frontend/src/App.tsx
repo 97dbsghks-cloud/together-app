@@ -7,7 +7,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, h
 import { CSS } from '@dnd-kit/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, Users, GripVertical,
+  Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, GripVertical,
   Home, ChevronLeft, RefreshCw, Sun, Moon,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
@@ -206,8 +206,9 @@ function getDefaultAbbr(name: string): string {
 function ProjectMetaEditModal({ proj, onClose, onSave }: {
   proj: ProjectMeta
   onClose: () => void
-  onSave: (abbr: string, projectCode: string, avatarColor: string) => void
+  onSave: (name: string, abbr: string, projectCode: string, avatarColor: string) => void
 }) {
+  const [name, setName] = useState(proj.name)
   const [abbr, setAbbr] = useState(proj.abbr ?? getDefaultAbbr(proj.name))
   const [projectCode, setProjectCode] = useState(proj.projectCode ?? '')
   const [avatarColor, setAvatarColor] = useState(proj.avatarColor ?? AVATAR_COLORS[0])
@@ -243,9 +244,18 @@ function ProjectMetaEditModal({ proj, onClose, onSave }: {
             </div>
           </div>
           <div>
-            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">약칭 (2자)</label>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">프로젝트명</label>
             <input
               autoFocus
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="프로젝트 이름"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">약칭 (2자)</label>
+            <input
               value={abbr}
               onChange={e => setAbbr(e.target.value.toUpperCase().slice(0, 2))}
               maxLength={2}
@@ -281,7 +291,7 @@ function ProjectMetaEditModal({ proj, onClose, onSave }: {
         <div className="flex gap-2 px-5 py-4 border-t t-border t-surface2">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors">취소</button>
           <button
-            onClick={() => onSave(abbr, projectCode, avatarColor)}
+            onClick={() => onSave(name, abbr, projectCode, avatarColor)}
             className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all"
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
@@ -299,7 +309,7 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick,
   isAdmin: boolean
   onSelect: () => void
   onDeleteClick: () => void
-  onMetaSave: (abbr: string, projectCode: string, avatarColor: string) => void
+  onMetaSave: (name: string, abbr: string, projectCode: string, avatarColor: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: proj.id })
   const [editOpen, setEditOpen] = useState(false)
@@ -378,8 +388,8 @@ function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick,
           <ProjectMetaEditModal
             proj={proj}
             onClose={() => setEditOpen(false)}
-            onSave={(a, c, col) => {
-              onMetaSave(a, c, col)
+            onSave={(n, a, c, col) => {
+              onMetaSave(n, a, c, col)
               setEditOpen(false)
             }}
           />
@@ -860,14 +870,21 @@ function AppInner() {
       <aside className="w-64 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
         {/* Logo */}
         <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid var(--t-border2)' }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 0 16px rgba(99,102,241,0.35)' }}>
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-[13px] font-bold leading-none" style={{ color: 'var(--t-text)' }}>Together</p>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--t-text3)' }}>함께하는 프로젝트</p>
-            </div>
+          <div className="flex items-center gap-2">
+            {/* 3D box icon */}
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+              <path d="M14 3L25 9V19L14 25L3 19V9L14 3Z" fill="url(#logoGrad)" />
+              <path d="M14 3L25 9L14 15L3 9L14 3Z" fill="white" fillOpacity="0.18" />
+              <path d="M14 15V25L3 19V9L14 15Z" fill="black" fillOpacity="0.14" />
+              <path d="M14 15V25L25 19V9L14 15Z" fill="black" fillOpacity="0.07" />
+              <defs>
+                <linearGradient id="logoGrad" x1="3" y1="3" x2="25" y2="25" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#6366f1"/>
+                  <stop offset="1" stopColor="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <p className="text-[20px] font-black leading-none tracking-tight" style={{ color: 'var(--t-text)' }}>Taskk</p>
           </div>
         </div>
 
@@ -890,10 +907,19 @@ function AppInner() {
                     if (viewRef.current === 'global-calendar' || viewRef.current === 'dashboard' || viewRef.current === 'feedback') setView('project-calendar')
                   }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
-                  onMetaSave={async (abbr, projectCode, avatarColor) => {
-                    await axios.patch(`${API}/api/projects/${proj.id}/meta`, { abbr, projectCode, avatarColor })
-                    setProjects(prev => prev.map(p => p.id === proj.id ? { ...p, abbr, projectCode, avatarColor } : p))
-                    if (board?.id === proj.id) setBoard(prev => prev ? { ...prev, abbr, projectCode, avatarColor } : prev)
+                  onMetaSave={async (name, abbr, projectCode, avatarColor) => {
+                    await Promise.all([
+                      axios.patch(`${API}/api/projects/${proj.id}/meta`, { abbr, projectCode, avatarColor }),
+                      name !== proj.name && board?.id === proj.id
+                        ? axios.put(`${API}/api/projects/${proj.id}`, { ...board, name, abbr, projectCode, avatarColor })
+                        : name !== proj.name
+                        ? axios.get<ProjectBoard>(`${API}/api/projects/${proj.id}`).then(r =>
+                            axios.put(`${API}/api/projects/${proj.id}`, { ...r.data, name })
+                          )
+                        : Promise.resolve(),
+                    ])
+                    setProjects(prev => prev.map(p => p.id === proj.id ? { ...p, name, abbr, projectCode, avatarColor } : p))
+                    if (board?.id === proj.id) setBoard(prev => prev ? { ...prev, name, abbr, projectCode, avatarColor } : prev)
                   }}
                 />
               ))}
