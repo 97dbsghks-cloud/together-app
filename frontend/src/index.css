@@ -3,9 +3,9 @@
 
 /* ── Theme Variables ───────────────────────────────────── */
 :root, [data-theme="light"] {
-  --t-bg:        #f5f5f7;
+  --t-bg:        #eef0f5;
   --t-surface:   #ffffff;
-  --t-surface2:  #f8f8fa;
+  --t-surface2:  #f3f4f8;
   --t-border:    rgba(0, 0, 0, 0.08);
   --t-border2:   rgba(0, 0, 0, 0.04);
   --t-text:      #1c1c1e;
@@ -18,12 +18,17 @@
   --t-active-bg: rgba(99, 102, 241, 0.08);
   --t-shadow:    0 2px 10px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.08);
   --t-shadow-lg: 0 8px 30px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06);
+
+  /* Glass */
+  --t-glass-bg:      rgba(255, 255, 255, 0.62);
+  --t-glass-border:  rgba(255, 255, 255, 0.75);
+  --t-glass-shadow:  0 8px 32px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.6) inset;
 }
 
 [data-theme="dark"] {
-  --t-bg:        #0d0d10;
-  --t-surface:   #141417;
-  --t-surface2:  #1a1a1f;
+  --t-bg:        #0d0d12;
+  --t-surface:   #141418;
+  --t-surface2:  #1c1c22;
   --t-border:    rgba(255, 255, 255, 0.07);
   --t-border2:   rgba(255, 255, 255, 0.04);
   --t-text:      #e8e8ed;
@@ -36,6 +41,11 @@
   --t-active-bg: rgba(99, 102, 241, 0.12);
   --t-shadow:    0 2px 10px rgba(0,0,0,0.3), 0 0 1px rgba(0,0,0,0.4);
   --t-shadow-lg: 0 8px 30px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(0,0,0,0.4);
+
+  /* Glass */
+  --t-glass-bg:      rgba(22, 22, 28, 0.72);
+  --t-glass-border:  rgba(255, 255, 255, 0.08);
+  --t-glass-shadow:  0 8px 32px rgba(0,0,0,0.40), 0 1px 0 rgba(255,255,255,0.04) inset;
 }
 
 /* ── Base ─────────────────────────────────────────────── */
@@ -51,7 +61,24 @@ html, body {
   min-height: 100vh;
   background: var(--t-bg);
   color: var(--t-text);
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.3s, color 0.2s;
+}
+
+/* App root background with subtle gradient blobs */
+#root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(99,102,241,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 10%,  rgba(139,92,246,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 80% 90%,  rgba(59,130,246,0.07) 0%, transparent 55%),
+    var(--t-bg);
+}
+[data-theme="dark"] #root {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(99,102,241,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 10%,  rgba(139,92,246,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 80% 90%,  rgba(59,130,246,0.08) 0%, transparent 55%),
+    var(--t-bg);
 }
 
 /* ── Sidebar interactive items ────────────────────────── */
@@ -127,6 +154,14 @@ input:focus, textarea:focus, select:focus { outline: none; }
 .t-hover:hover { background: var(--t-hover) !important; }
 .t-hover2:hover { background: var(--t-hover2) !important; }
 .t-hover-row:hover { background: var(--t-hover); }
+
+/* ── Glassmorphism panel ─────────────────────────────── */
+.t-glass {
+  background: var(--t-glass-bg) !important;
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  border-color: var(--t-glass-border) !important;
+}
 
 /* ── Legacy glass/shadow classes (still used in components) */
 .glass-card {

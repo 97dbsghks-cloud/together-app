@@ -221,7 +221,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
     <div className="flex-1 flex flex-col min-w-0 min-h-0 t-surface overflow-hidden">
 
       {/* Toolbar — h-[56px] matches sub-tab bar */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 border-b t-border t-surface" style={{ height: 56 }}>
+      <div className="t-glass flex-shrink-0 flex items-center gap-2 px-4 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
         <button
           onClick={() => { setSettDate(g.startDate); setSettWeeks(g.weekCount); setShowSettings(true) }}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold t-text2 border t-border rounded-lg t-hover transition-colors"

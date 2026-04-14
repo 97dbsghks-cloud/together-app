@@ -703,7 +703,7 @@ function AppInner() {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
       {/* Left Sidebar */}
-      <aside className="w-60 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+      <aside className="t-glass w-60 flex-shrink-0 flex flex-col border-r" style={{ borderColor: 'var(--t-glass-border)' }}>
 
         {/* Logo — h-[56px] matches topbar */}
         <div className="h-[56px] flex items-center px-5 flex-shrink-0">
@@ -901,7 +901,7 @@ function AppInner() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Bar */}
-        <header className="h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+        <header className="t-glass h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b" style={{ borderColor: 'var(--t-glass-border)' }}>
           <div className="flex items-center gap-3">
             {/* Breadcrumb: Project > View */}
             {view !== 'dashboard' && view !== 'global-calendar' && activeProj ? (
@@ -1024,7 +1024,7 @@ function AppInner() {
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Board sub-tabs */}
-              <div className="flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)', height: 56 }}>
+              <div className="t-glass flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
                 {(['todo', 'remember'] as const).map(t => (
                   <button
                     key={t}

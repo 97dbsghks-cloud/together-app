@@ -165,7 +165,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
   return (
     <div className="flex-1 overflow-hidden flex flex-col" style={{ background: 'var(--t-bg)' }}>
       {/* Category sub-tabs */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-5 border-b t-surface" style={{ borderColor: 'var(--t-border)', height: 56 }}>
+      <div className="t-glass flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
         {CATEGORIES.map(cat => (
           <button
             key={cat}
