@@ -188,7 +188,7 @@ export default function CalendarView({
         {/* 날씨 정보 (대시보드에서만) - 우측 배치 */}
         {hideEventList && weather && (
           <div className="text-base font-bold t-text flex items-center gap-1.5" style={{ color: 'var(--t-text2)' }}>
-            {today.getMonth() + 1}월 {today.getDate()}일 {weatherIcon(weather.code)} {weather.temp}°
+            {today.getMonth() + 1}월 {today.getDate()}일 ({['일', '월', '화', '수', '목', '금', '토'][today.getDay()]}) {weatherIcon(weather.code)} {weather.temp}°
           </div>
         )}
       </div>
