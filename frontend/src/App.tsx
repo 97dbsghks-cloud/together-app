@@ -977,6 +977,7 @@ function AppInner() {
               projects={projects}
               activeProjectId={activeProjectId}
               isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
+              userName={user.name}
               onSelectProject={(pid) => { setActiveProjectId(pid); setView('project-calendar') }}
               onAddEvent={addEvent}
               onDeleteEvent={deleteEvent}

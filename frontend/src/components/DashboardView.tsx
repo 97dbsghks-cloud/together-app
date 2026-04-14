@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { AlertCircle, CalendarDays } from 'lucide-react'
+import { AlertCircle, CalendarDays, MessageSquare } from 'lucide-react'
 import { Trash2 } from 'lucide-react'
 import CalendarView from './CalendarView'
+import GlobalChat from './GlobalChat'
 import type { ProjectBoard, ProjectMeta, CalendarEvent } from '../App'
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   projects: ProjectMeta[]
   activeProjectId: string | null
   isAdmin: boolean
+  userName: string
   onSelectProject?: (projectId: string) => void
   onAddEvent: (projectId: string, event: CalendarEvent) => void
   onDeleteEvent: (projectId: string, eventId: string) => void
@@ -35,7 +37,7 @@ function formatRelativeDate(dateStr: string): { label: string; urgent: boolean }
 }
 
 export default function DashboardView({
-  allBoards, projects, activeProjectId, isAdmin,
+  allBoards, projects, activeProjectId, isAdmin, userName,
   onSelectProject, onAddEvent, onDeleteEvent, onUpdateEvent,
 }: Props) {
   const today = new Date()
@@ -88,17 +90,34 @@ export default function DashboardView({
   return (
     <div className="flex-1 flex overflow-hidden p-4 gap-4" style={{ background: 'var(--t-bg)' }}>
 
-      {/* Left — Calendar card */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0" style={cardStyle}>
-        <CalendarView
-          allBoards={allBoards}
-          projects={projects}
-          activeProjectId={activeProjectId}
-          hideEventList
-          onAddEvent={onAddEvent}
-          onDeleteEvent={onDeleteEvent}
-          onUpdateEvent={onUpdateEvent}
-        />
+      {/* Left — Calendar + Global Chat stacked */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 gap-4">
+        {/* Calendar card */}
+        <div className="flex-1 flex flex-col min-h-0" style={cardStyle}>
+          <CalendarView
+            allBoards={allBoards}
+            projects={projects}
+            activeProjectId={activeProjectId}
+            hideEventList
+            onAddEvent={onAddEvent}
+            onDeleteEvent={onDeleteEvent}
+            onUpdateEvent={onUpdateEvent}
+          />
+        </div>
+
+        {/* Global Chat card */}
+        <div className="flex-shrink-0 flex flex-col" style={{ ...cardStyle, height: 260 }}>
+          <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
+              <MessageSquare className="w-3.5 h-3.5" style={{ color: '#6366f1' }} />
+            </div>
+            <h3 className="text-[13px] font-bold t-text flex-1">전체 채팅</h3>
+            <span className="text-[10px]" style={{ color: 'var(--t-text3)' }}>모든 팀원 참여</span>
+          </div>
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <GlobalChat userName={userName} isAdmin={isAdmin} />
+          </div>
+        </div>
       </div>
 
       {/* Right — two stacked cards */}

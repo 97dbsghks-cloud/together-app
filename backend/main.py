@@ -177,6 +177,15 @@ def init_db():
                     value JSONB NOT NULL
                 )
             """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS global_chat (
+                    id         TEXT PRIMARY KEY,
+                    author     TEXT NOT NULL,
+                    content    TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    is_admin   BOOLEAN NOT NULL DEFAULT FALSE
+                )
+            """)
             conn.commit()
 
             # Seed projects from db.json if table is empty
@@ -801,3 +810,40 @@ def delete_announcement(announcement_id: str):
 def update_announcement(announcement_id: str, announcement: Announcement):  # noqa: ARG001
     save_announcement(announcement.dict())
     return {"status": "success"}
+
+# ── Global Chat ─────────────────────────────────────────────────────────────────
+@app.get("/api/global-chat")
+def get_global_chat():
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id, author, content, created_at AS \"createdAt\", is_admin AS \"isAdmin\" FROM global_chat ORDER BY created_at ASC")
+            rows = cur.fetchall()
+        return {"messages": [dict(r) for r in rows]}
+    finally:
+        conn.close()
+
+@app.post("/api/global-chat")
+def post_global_chat(message: ChatMessage):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO global_chat (id, author, content, created_at, is_admin) VALUES (%s, %s, %s, %s, %s)",
+                (message.id, message.author, message.content, message.createdAt, message.isAdmin)
+            )
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()
+
+@app.delete("/api/global-chat/{message_id}")
+def delete_global_chat(message_id: str):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM global_chat WHERE id = %s", (message_id,))
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()
