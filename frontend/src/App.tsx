@@ -322,6 +322,7 @@ function AppInner() {
   const [aiOpen, setAiOpen] = useState(false)
 
   const [confettiTrigger, setConfettiTrigger] = useState(false)
+  const lastMutationTime = useRef<number>(0)
 
   const [showNewProject, setShowNewProject] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
@@ -410,6 +411,8 @@ function AppInner() {
     const id = setInterval(async () => {
       try {
         const res = await axios.get<ProjectBoard>(`${API}/api/projects/${activeProjectId}`)
+        // 마지막 수정 후 2초간은 서버 데이터를 무시 (낙관적 UI 보호)
+        if (Date.now() - lastMutationTime.current < 2000) return
         setBoard(res.data)
       } catch {}
     }, 5000)
@@ -521,6 +524,7 @@ function AppInner() {
   }
 
   const handleDragEnd = (e: DragEndEvent) => {
+    lastMutationTime.current = Date.now()
     setActiveTask(null)
     setActiveOverColId(null)
     const current = boardRef.current
@@ -558,6 +562,7 @@ function AppInner() {
   }
 
   const addTask = (colId: string, taskData: Partial<Task>) => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     const newTask: Task = { id: uuidv4(), title: taskData.title || '새 태스크', columnId: colId, ...taskData }
     setBoard(prev => prev ? { ...prev, tasks: [...prev.tasks, newTask] } : prev)
@@ -566,18 +571,21 @@ function AppInner() {
   }
 
   const deleteTask = (id: string) => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     setBoard(prev => prev ? { ...prev, tasks: prev.tasks.filter(t => t.id !== id) } : prev)
     axios.delete(`${API}/api/projects/${board.id}/tasks/${id}`).catch(console.error)
   }
 
   const updateTask = (updatedTask: Task) => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     setBoard(prev => prev ? { ...prev, tasks: prev.tasks.map(t => t.id === updatedTask.id ? updatedTask : t) } : prev)
     axios.patch(`${API}/api/projects/${board.id}/tasks/${updatedTask.id}`, updatedTask).catch(console.error)
   }
 
   const addColumn = () => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     const colors = ['#af52de', '#ff2d55', '#5ac8fa', '#ff6b35']
     const newCol: Column = { id: uuidv4(), title: '새 열', color: colors[board.columns.length % colors.length] }
@@ -586,6 +594,7 @@ function AppInner() {
   }
 
   const updateColumnTitle = (id: string, title: string) => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     const col = board.columns.find(c => c.id === id)
     if (!col) return
@@ -595,6 +604,7 @@ function AppInner() {
   }
 
   const deleteColumn = (id: string) => {
+    lastMutationTime.current = Date.now()
     if (!board) return
     setBoard(prev => prev ? { ...prev, columns: prev.columns.filter(c => c.id !== id), tasks: prev.tasks.filter(t => t.columnId !== id) } : prev)
     axios.delete(`${API}/api/projects/${board.id}/columns/${id}`).catch(console.error)
