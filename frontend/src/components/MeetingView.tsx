@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus, Trash2, ChevronDown, ChevronUp, BookOpen, ArrowRight, Pencil } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { v4 as uuidv4 } from 'uuid'
 import clsx from 'clsx'
 import type { Task, RememberItem } from '../App'
@@ -164,20 +165,28 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
 
   return (
     <div className="flex-1 overflow-hidden flex flex-col" style={{ background: 'var(--t-bg)' }}>
-      {/* Category sub-tabs */}
-      <div className="t-glass flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all"
-            style={activeCategory === cat
-              ? { background: '#6366f1', color: '#fff' }
-              : { background: 'var(--t-surface2)', color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}
-          >
-            {cat}
-          </button>
-        ))}
+      {/* Category sub-tabs — sliding pill */}
+      <div className="t-glass flex-shrink-0 flex items-center px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
+        <div className="flex items-center gap-1 p-1 rounded-full" style={{ background: 'var(--t-surface2)', border: '1px solid var(--t-border)' }}>
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="relative px-5 py-1.5 rounded-full text-[13px] font-semibold transition-colors"
+              style={{ color: activeCategory === cat ? '#fff' : 'var(--t-text2)', position: 'relative', zIndex: 1 }}
+            >
+              {activeCategory === cat && (
+                <motion.span
+                  layoutId="meeting-tab-pill"
+                  className="absolute inset-0 rounded-full"
+                  style={{ background: '#6366f1', zIndex: -1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                />
+              )}
+              {cat}
+            </button>
+          ))}
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <span className="text-[11px] t-text3">{filtered.length}개</span>
           <button

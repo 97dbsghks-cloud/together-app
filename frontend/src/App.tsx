@@ -702,8 +702,8 @@ function AppInner() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
-      {/* Left Sidebar */}
-      <aside className="t-glass w-60 flex-shrink-0 flex flex-col border-r" style={{ borderColor: 'var(--t-glass-border)' }}>
+      {/* Left Sidebar — no right border, floats over bg */}
+      <aside className="t-glass w-60 flex-shrink-0 flex flex-col" style={{ borderRight: 'none' }}>
 
         {/* Logo — h-[56px] matches topbar */}
         <div className="h-[56px] flex items-center px-5 flex-shrink-0">
@@ -898,10 +898,10 @@ function AppInner() {
         </div>
       </aside>
 
-      {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      {/* Main Area — big rounded card */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden my-3 mr-3 rounded-2xl" style={{ background: 'var(--t-surface)', boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)' }}>
         {/* Top Bar */}
-        <header className="t-glass h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b" style={{ borderColor: 'var(--t-glass-border)' }}>
+        <header className="t-glass h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b rounded-t-2xl" style={{ borderColor: 'var(--t-glass-border)' }}>
           <div className="flex items-center gap-3">
             {/* Breadcrumb: Project > View */}
             {view !== 'dashboard' && view !== 'global-calendar' && activeProj ? (
@@ -1023,20 +1023,28 @@ function AppInner() {
             />
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Board sub-tabs */}
-              <div className="t-glass flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
-                {(['todo', 'remember'] as const).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setBoardTab(t)}
-                    className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all"
-                    style={boardTab === t
-                      ? { background: '#6366f1', color: '#fff' }
-                      : { background: 'var(--t-surface2)', color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}
-                  >
-                    {t === 'todo' ? '할 일' : '리멤버'}
-                  </button>
-                ))}
+              {/* Board sub-tabs — sliding pill */}
+              <div className="t-glass flex-shrink-0 flex items-center px-5 border-b" style={{ borderColor: 'var(--t-glass-border)', height: 56 }}>
+                <div className="flex items-center gap-1 p-1 rounded-full" style={{ background: 'var(--t-surface2)', border: '1px solid var(--t-border)' }}>
+                  {(['todo', 'remember'] as const).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setBoardTab(t)}
+                      className="relative px-5 py-1.5 rounded-full text-[13px] font-semibold transition-colors"
+                      style={{ color: boardTab === t ? '#fff' : 'var(--t-text2)', position: 'relative', zIndex: 1 }}
+                    >
+                      {boardTab === t && (
+                        <motion.span
+                          layoutId="board-tab-pill"
+                          className="absolute inset-0 rounded-full"
+                          style={{ background: '#6366f1', zIndex: -1 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                        />
+                      )}
+                      {t === 'todo' ? '할 일' : '리멤버'}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {boardTab === 'remember' && board ? (
