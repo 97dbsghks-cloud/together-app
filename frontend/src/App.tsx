@@ -1014,16 +1014,15 @@ function AppInner() {
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Board sub-tabs */}
-              <div className="flex-shrink-0 flex items-center gap-0 px-5 border-b t-surface" style={{ borderColor: 'var(--t-border)', height: 38 }}>
+              <div className="flex-shrink-0 flex items-center gap-2 px-5 border-b" style={{ borderColor: 'var(--t-border)', background: 'var(--t-surface)', height: 56 }}>
                 {(['todo', 'remember'] as const).map(t => (
                   <button
                     key={t}
                     onClick={() => setBoardTab(t)}
-                    className={clsx(
-                      'px-3.5 py-1 rounded-lg text-[11px] font-semibold transition-all mr-1',
-                      boardTab === t ? 'text-white' : 't-text3 t-hover'
-                    )}
-                    style={boardTab === t ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
+                    className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all"
+                    style={boardTab === t
+                      ? { background: '#6366f1', color: '#fff' }
+                      : { background: 'var(--t-surface2)', color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}
                   >
                     {t === 'todo' ? '할 일' : '리멤버'}
                   </button>
