@@ -183,6 +183,12 @@ export default function CalendarView({
               오늘
             </button>
           )}
+          {/* 날씨 정보 (대시보드에서만) */}
+          {hideEventList && weather && (
+            <div className="ml-3 text-base font-bold t-text flex items-center gap-1.5" style={{ color: 'var(--t-text2)' }}>
+              - 오늘의 날짜 {today.getMonth() + 1}월 {today.getDate()}일 {weatherIcon(weather.code)} {weather.temp}°
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,21 +197,10 @@ export default function CalendarView({
         {WEEKDAYS.map((d, i) => (
           <div
             key={d}
-            className={`text-center py-1 flex flex-col items-center justify-end min-h-[36px] gap-0.5 ${
+            className={`text-center py-1 flex flex-col items-center justify-center min-h-[36px] gap-0.5 ${
               i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400'
             }`}
           >
-            {i === 6 && hideEventList && weather && (
-              <div className="flex flex-col items-center mb-0.5 font-normal select-none">
-                <div className="flex items-center gap-1 leading-none" style={{ color: 'var(--t-text2)' }}>
-                  <span className="text-[10px] opacity-80">{today.getMonth() + 1}/{today.getDate()}</span>
-                  <span className="text-[11px]">{weatherIcon(weather.code)} {weather.temp}°</span>
-                </div>
-                <div className="text-[9px] mt-[3px] leading-none opacity-60" style={{ color: 'var(--t-text3)' }}>
-                  {weather.min}°/{weather.max}°
-                </div>
-              </div>
-            )}
             <span className="text-[11px] font-semibold leading-none">{d}</span>
           </div>
         ))}
