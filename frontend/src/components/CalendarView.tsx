@@ -5,7 +5,7 @@ import type { CalendarEvent, ProjectBoard, ProjectMeta } from '../App'
 import AddEventModal from './AddEventModal'
 
 // ── Weather (Open-Meteo, Seoul, no API key needed) ──────────────────────────
-type Weather = { temp: number; code: number }
+type Weather = { temp: number; min: number; max: number; code: number }
 
 function weatherIcon(code: number): string {
   if (code === 0) return '☀️'
@@ -20,13 +20,19 @@ function weatherIcon(code: number): string {
 function useWeather(): Weather | null {
   const [weather, setWeather] = useState<Weather | null>(null)
   useEffect(() => {
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&timezone=Asia%2FSeoul')
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul')
       .then(r => r.json())
-      .then(d => setWeather({ temp: Math.round(d.current.temperature_2m), code: d.current.weather_code }))
+      .then(d => setWeather({
+        temp: Math.round(d.current.temperature_2m),
+        min: Math.round(d.daily.temperature_2m_min[0]),
+        max: Math.round(d.daily.temperature_2m_max[0]),
+        code: d.current.weather_code
+      }))
       .catch(() => {})
   }, [])
   return weather
 }
+
 
 type EventWithMeta = {
   event: CalendarEvent
@@ -143,7 +149,7 @@ export default function CalendarView({
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 min-h-0" style={{ background: 'var(--t-bg)' }}>
+    <div className={`flex-1 p-5 min-h-0 flex flex-col ${hideEventList ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ background: 'var(--t-bg)' }}>
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-1.5">
@@ -185,22 +191,28 @@ export default function CalendarView({
         {WEEKDAYS.map((d, i) => (
           <div
             key={d}
-            className={`text-center text-[11px] font-semibold py-1.5 flex flex-col items-center gap-0.5 ${
+            className={`text-center py-1 flex flex-col items-center justify-end min-h-[36px] gap-0.5 ${
               i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400'
             }`}
           >
-            {d}
             {i === 6 && hideEventList && weather && (
-              <span className="text-[11px] leading-none" style={{ color: 'var(--t-text2)' }}>
-                {weatherIcon(weather.code)} {weather.temp}°
-              </span>
+              <div className="flex flex-col items-center mb-0.5 font-normal select-none">
+                <div className="flex items-center gap-1 leading-none" style={{ color: 'var(--t-text2)' }}>
+                  <span className="text-[10px] opacity-80">{today.getMonth() + 1}/{today.getDate()}</span>
+                  <span className="text-[11px]">{weatherIcon(weather.code)} {weather.temp}°</span>
+                </div>
+                <div className="text-[9px] mt-[3px] leading-none opacity-60" style={{ color: 'var(--t-text3)' }}>
+                  {weather.min}°/{weather.max}°
+                </div>
+              </div>
             )}
+            <span className="text-[11px] font-semibold leading-none">{d}</span>
           </div>
         ))}
       </div>
 
       {/* Calendar grid — week by week */}
-      <div className="border-t border-l t-border rounded-2xl overflow-hidden shadow-sm">
+      <div className={`border-t border-l t-border rounded-2xl shadow-sm overflow-hidden ${hideEventList ? 'flex-1 flex flex-col min-h-0' : ''}`}>
         {weeks.map((week, wIdx) => {
           const weekDates = week.map(d => (d ? cellDate(d) : null))
           const validDates = weekDates.filter(Boolean) as string[]
@@ -264,7 +276,7 @@ export default function CalendarView({
           const cellMinH = Math.max(96, DAY_NUM_H + numLanes * LANE_H + 44)
 
           return (
-            <div key={wIdx} className="relative grid grid-cols-7">
+            <div key={wIdx} className={`relative grid grid-cols-7 ${hideEventList ? 'flex-1 min-h-0' : ''}`}>
               {/* Day cells */}
               {week.map((day, col) => {
                 const dateStr = weekDates[col]
@@ -309,14 +321,14 @@ export default function CalendarView({
                         ...(d.event.endDate ? { endDate: shiftDate(d.event.endDate, deltaMs) } : {}),
                       })
                     }}
-                    className={`border-r border-b t-border transition-colors ${
+                    className={`border-r border-b t-border transition-colors ${hideEventList ? 'overflow-hidden' : ''} ${
                       day
                         ? dragOverDate === dateStr
                           ? 'bg-blue-100'
                           : 't-surface cursor-pointer'
                         : 't-surface2'
                     }`}
-                    style={{ minHeight: cellMinH }}
+                    style={hideEventList ? undefined : { minHeight: cellMinH }}
                   >
                     {day && (
                       <>
