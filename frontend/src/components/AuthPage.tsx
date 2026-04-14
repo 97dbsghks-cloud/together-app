@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Users } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import type { AuthUser } from '../context/AuthContext'
@@ -53,15 +52,19 @@ export default function AuthPage() {
         style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.12)' }}
       >
         {/* Logo */}
-        <div className="px-8 pt-8 pb-6 text-center">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'linear-gradient(135deg, #007aff 0%, #5856d6 100%)' }}
+        <div className="px-8 pt-10 pb-6 text-center">
+          <h1
+            className="text-[32px] leading-none mb-2"
+            style={{
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              fontFamily: '"Inter", "SF Pro Display", system-ui, sans-serif',
+              color: '#111',
+            }}
           >
-            <Users className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">Together</h1>
-          <p className="text-[12px] text-gray-400 mt-1">함께하는 프로젝트</p>
+            together
+          </h1>
+          <p className="text-[13px] text-gray-400 font-medium">함께하는 프로젝트</p>
         </div>
 
         {/* Tab */}
