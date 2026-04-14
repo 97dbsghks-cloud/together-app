@@ -157,16 +157,7 @@ function AuthGate() {
   return <AppInner />
 }
 
-const ALL_TABS = [
-  { key: 'chat',             label: '팀 채팅'  },
-  { key: 'project-calendar', label: '캘린더'   },
-  { key: 'board',            label: '보드'     },
-  { key: 'milestone',        label: '마일스톤' },
-  { key: 'meeting',          label: '회의록'   },
-] as const
-
-type TabKey = typeof ALL_TABS[number]['key']
-
+type TabKey = 'chat' | 'project-calendar' | 'board' | 'milestone' | 'meeting'
 
 const AVATAR_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
@@ -774,31 +765,42 @@ function AppInner() {
                 {/* Project list */}
                 <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
                   {filteredProjects.map(proj => (
-                    <button
-                      key={proj.id}
-                      onClick={() => {
-                        setActiveProjectId(proj.id)
-                        setProjDropOpen(false)
-                        if (view === 'dashboard' || view === 'feedback' || view === 'global-calendar') setView('board')
-                      }}
-                      className={clsx(
-                        'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
-                        proj.id === activeProjectId ? '' : 't-hover'
+                    <div key={proj.id} className="flex items-center gap-1 group">
+                      <button
+                        onClick={() => {
+                          setActiveProjectId(proj.id)
+                          setProjDropOpen(false)
+                          if (view === 'dashboard' || view === 'feedback' || view === 'global-calendar') setView('board')
+                        }}
+                        className={clsx(
+                          'flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
+                          proj.id === activeProjectId ? '' : 't-hover'
+                        )}
+                        style={proj.id === activeProjectId
+                          ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' }
+                          : { color: 'var(--t-text)' }}
+                      >
+                        <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                          style={{ background: proj.avatarColor ?? '#6366f1' }}>
+                          {(proj.abbr ?? getDefaultAbbr(proj.name)).slice(0,2)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] font-semibold truncate">{proj.name}</p>
+                          {proj.projectCode && <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{proj.projectCode}</p>}
+                        </div>
+                        {proj.id === activeProjectId && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                      </button>
+                      {(user.role === 'admin' || user.role === 'sub_admin') && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setProjDropOpen(false); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
+                          className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-lg transition-all flex-shrink-0"
+                          style={{ color: '#ef4444' }}
+                          title="프로젝트 삭제"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
                       )}
-                      style={proj.id === activeProjectId
-                        ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' }
-                        : { color: 'var(--t-text)' }}
-                    >
-                      <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                        style={{ background: proj.avatarColor ?? '#6366f1' }}>
-                        {(proj.abbr ?? getDefaultAbbr(proj.name)).slice(0,2)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-semibold truncate">{proj.name}</p>
-                        {proj.projectCode && <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{proj.projectCode}</p>}
-                      </div>
-                      {proj.id === activeProjectId && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-                    </button>
+                    </div>
                   ))}
                   {filteredProjects.length === 0 && (
                     <p className="text-[11px] text-center py-4" style={{ color: 'var(--t-text3)' }}>검색 결과 없음</p>
@@ -954,25 +956,6 @@ function AppInner() {
             )}
           </div>
         </header>
-
-        {/* Board sub-tab (보드 뷰 내 할일/리멤버) */}
-        {view === 'board' && board && (
-          <div className="flex-shrink-0 flex items-center gap-1 px-6 pt-3 pb-0">
-            {(['todo', 'remember'] as const).map(t => (
-              <button
-                key={t}
-                onClick={() => setBoardTab(t)}
-                className={clsx(
-                  'px-4 py-1.5 rounded-lg text-[12px] font-semibold transition-all',
-                  boardTab === t ? 'text-white' : 't-text3 t-hover'
-                )}
-                style={boardTab === t ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
-              >
-                {t === 'todo' ? '할 일' : '리멤버'}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
