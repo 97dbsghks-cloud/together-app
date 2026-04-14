@@ -3,12 +3,11 @@ import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection,
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core'
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, horizontalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { arrayMove } from '@dnd-kit/sortable'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone, GripVertical,
-  Home, ChevronLeft, RefreshCw, Sun, Moon,
+  Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone,
+  Home, RefreshCw, Sun, Moon,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -168,29 +167,6 @@ const ALL_TABS = [
 
 type TabKey = typeof ALL_TABS[number]['key']
 
-function SortableTab({ id, label, isActive, isAdmin, onClick }: {
-  id: string; label: string; isActive: boolean; isAdmin: boolean; onClick: () => void
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-  return (
-    <button
-      ref={setNodeRef}
-      onClick={onClick}
-      {...(isAdmin ? attributes : {})}
-      {...(isAdmin ? listeners : {})}
-      className={clsx('px-4 h-full text-[14px] font-semibold flex items-center gap-1.5 t-tab', isActive && 'active', isDragging && 'opacity-50')}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-        cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
-        marginBottom: '-1px',
-      }}
-    >
-      {isAdmin && <GripVertical className="w-2.5 h-2.5 opacity-30" />}
-      {label}
-    </button>
-  )
-}
 
 const AVATAR_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
@@ -303,102 +279,6 @@ function ProjectMetaEditModal({ proj, onClose, onSave }: {
   )
 }
 
-function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick, onMetaSave }: {
-  proj: ProjectMeta
-  isActive: boolean
-  isAdmin: boolean
-  onSelect: () => void
-  onDeleteClick: () => void
-  onMetaSave: (name: string, abbr: string, projectCode: string, avatarColor: string) => void
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: proj.id })
-  const [editOpen, setEditOpen] = useState(false)
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
-
-  const abbr = proj.abbr ?? getDefaultAbbr(proj.name)
-  const color = proj.avatarColor ?? AVATAR_COLORS[0]
-  // soft card bg: very light tint of avatar color
-  const cardBg = isActive
-    ? `${color}22`
-    : 'var(--t-surface2)'
-  const borderColor = isActive ? `${color}55` : 'var(--t-border)'
-
-  return (
-    <>
-      <div ref={setNodeRef} style={style} className="relative group">
-        {/* Drag handle — admin only */}
-        {isAdmin && (
-          <div
-            {...attributes}
-            {...listeners}
-            className="absolute left-1 top-3 p-1 cursor-grab active:cursor-grabbing t-text3 opacity-0 group-hover:opacity-60 transition-opacity z-10"
-          >
-            <GripVertical className="w-3 h-3" />
-          </div>
-        )}
-
-        <div
-          onClick={onSelect}
-          className="rounded-2xl p-3 cursor-pointer transition-all duration-200"
-          style={{
-            background: cardBg,
-            border: `1px solid ${borderColor}`,
-            boxShadow: isActive ? `0 4px 16px ${color}22` : '0 1px 4px rgba(0,0,0,0.04)',
-          }}
-        >
-          {/* Top row: avatar + action buttons */}
-          <div className="flex items-start justify-between mb-2.5">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[14px] font-bold flex-shrink-0"
-              style={{ background: color }}
-            >
-              {abbr}
-            </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {isAdmin && (
-                <button
-                  onClick={e => { e.stopPropagation(); setEditOpen(true) }}
-                  className="w-6 h-6 rounded-lg flex items-center justify-center t-text3 t-hover transition-colors"
-                  title="편집"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              )}
-              {isAdmin && (
-                <button
-                  onClick={e => { e.stopPropagation(); onDeleteClick() }}
-                  className="w-6 h-6 rounded-lg flex items-center justify-center t-text3 hover:text-red-400 hover:bg-red-50/20 transition-colors"
-                  title="삭제"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Project name */}
-          <p className="text-[13px] font-bold t-text leading-snug truncate">{proj.name}</p>
-          {/* Project code */}
-          <p className="text-[11px] t-text3 mt-0.5 truncate">{proj.projectCode || '번호 미설정'}</p>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {editOpen && (
-          <ProjectMetaEditModal
-            proj={proj}
-            onClose={() => setEditOpen(false)}
-            onSave={(n, a, c, col) => {
-              onMetaSave(n, a, c, col)
-              setEditOpen(false)
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </>
-  )
-}
-
 function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
@@ -441,7 +321,6 @@ function AppInner() {
   const viewRef = useRef(view)
   viewRef.current = view
   const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
-  const [viewHistory, setViewHistory] = useState<string[]>([])
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
@@ -455,9 +334,8 @@ function AppInner() {
 
   const [showNewProject, setShowNewProject] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
-  const [editingProjectName, setEditingProjectName] = useState(false)
-  const [editNameVal, setEditNameVal] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null)
+  const [editingMetaProj, setEditingMetaProj] = useState<ProjectMeta | null>(null)
   const [deleteCode, setDeleteCode] = useState('')
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: {
@@ -489,78 +367,11 @@ function AppInner() {
     return sorted
   }, [user.id, user.role])
 
-  const projectSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 150, tolerance: 5 } }))
-  const tabSensors     = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-
-  // Tab order — global, admin-controlled
-  const allTabKeys = ALL_TABS.map(t => t.key)
-  const [tabOrder, setTabOrder] = useState<string[]>(allTabKeys)
-  const tabOrderRef = useRef<string[]>(allTabKeys)
-  tabOrderRef.current = tabOrder   // always latest, no stale-closure risk
-
-  useEffect(() => {
-    axios.get<{ order: string[] }>(`${API}/api/settings/tab-order`)
-      .then(res => {
-        const saved = res.data.order.filter(k => (allTabKeys as string[]).includes(k))
-        // prepend saved order, append any new tabs not yet in saved list
-        const merged = [...saved, ...allTabKeys.filter(k => !saved.includes(k))]
-        setTabOrder(merged)
-      })
-      .catch(() => {})
-  }, []) // eslint-disable-line
-
-  const orderedTabs = tabOrder
-    .map(key => ALL_TABS.find(t => t.key === key))
-    .filter(Boolean) as typeof ALL_TABS[number][]
-
-  const handleTabDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const cur     = tabOrderRef.current
-    const oldIdx  = cur.indexOf(active.id as string)
-    const newIdx  = cur.indexOf(over.id   as string)
-    if (oldIdx === -1 || newIdx === -1) return   // dropped outside valid tab
-    const reordered = arrayMove(cur, oldIdx, newIdx)
-    setTabOrder(reordered)
-    try {
-      await axios.put(`${API}/api/settings/tab-order`, { order: reordered })
-    } catch (e) {
-      console.error('[tab-order] save failed:', e)
-    }
-  }, [])  // useCallback with empty deps — safe because we use tabOrderRef
-
-  const handleProjectDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = projects.findIndex(p => p.id === active.id)
-    const newIndex = projects.findIndex(p => p.id === over.id)
-    const reordered = arrayMove(projects, oldIndex, newIndex)
-    setProjects(reordered)
-    await axios.put(`${API}/api/projects/order`, { order: reordered.map(p => p.id) })
-  }
-
   useEffect(() => {
     loadProjects().then(list => {
       if (list.length > 0 && !activeProjectId) {
         setActiveProjectId(list[0].id)
       }
-    })
-  }, [])
-
-  // Navigation helpers
-  const goBack = useCallback(() => {
-    setViewHistory(h => {
-      if (h.length === 0) return h
-      const prev = h[h.length - 1]
-      setView(prev as TabKey)
-      return h.slice(0, -1)
-    })
-  }, [])
-
-  const goHome = useCallback(() => {
-    setView(prev => {
-      setViewHistory(h => [...h, prev])
-      return 'dashboard'
     })
   }, [])
 
@@ -855,32 +666,55 @@ function AppInner() {
     setDeleteCode('')
   }
 
-  const saveProjectName = () => {
-    if (!board || !editNameVal.trim()) return
-    const updated = { ...board, name: editNameVal.trim() }
-    setBoard(updated)
-    saveBoard(updated)
-    setProjects(prev => prev.map(p => p.id === board.id ? { ...p, name: editNameVal.trim() } : p))
-    setEditingProjectName(false)
+  // Project dropdown state
+  const [projDropOpen, setProjDropOpen] = useState(false)
+  const [projSearch, setProjSearch] = useState('')
+  const filteredProjects = projects.filter(p =>
+    p.name.toLowerCase().includes(projSearch.toLowerCase()) ||
+    (p.projectCode ?? '').toLowerCase().includes(projSearch.toLowerCase())
+  )
+  const activeProj = projects.find(p => p.id === activeProjectId)
+
+  const NAV_ITEMS = [
+    { key: 'dashboard',        label: '홈',       icon: <Home className="w-4 h-4" /> },
+    { key: 'board',            label: '보드',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/></svg> },
+    { key: 'project-calendar', label: '캘린더',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+    { key: 'milestone',        label: '마일스톤', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg> },
+    { key: 'meeting',          label: '회의록',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+    { key: 'chat',             label: '채팅',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+    { key: 'feedback',         label: '피드백',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> },
+  ] as const
+
+  const handleNavClick = (key: string) => {
+    if (key === 'dashboard') { setView('dashboard'); return }
+    if (key === 'feedback') { setView('feedback'); return }
+    if (!activeProjectId && projects.length > 0) setActiveProjectId(projects[0].id)
+    setView(key as TabKey)
+  }
+
+  const isNavActive = (key: string) => {
+    if (key === 'dashboard') return view === 'dashboard'
+    if (key === 'feedback') return view === 'feedback'
+    if (key === 'board') return view === 'board' || view === ('board' as string)
+    return view === key
   }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
       {/* Left Sidebar */}
-      <aside className="w-64 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+      <aside className="w-60 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+
         {/* Logo */}
-        <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid var(--t-border2)' }}>
+        <div className="px-5 pt-5 pb-4">
           <div className="flex items-center gap-2">
-            {/* 3D box icon */}
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-              <path d="M14 3L25 9V19L14 25L3 19V9L14 3Z" fill="url(#logoGrad)" />
+            <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+              <path d="M14 3L25 9V19L14 25L3 19V9L14 3Z" fill="url(#logoGrad2)" />
               <path d="M14 3L25 9L14 15L3 9L14 3Z" fill="white" fillOpacity="0.18" />
               <path d="M14 15V25L3 19V9L14 15Z" fill="black" fillOpacity="0.14" />
               <path d="M14 15V25L25 19V9L14 15Z" fill="black" fillOpacity="0.07" />
               <defs>
-                <linearGradient id="logoGrad" x1="3" y1="3" x2="25" y2="25" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#6366f1"/>
-                  <stop offset="1" stopColor="#8b5cf6"/>
+                <linearGradient id="logoGrad2" x1="3" y1="3" x2="25" y2="25" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#6366f1"/><stop offset="1" stopColor="#8b5cf6"/>
                 </linearGradient>
               </defs>
             </svg>
@@ -888,98 +722,166 @@ function AppInner() {
           </div>
         </div>
 
-        <div className="px-3 mt-3 mb-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-widest px-1" style={{ color: 'var(--t-text3)' }}>프로젝트</p>
-        </div>
-
-        {/* Project List */}
-        <DndContext sensors={projectSensors} onDragEnd={handleProjectDragEnd}>
-          <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-            <div className="flex-1 overflow-y-auto px-2 space-y-2">
-              {projects.map(proj => (
-                <SortableProjectItem
-                  key={proj.id}
-                  proj={proj}
-                  isActive={proj.id === activeProjectId && view !== 'global-calendar' && view !== 'dashboard'}
-                  isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
-                  onSelect={() => {
-                    setActiveProjectId(proj.id)
-                    if (viewRef.current === 'global-calendar' || viewRef.current === 'dashboard' || viewRef.current === 'feedback') setView('project-calendar')
-                  }}
-                  onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
-                  onMetaSave={async (name, abbr, projectCode, avatarColor) => {
-                    await Promise.all([
-                      axios.patch(`${API}/api/projects/${proj.id}/meta`, { abbr, projectCode, avatarColor }),
-                      name !== proj.name && board?.id === proj.id
-                        ? axios.put(`${API}/api/projects/${proj.id}`, { ...board, name, abbr, projectCode, avatarColor })
-                        : name !== proj.name
-                        ? axios.get<ProjectBoard>(`${API}/api/projects/${proj.id}`).then(r =>
-                            axios.put(`${API}/api/projects/${proj.id}`, { ...r.data, name })
-                          )
-                        : Promise.resolve(),
-                    ])
-                    setProjects(prev => prev.map(p => p.id === proj.id ? { ...p, name, abbr, projectCode, avatarColor } : p))
-                    if (board?.id === proj.id) setBoard(prev => prev ? { ...prev, name, abbr, projectCode, avatarColor } : prev)
-                  }}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-
-        {/* New Project Button (admin/sub_admin only) */}
-        {(user.role === 'admin' || user.role === 'sub_admin') && (
-          <div className="px-3 pt-2 pb-1">
-            <button
-              onClick={() => setShowNewProject(true)}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium transition-all duration-200 border border-dashed"
-              style={{ color: 'var(--t-text3)', borderColor: 'var(--t-border)' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-accent2)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-accent)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-active-bg)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text3)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              새 프로젝트 추가
-            </button>
-          </div>
-        )}
-
-        {/* Feedback Button */}
-        <div className="px-3 pb-1">
+        {/* Project Selector */}
+        <div className="px-3 mb-2 relative">
           <button
-            onClick={() => setView(v => v === 'feedback' ? 'board' : 'feedback')}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium t-sidebar-btn transition-all duration-200"
-            style={view === 'feedback' ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' } : {}}
+            onClick={() => { setProjDropOpen(v => !v); setProjSearch('') }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all"
+            style={{
+              background: 'var(--t-surface2)',
+              borderColor: projDropOpen ? 'var(--t-accent)' : 'var(--t-border)',
+            }}
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-            이용자 피드백
+            {activeProj ? (
+              <>
+                <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                  style={{ background: activeProj.avatarColor ?? '#6366f1' }}>
+                  {(activeProj.abbr ?? getDefaultAbbr(activeProj.name)).slice(0,2)}
+                </div>
+                <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--t-text)' }}>{activeProj.name}</span>
+              </>
+            ) : (
+              <span className="text-[12px] flex-1 text-left" style={{ color: 'var(--t-text3)' }}>프로젝트 선택</span>
+            )}
+            <svg className={clsx('w-3.5 h-3.5 flex-shrink-0 transition-transform', projDropOpen && 'rotate-180')} style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
+
+          <AnimatePresence>
+            {projDropOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                transition={{ duration: 0.15 }}
+                className="absolute left-3 right-3 top-full mt-1 z-50 rounded-2xl border overflow-hidden"
+                style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.14)' }}
+              >
+                {/* Search */}
+                <div className="p-2 border-b" style={{ borderColor: 'var(--t-border)' }}>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'var(--t-surface2)' }}>
+                    <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input
+                      autoFocus
+                      value={projSearch}
+                      onChange={e => setProjSearch(e.target.value)}
+                      placeholder="프로젝트 검색..."
+                      className="flex-1 bg-transparent text-[12px] outline-none"
+                      style={{ color: 'var(--t-text)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Project list */}
+                <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                  {filteredProjects.map(proj => (
+                    <button
+                      key={proj.id}
+                      onClick={() => {
+                        setActiveProjectId(proj.id)
+                        setProjDropOpen(false)
+                        if (view === 'dashboard' || view === 'feedback' || view === 'global-calendar') setView('board')
+                      }}
+                      className={clsx(
+                        'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
+                        proj.id === activeProjectId ? '' : 't-hover'
+                      )}
+                      style={proj.id === activeProjectId
+                        ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' }
+                        : { color: 'var(--t-text)' }}
+                    >
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                        style={{ background: proj.avatarColor ?? '#6366f1' }}>
+                        {(proj.abbr ?? getDefaultAbbr(proj.name)).slice(0,2)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-semibold truncate">{proj.name}</p>
+                        {proj.projectCode && <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{proj.projectCode}</p>}
+                      </div>
+                      {proj.id === activeProjectId && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                    </button>
+                  ))}
+                  {filteredProjects.length === 0 && (
+                    <p className="text-[11px] text-center py-4" style={{ color: 'var(--t-text3)' }}>검색 결과 없음</p>
+                  )}
+                </div>
+
+                {/* Add project */}
+                {(user.role === 'admin' || user.role === 'sub_admin') && (
+                  <div className="p-1.5 border-t" style={{ borderColor: 'var(--t-border)' }}>
+                    <button
+                      onClick={() => { setProjDropOpen(false); setShowNewProject(true) }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium transition-all t-hover"
+                      style={{ color: 'var(--t-text3)' }}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      새 프로젝트 추가
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* User info + actions */}
-        <div className="px-3 pb-3 pt-2 mt-1" style={{ borderTop: '1px solid var(--t-border2)' }}>
-          {/* User management — admin only */}
+        {/* Nav Items */}
+        <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.key}
+              onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+              className={clsx(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
+                isNavActive(item.key) ? '' : 't-hover'
+              )}
+              style={isNavActive(item.key)
+                ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 }
+                : { color: 'var(--t-text2)' }}
+            >
+              <span className="flex-shrink-0">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+
+          {/* Separator */}
+          <div className="pt-2 pb-1 px-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--t-text3)' }}>관리</p>
+          </div>
+
           {user.role === 'admin' && (
             <button
-              onClick={() => setUserMgmtOpen(v => !v)}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium t-sidebar-btn transition-all duration-200 mb-1"
-              style={userMgmtOpen ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' } : {}}
+              onClick={() => { setUserMgmtOpen(v => !v); setProjDropOpen(false) }}
+              className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', userMgmtOpen ? '' : 't-hover')}
+              style={userMgmtOpen ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
             >
-              <UserCog className="w-3.5 h-3.5" />
+              <UserCog className="w-4 h-4 flex-shrink-0" />
               사용자 관리
             </button>
           )}
-          {/* Current user + logout */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'var(--t-hover)' }}>
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+        </nav>
+
+        {/* Bottom: user info */}
+        <div className="px-3 pb-4 pt-3" style={{ borderTop: '1px solid var(--t-border)' }}>
+          <div className="flex items-center gap-2.5 px-2 py-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
               style={{ background: user.role === 'admin' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : user.role === 'sub_admin' ? 'linear-gradient(135deg, #ff9500, #ff6b00)' : 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
               {user.name[0]}
             </div>
-            <span className="text-[12px] font-semibold flex-1 truncate" style={{ color: 'var(--t-text)' }}>{user.name}</span>
-            <button onClick={logout} className="p-1 rounded-lg transition-colors flex-shrink-0 t-sidebar-btn" title="로그아웃">
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--t-text)' }}>{user.name}</p>
+              <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{user.role === 'admin' ? '관리자' : user.role === 'sub_admin' ? '부관리자' : '멤버'}</p>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={toggleTheme}
+                className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
+                title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+              >
+                {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </button>
+              <button onClick={logout} className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors" title="로그아웃">
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -987,117 +889,88 @@ function AppInner() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Bar */}
-        <header className="h-[52px] flex-shrink-0 flex items-center justify-between px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
-          <div className="flex items-center gap-2">
-            {/* 뒤로가기 / 홈 */}
-            <button
-              onClick={goBack}
-              disabled={viewHistory.length === 0}
-              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors disabled:opacity-30"
-              title="뒤로가기"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={goHome}
-              className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
-              style={view === 'dashboard'
-                ? { background: 'rgba(99,102,241,0.15)', color: 'var(--t-accent2)' }
-                : { color: 'var(--t-text3)' }}
-              onMouseEnter={e => { if (view !== 'dashboard') (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text)' }}
-              onMouseLeave={e => { if (view !== 'dashboard') (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text3)' }}
-              title="홈 (대시보드)"
-            >
-              <Home className="w-4 h-4" />
-            </button>
-            {view === 'dashboard' ? (
-              <h2 className="text-[18px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 대시보드</h2>
-            ) : view === 'global-calendar' ? (
-              <h2 className="text-[18px] font-semibold ml-1" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>프로젝트 종합 캘린더</h2>
-            ) : board && (
-              <>
-                {editingProjectName ? (
-                  <div className="flex items-center gap-2 ml-1">
-                    <input autoFocus value={editNameVal} onChange={e => setEditNameVal(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveProjectName(); if (e.key === 'Escape') setEditingProjectName(false) }}
-                      className="text-[18px] font-semibold border-b-2 bg-transparent outline-none px-1"
-                      style={{ color: 'var(--t-text)', borderColor: 'var(--t-accent)' }}
-                    />
-                    <button onClick={saveProjectName} className="p-1 rounded-lg text-white" style={{ background: 'var(--t-accent)' }}><Check className="w-3 h-3" /></button>
-                    <button onClick={() => setEditingProjectName(false)} className="p-1 rounded-lg t-topbar-btn"><X className="w-3 h-3" /></button>
-                  </div>
-                ) : (
-                  <button className="flex items-center gap-1.5 group ml-1" onClick={() => { setEditNameVal(board.name); setEditingProjectName(true) }}>
-                    <h2 className="text-[18px] font-semibold" style={{ color: 'var(--t-text)', letterSpacing: '-0.3px' }}>{board.name}</h2>
-                    <Edit2 className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--t-text3)' }} />
-                  </button>
-                )}
-              </>
+        <header className="h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+          <div className="flex items-center gap-3">
+            {/* Breadcrumb: Project > View */}
+            {view !== 'dashboard' && view !== 'global-calendar' && activeProj ? (
+              <div className="flex items-center gap-1.5 text-[13px]">
+                <span style={{ color: 'var(--t-text3)' }}>{activeProj.name}</span>
+                <svg className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                <span className="font-semibold" style={{ color: 'var(--t-text)' }}>
+                  {NAV_ITEMS.find(n => n.key === view)?.label ?? view}
+                </span>
+              </div>
+            ) : (
+              <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>
+                {view === 'dashboard' ? '홈' : view === 'global-calendar' ? '종합 캘린더' : ''}
+              </h2>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 테마 토글 */}
-            <button
-              onClick={toggleTheme}
-              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
-              title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
-            >
-              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-            </button>
-            {/* 동기화 */}
             <button
               onClick={syncProject}
               disabled={syncing || !activeProjectId}
-              className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors disabled:opacity-30"
+              className="w-8 h-8 flex items-center justify-center rounded-lg t-topbar-btn transition-colors disabled:opacity-30"
               title="동기화"
             >
-              <RefreshCw className={clsx('w-3.5 h-3.5', syncing && 'animate-spin')} />
+              <RefreshCw className={clsx('w-4 h-4', syncing && 'animate-spin')} />
             </button>
-            {/* 공지사항 */}
             <button
               onClick={() => setAnnouncementOpen(v => !v)}
-              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border"
-              style={announcementOpen
-                ? { background: 'linear-gradient(135deg, #ff6b35, #ff9f0a)', color: '#fff', borderColor: 'transparent' }
-                : { background: 'var(--t-surface2)', color: 'var(--t-text2)', borderColor: 'var(--t-border)' }}
+              className="relative w-8 h-8 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
+              style={announcementOpen ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' } : {}}
+              title="공지사항"
             >
-              <Megaphone className="w-3.5 h-3.5" />
+              <Megaphone className="w-4 h-4" />
               {unreadCount > 0 && !announcementOpen && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center" style={{ background: '#ef4444' }}>
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full" style={{ background: '#ef4444' }} />
               )}
             </button>
             <button
               onClick={() => setAiOpen(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
               style={aiOpen
-                ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', borderColor: 'transparent' }
-                : { background: 'var(--t-surface2)', color: 'var(--t-text2)', borderColor: 'var(--t-border)' }}
+                ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff' }
+                : { background: 'var(--t-surface2)', color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}
             >
               <Bot className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">AI Agent</span>
+              <span>AI</span>
             </button>
+
+            {/* Project card edit button — admin only */}
+            {(user.role === 'admin' || user.role === 'sub_admin') && activeProj && view !== 'dashboard' && view !== 'feedback' && (
+              <button
+                onClick={() => {
+                  const proj = activeProj
+                  // trigger edit modal via state
+                  setEditingMetaProj(proj)
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
+                title="프로젝트 편집"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </header>
 
-        {/* Per-project Tab Strip */}
-        {board && !['global-calendar', 'dashboard', 'feedback'].includes(view) && (
-          <div className="flex-shrink-0 flex items-end px-5 border-b" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', height: 40 }}>
-            <DndContext sensors={tabSensors} onDragEnd={handleTabDragEnd}>
-              <SortableContext items={tabOrder} strategy={horizontalListSortingStrategy}>
-                {orderedTabs.map(tab => (
-                  <SortableTab
-                    key={tab.key}
-                    id={tab.key}
-                    label={tab.label}
-                    isActive={view === tab.key}
-                    isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
-                    onClick={() => setView(tab.key as TabKey)}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+        {/* Board sub-tab (보드 뷰 내 할일/리멤버) */}
+        {view === 'board' && board && (
+          <div className="flex-shrink-0 flex items-center gap-1 px-6 pt-3 pb-0">
+            {(['todo', 'remember'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setBoardTab(t)}
+                className={clsx(
+                  'px-4 py-1.5 rounded-lg text-[12px] font-semibold transition-all',
+                  boardTab === t ? 'text-white' : 't-text3 t-hover'
+                )}
+                style={boardTab === t ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
+              >
+                {t === 'todo' ? '할 일' : '리멤버'}
+              </button>
+            ))}
           </div>
         )}
 
@@ -1370,6 +1243,32 @@ function AppInner() {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Project Meta Edit Modal (triggered from topbar) */}
+      <AnimatePresence>
+        {editingMetaProj && (
+          <ProjectMetaEditModal
+            proj={editingMetaProj}
+            onClose={() => setEditingMetaProj(null)}
+            onSave={async (name, abbr, projectCode, avatarColor) => {
+              const proj = editingMetaProj
+              await Promise.all([
+                axios.patch(`${API}/api/projects/${proj.id}/meta`, { abbr, projectCode, avatarColor }),
+                name !== proj.name
+                  ? (board?.id === proj.id
+                    ? axios.put(`${API}/api/projects/${proj.id}`, { ...board, name, abbr, projectCode, avatarColor })
+                    : axios.get<ProjectBoard>(`${API}/api/projects/${proj.id}`).then(r =>
+                        axios.put(`${API}/api/projects/${proj.id}`, { ...r.data, name })
+                      ))
+                  : Promise.resolve(),
+              ])
+              setProjects(prev => prev.map(p => p.id === proj.id ? { ...p, name, abbr, projectCode, avatarColor } : p))
+              if (board?.id === proj.id) setBoard(prev => prev ? { ...prev, name, abbr, projectCode, avatarColor } : prev)
+              setEditingMetaProj(null)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Confetti — Done 이벤트 시 폭죽 */}
       <ConfettiEffect trigger={confettiTrigger} />
     </div>
