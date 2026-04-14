@@ -701,9 +701,9 @@ function AppInner() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
-      {/* Left Sidebar — no right border, floats over bg */}
-      <aside className="t-glass w-60 flex-shrink-0 flex flex-col" style={{ borderRight: 'none' }}>
+    <div className="flex h-screen overflow-hidden gap-3 p-3" style={{ background: 'var(--t-bg)' }}>
+      {/* Left Sidebar — rounded card */}
+      <aside className="t-glass w-56 flex-shrink-0 flex flex-col rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)' }}>
 
         {/* Logo — h-[56px] matches topbar */}
         <div className="h-[56px] flex items-center px-5 flex-shrink-0">
@@ -899,7 +899,7 @@ function AppInner() {
       </aside>
 
       {/* Main Area — big rounded card */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden my-3 mr-3 rounded-2xl" style={{ background: 'var(--t-surface)', boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)' }}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden rounded-2xl" style={{ background: 'var(--t-surface)', boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)' }}>
         {/* Top Bar */}
         <header className="t-glass h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b rounded-t-2xl" style={{ borderColor: 'var(--t-glass-border)' }}>
           <div className="flex items-center gap-3">
