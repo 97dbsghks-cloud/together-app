@@ -76,6 +76,9 @@ export type ProjectMeta = {
   id: string
   name: string
   emoji: string
+  abbr?: string
+  projectCode?: string
+  avatarColor?: string
   taskCount: number
   doneCount: number
 }
@@ -124,6 +127,9 @@ export type ProjectBoard = {
   id: string
   name: string
   emoji: string
+  abbr?: string
+  projectCode?: string
+  avatarColor?: string
   columns: Column[]
   tasks: Task[]
   events: CalendarEvent[]
@@ -186,47 +192,200 @@ function SortableTab({ id, label, isActive, isAdmin, onClick }: {
   )
 }
 
-function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick }: {
+const AVATAR_COLORS = [
+  '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
+  '#eab308', '#22c55e', '#14b8a6', '#3b82f6',
+]
+
+function getDefaultAbbr(name: string): string {
+  const words = name.trim().split(/\s+/)
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
+  return name.slice(0, 2).toUpperCase()
+}
+
+function ProjectMetaEditModal({ proj, onClose, onSave }: {
+  proj: ProjectMeta
+  onClose: () => void
+  onSave: (abbr: string, projectCode: string, avatarColor: string) => void
+}) {
+  const [abbr, setAbbr] = useState(proj.abbr ?? getDefaultAbbr(proj.name))
+  const [projectCode, setProjectCode] = useState(proj.projectCode ?? '')
+  const [avatarColor, setAvatarColor] = useState(proj.avatarColor ?? AVATAR_COLORS[0])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.22)', backdropFilter: 'blur(8px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.96, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+        onClick={e => e.stopPropagation()}
+        className="t-surface rounded-2xl w-full max-w-xs overflow-hidden"
+        style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.28)' }}
+      >
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b t-border">
+          <h3 className="text-sm font-bold t-text">프로젝트 카드 편집</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg t-text3 t-hover transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          {/* Preview */}
+          <div className="flex justify-center">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg font-bold"
+              style={{ background: avatarColor }}>
+              {abbr.slice(0, 2).toUpperCase() || '??'}
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">약칭 (2자)</label>
+            <input
+              autoFocus
+              value={abbr}
+              onChange={e => setAbbr(e.target.value.toUpperCase().slice(0, 2))}
+              maxLength={2}
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all text-center tracking-widest font-bold text-lg"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-1.5">프로젝트 번호</label>
+            <input
+              value={projectCode}
+              onChange={e => setProjectCode(e.target.value)}
+              placeholder="예: P2024-001"
+              className="w-full px-3.5 py-2.5 t-surface2 border t-border rounded-xl text-sm t-text focus:border-blue-400 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-semibold t-text3 uppercase tracking-widest block mb-2">색상</label>
+            <div className="flex flex-wrap gap-2">
+              {AVATAR_COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setAvatarColor(c)}
+                  className="w-7 h-7 rounded-full transition-transform hover:scale-110 flex-shrink-0"
+                  style={{
+                    background: c,
+                    boxShadow: avatarColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : 'none',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2 px-5 py-4 border-t t-border t-surface2">
+          <button onClick={onClose} className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors">취소</button>
+          <button
+            onClick={() => onSave(abbr, projectCode, avatarColor)}
+            className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all"
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+          >
+            저장
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function SortableProjectItem({ proj, isActive, isAdmin, onSelect, onDeleteClick, onMetaSave }: {
   proj: ProjectMeta
   isActive: boolean
   isAdmin: boolean
   onSelect: () => void
   onDeleteClick: () => void
+  onMetaSave: (abbr: string, projectCode: string, avatarColor: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: proj.id })
+  const [editOpen, setEditOpen] = useState(false)
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
+
+  const abbr = proj.abbr ?? getDefaultAbbr(proj.name)
+  const color = proj.avatarColor ?? AVATAR_COLORS[0]
+  // soft card bg: very light tint of avatar color
+  const cardBg = isActive
+    ? `${color}22`
+    : 'var(--t-surface2)'
+  const borderColor = isActive ? `${color}55` : 'var(--t-border)'
+
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
-      <button
-        onClick={onSelect}
-        className={clsx(
-          'w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 t-project-item',
-          isAdmin ? 'pl-7' : '',
-          isActive && 'active',
+    <>
+      <div ref={setNodeRef} style={style} className="relative group">
+        {/* Drag handle — admin only */}
+        {isAdmin && (
+          <div
+            {...attributes}
+            {...listeners}
+            className="absolute left-1 top-3 p-1 cursor-grab active:cursor-grabbing t-text3 opacity-0 group-hover:opacity-60 transition-opacity z-10"
+          >
+            <GripVertical className="w-3 h-3" />
+          </div>
         )}
-      >
-        <p className="text-[14px] font-semibold truncate leading-snug flex-1 min-w-0">{proj.name}</p>
-      </button>
-      {/* Drag handle — admin only */}
-      {isAdmin && (
+
         <div
-          {...attributes}
-          {...listeners}
-          className="absolute left-1 top-1/2 -translate-y-1/2 p-1 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={onSelect}
+          className="rounded-2xl p-3 cursor-pointer transition-all duration-200"
+          style={{
+            background: cardBg,
+            border: `1px solid ${borderColor}`,
+            boxShadow: isActive ? `0 4px 16px ${color}22` : '0 1px 4px rgba(0,0,0,0.04)',
+          }}
         >
-          <GripVertical className="w-3 h-3" />
+          {/* Top row: avatar + action buttons */}
+          <div className="flex items-start justify-between mb-2.5">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[14px] font-bold flex-shrink-0"
+              style={{ background: color }}
+            >
+              {abbr}
+            </div>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {isAdmin && (
+                <button
+                  onClick={e => { e.stopPropagation(); setEditOpen(true) }}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center t-text3 t-hover transition-colors"
+                  title="편집"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={e => { e.stopPropagation(); onDeleteClick() }}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center t-text3 hover:text-red-400 hover:bg-red-50/20 transition-colors"
+                  title="삭제"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Project name */}
+          <p className="text-[13px] font-bold t-text leading-snug truncate">{proj.name}</p>
+          {/* Project code */}
+          <p className="text-[11px] t-text3 mt-0.5 truncate">{proj.projectCode || '번호 미설정'}</p>
         </div>
-      )}
-      {/* Delete button — admin only */}
-      {isAdmin && (
-        <button
-          onClick={e => { e.stopPropagation(); onDeleteClick() }}
-          className="absolute right-1.5 top-1.5 w-4 h-4 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all"
-        >
-          <X className="w-2.5 h-2.5" />
-        </button>
-      )}
-    </div>
+      </div>
+
+      <AnimatePresence>
+        {editOpen && (
+          <ProjectMetaEditModal
+            proj={proj}
+            onClose={() => setEditOpen(false)}
+            onSave={(a, c, col) => {
+              onMetaSave(a, c, col)
+              setEditOpen(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 
@@ -698,7 +857,7 @@ function AppInner() {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--t-bg)' }}>
       {/* Left Sidebar */}
-      <aside className="w-56 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+      <aside className="w-64 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
         {/* Logo */}
         <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid var(--t-border2)' }}>
           <div className="flex items-center gap-2.5">
@@ -719,7 +878,7 @@ function AppInner() {
         {/* Project List */}
         <DndContext sensors={projectSensors} onDragEnd={handleProjectDragEnd}>
           <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-            <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+            <div className="flex-1 overflow-y-auto px-2 space-y-2">
               {projects.map(proj => (
                 <SortableProjectItem
                   key={proj.id}
@@ -731,6 +890,11 @@ function AppInner() {
                     if (viewRef.current === 'global-calendar' || viewRef.current === 'dashboard' || viewRef.current === 'feedback') setView('project-calendar')
                   }}
                   onDeleteClick={() => { setDeleteCode(''); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
+                  onMetaSave={async (abbr, projectCode, avatarColor) => {
+                    await axios.patch(`${API}/api/projects/${proj.id}/meta`, { abbr, projectCode, avatarColor })
+                    setProjects(prev => prev.map(p => p.id === proj.id ? { ...p, abbr, projectCode, avatarColor } : p))
+                    if (board?.id === proj.id) setBoard(prev => prev ? { ...prev, abbr, projectCode, avatarColor } : prev)
+                  }}
                 />
               ))}
             </div>

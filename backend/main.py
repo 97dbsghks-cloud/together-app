@@ -67,6 +67,9 @@ class ProjectBoard(BaseModel):
     id: str
     name: str
     emoji: Optional[str] = "📁"
+    abbr: Optional[str] = None
+    projectCode: Optional[str] = None
+    avatarColor: Optional[str] = None
     columns: List[ColumnItem]
     tasks: List[TaskItem]
     events: Optional[List[CalendarEvent]] = []
@@ -463,6 +466,8 @@ def list_projects(userId: Optional[str] = None):
     db = load_db()
     projects_meta = [
         {"id": p["id"], "name": p["name"], "emoji": p.get("emoji", "📁"),
+         "abbr": p.get("abbr"), "projectCode": p.get("projectCode"),
+         "avatarColor": p.get("avatarColor"),
          "taskCount": len(p.get("tasks", [])),
          "doneCount": len([t for t in p.get("tasks", []) if t.get("columnId") == "done"])}
         for p in db["projects"].values()
@@ -559,6 +564,26 @@ def update_project(project_id: str, board: ProjectBoard):
     if project_id not in db["projects"]:
         raise HTTPException(status_code=404, detail="Project not found")
     save_project(board.dict())
+    return {"status": "success"}
+
+class ProjectMetaPatch(BaseModel):
+    abbr: Optional[str] = None
+    projectCode: Optional[str] = None
+    avatarColor: Optional[str] = None
+
+@app.patch("/api/projects/{project_id}/meta")
+def patch_project_meta(project_id: str, meta: ProjectMetaPatch):
+    db = load_db()
+    if project_id not in db["projects"]:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = db["projects"][project_id]
+    if meta.abbr is not None:
+        project["abbr"] = meta.abbr
+    if meta.projectCode is not None:
+        project["projectCode"] = meta.projectCode
+    if meta.avatarColor is not None:
+        project["avatarColor"] = meta.avatarColor
+    save_project(project)
     return {"status": "success"}
 
 @app.delete("/api/projects/{project_id}")
