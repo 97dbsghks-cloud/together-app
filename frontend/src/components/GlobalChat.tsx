@@ -140,7 +140,7 @@ export default function GlobalChat({ userName, isAdmin }: Props) {
         <input
           value={text}
           onChange={e => setText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && handleSend()}
           placeholder="전체 채팅..."
           className="flex-1 bg-transparent text-[12px] outline-none"
           style={{ color: 'var(--t-text)' }}

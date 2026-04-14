@@ -1,8 +1,32 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Plus, Trash2, Edit2 } from 'lucide-react'
 import type { CalendarEvent, ProjectBoard, ProjectMeta } from '../App'
 import AddEventModal from './AddEventModal'
+
+// ── Weather (Open-Meteo, Seoul, no API key needed) ──────────────────────────
+type Weather = { temp: number; code: number }
+
+function weatherIcon(code: number): string {
+  if (code === 0) return '☀️'
+  if (code <= 2) return '⛅'
+  if (code <= 3) return '☁️'
+  if (code <= 67) return '🌧️'
+  if (code <= 77) return '❄️'
+  if (code <= 82) return '🌦️'
+  return '⛈️'
+}
+
+function useWeather(): Weather | null {
+  const [weather, setWeather] = useState<Weather | null>(null)
+  useEffect(() => {
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&timezone=Asia%2FSeoul')
+      .then(r => r.json())
+      .then(d => setWeather({ temp: Math.round(d.current.temperature_2m), code: d.current.weather_code }))
+      .catch(() => {})
+  }, [])
+  return weather
+}
 
 type EventWithMeta = {
   event: CalendarEvent
@@ -70,6 +94,7 @@ export default function CalendarView({
   onAddEvent, onDeleteEvent, onUpdateEvent,
 }: Props) {
   const today = new Date()
+  const weather = useWeather()
   const [current, setCurrent] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [addingDate, setAddingDate] = useState<string | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<EventWithMeta | null>(null)
@@ -160,11 +185,16 @@ export default function CalendarView({
         {WEEKDAYS.map((d, i) => (
           <div
             key={d}
-            className={`text-center text-[11px] font-semibold py-1.5 ${
+            className={`text-center text-[11px] font-semibold py-1.5 flex flex-col items-center gap-0.5 ${
               i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400'
             }`}
           >
             {d}
+            {i === 6 && hideEventList && weather && (
+              <span className="text-[11px] leading-none" style={{ color: 'var(--t-text2)' }}>
+                {weatherIcon(weather.code)} {weather.temp}°
+              </span>
+            )}
           </div>
         ))}
       </div>
