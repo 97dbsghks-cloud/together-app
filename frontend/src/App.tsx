@@ -696,28 +696,25 @@ function AppInner() {
       <aside className="w-60 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
 
         {/* Logo */}
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-center gap-2">
-            <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-              <path d="M14 3L25 9V19L14 25L3 19V9L14 3Z" fill="url(#logoGrad2)" />
-              <path d="M14 3L25 9L14 15L3 9L14 3Z" fill="white" fillOpacity="0.18" />
-              <path d="M14 15V25L3 19V9L14 15Z" fill="black" fillOpacity="0.14" />
-              <path d="M14 15V25L25 19V9L14 15Z" fill="black" fillOpacity="0.07" />
-              <defs>
-                <linearGradient id="logoGrad2" x1="3" y1="3" x2="25" y2="25" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#6366f1"/><stop offset="1" stopColor="#8b5cf6"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <p className="text-[20px] font-black leading-none tracking-tight" style={{ color: 'var(--t-text)' }}>Taskk</p>
-          </div>
+        <div className="px-5 pt-6 pb-5">
+          <p
+            className="text-[22px] leading-none select-none"
+            style={{
+              color: 'var(--t-text)',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              fontFamily: '"Inter", "SF Pro Display", system-ui, sans-serif',
+            }}
+          >
+            together
+          </p>
         </div>
 
         {/* Project Selector */}
         <div className="px-3 mb-2 relative">
           <button
             onClick={() => { setProjDropOpen(v => !v); setProjSearch('') }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all"
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all"
             style={{
               background: 'var(--t-surface2)',
               borderColor: projDropOpen ? 'var(--t-accent)' : 'var(--t-border)',
@@ -725,16 +722,19 @@ function AppInner() {
           >
             {activeProj ? (
               <>
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
                   style={{ background: activeProj.avatarColor ?? '#6366f1' }}>
                   {(activeProj.abbr ?? getDefaultAbbr(activeProj.name)).slice(0,2)}
                 </div>
-                <span className="text-[12px] font-semibold flex-1 text-left truncate" style={{ color: 'var(--t-text)' }}>{activeProj.name}</span>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-[13px] font-semibold truncate" style={{ color: 'var(--t-text)' }}>{activeProj.name}</p>
+                  {activeProj.projectCode && <p className="text-[11px] truncate" style={{ color: 'var(--t-text3)' }}>{activeProj.projectCode}</p>}
+                </div>
               </>
             ) : (
-              <span className="text-[12px] flex-1 text-left" style={{ color: 'var(--t-text3)' }}>프로젝트 선택</span>
+              <span className="text-[13px] flex-1 text-left" style={{ color: 'var(--t-text3)' }}>프로젝트 선택</span>
             )}
-            <svg className={clsx('w-3.5 h-3.5 flex-shrink-0 transition-transform', projDropOpen && 'rotate-180')} style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg className={clsx('w-4 h-4 flex-shrink-0 transition-transform', projDropOpen && 'rotate-180')} style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
 
           <AnimatePresence>
