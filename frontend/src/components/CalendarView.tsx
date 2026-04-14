@@ -121,7 +121,7 @@ export default function CalendarView({
     <div className="flex-1 overflow-y-auto p-5 min-h-0" style={{ background: 'var(--t-bg)' }}>
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setCurrent(new Date(year, month - 1, 1))}
             className="p-1.5 rounded-lg t-topbar-btn transition-colors"
@@ -137,13 +137,22 @@ export default function CalendarView({
           >
             <ChevronRight className="w-4 h-4" />
           </button>
+
+          {/* 오늘 버튼 — < YYYY년 M월 > 바로 오른쪽 */}
+          {(year !== today.getFullYear() || month !== today.getMonth()) && (
+            <button
+              onClick={() => setCurrent(new Date(today.getFullYear(), today.getMonth(), 1))}
+              className="ml-1 px-3 py-1 rounded-full text-[12px] font-semibold transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                color: '#fff',
+                boxShadow: '0 2px 8px rgba(99,102,241,0.35)',
+              }}
+            >
+              오늘
+            </button>
+          )}
         </div>
-        <button
-          onClick={() => setCurrent(new Date(today.getFullYear(), today.getMonth(), 1))}
-          className="text-xs font-semibold text-blue-500 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-        >
-          오늘
-        </button>
       </div>
 
       {/* Weekday headers */}
