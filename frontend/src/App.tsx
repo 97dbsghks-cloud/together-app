@@ -836,7 +836,7 @@ function AppInner() {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 overflow-y-auto px-3 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 pt-3 space-y-0.5">
           {NAV_ITEMS.map(item => (
             <button
               key={item.key}
