@@ -695,8 +695,8 @@ function AppInner() {
       {/* Left Sidebar */}
       <aside className="w-60 flex-shrink-0 flex flex-col border-r" style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
 
-        {/* Logo */}
-        <div className="px-5 pt-6 pb-5">
+        {/* Logo — h-[56px] matches topbar */}
+        <div className="h-[56px] flex items-center px-5 flex-shrink-0">
           <p
             className="text-[22px] leading-none select-none"
             style={{
@@ -710,11 +710,11 @@ function AppInner() {
           </p>
         </div>
 
-        {/* Project Selector */}
-        <div className="px-3 mb-2 relative">
+        {/* Project Selector — h-[56px] matches sub-tab bar */}
+        <div className="px-3 flex-shrink-0 relative" style={{ height: 56 }}>
           <button
             onClick={() => { setProjDropOpen(v => !v); setProjSearch('') }}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all"
+            className="w-full h-full flex items-center gap-3 px-4 rounded-2xl border transition-all"
             style={{
               background: 'var(--t-surface2)',
               borderColor: projDropOpen ? 'var(--t-accent)' : 'var(--t-border)',
