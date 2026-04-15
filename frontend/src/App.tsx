@@ -28,6 +28,7 @@ import MilestoneView from './components/MilestoneView'
 import RememberView from './components/RememberView'
 import MeetingView from './components/MeetingView'
 import DashboardView from './components/DashboardView'
+import WorkloadView from './components/WorkloadView'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import ConfettiEffect from './components/ConfettiEffect'
@@ -308,7 +309,7 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard'>('dashboard')
+  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard' | 'workload'>('dashboard')
   const viewRef = useRef(view)
   viewRef.current = view
   const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
@@ -683,12 +684,14 @@ function AppInner() {
     { key: 'milestone',        label: '마일스톤', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg> },
     { key: 'meeting',          label: '회의록',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
     { key: 'chat',             label: '채팅',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+    { key: 'workload',         label: '워크로드', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
     { key: 'feedback',         label: '피드백',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> },
   ] as const
 
   const handleNavClick = (key: string) => {
     if (key === 'dashboard') { setView('dashboard'); return }
     if (key === 'feedback') { setView('feedback'); return }
+    if (key === 'workload') { setView('workload'); return }
     if (!activeProjectId && projects.length > 0) setActiveProjectId(projects[0].id)
     setView(key as TabKey)
   }
@@ -904,7 +907,7 @@ function AppInner() {
         <header className="t-glass h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b rounded-t-2xl" style={{ borderColor: 'var(--t-glass-border)' }}>
           <div className="flex items-center gap-3">
             {/* Breadcrumb: Project > View */}
-            {view !== 'dashboard' && view !== 'global-calendar' && activeProj ? (
+            {view !== 'dashboard' && view !== 'global-calendar' && view !== 'workload' && view !== 'feedback' && activeProj ? (
               <div className="flex items-center gap-1.5 text-[13px]">
                 <span style={{ color: 'var(--t-text3)' }}>{activeProj.name}</span>
                 <svg className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -914,7 +917,7 @@ function AppInner() {
               </div>
             ) : (
               <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>
-                {view === 'dashboard' ? '홈' : view === 'global-calendar' ? '종합 캘린더' : ''}
+                {view === 'dashboard' ? '홈' : view === 'global-calendar' ? '종합 캘린더' : view === 'workload' ? '워크로드' : view === 'feedback' ? '피드백' : ''}
               </h2>
             )}
           </div>
@@ -971,6 +974,12 @@ function AppInner() {
         <div className="flex flex-1 overflow-hidden">
           {view === 'feedback' ? (
             <FeedbackBoard userName={user.name} isAdmin={user.role === 'admin' || user.role === 'sub_admin'} />
+          ) : view === 'workload' ? (
+            <WorkloadView
+              allBoards={allBoards}
+              projects={projects}
+              onSelectProject={(pid) => { setActiveProjectId(pid); setView('board') }}
+            />
           ) : view === 'dashboard' ? (
             <DashboardView
               allBoards={allBoards}
