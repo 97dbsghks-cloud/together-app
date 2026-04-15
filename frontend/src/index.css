@@ -134,10 +134,15 @@ html, body {
 }
 
 /* ── Scrollbar ────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--t-border); border-radius: 999px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; margin: 4px; }
+::-webkit-scrollbar-thumb {
+  background: var(--t-border);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
 ::-webkit-scrollbar-thumb:hover { background: var(--t-text3); }
+::-webkit-scrollbar-corner { background: transparent; }
 
 input:focus, textarea:focus, select:focus { outline: none; }
 

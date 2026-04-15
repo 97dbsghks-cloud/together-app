@@ -151,8 +151,6 @@ export default function KanbanColumn({
             : '0 2px 8px rgba(0,0,0,0.04)',
         }}
       >
-        {/* Color accent top bar */}
-        <div className="h-[3px] w-full flex-shrink-0" style={{ background: col.color }} />
         <AnimatePresence initial={false}>
           {!collapsed && (
             <motion.div

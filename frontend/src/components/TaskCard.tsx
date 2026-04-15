@@ -4,6 +4,12 @@ import { Calendar, User, CheckSquare, Check, ChevronDown, Trash2 } from 'lucide-
 import clsx from 'clsx'
 import type { Task, TaskPriority } from '../App'
 
+function formatDueDate(dateStr: string): string {
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
 const PRIORITY_STYLES: Record<TaskPriority, { label: string; color: string; bg: string }> = {
   low:    { label: '낮음', color: '#34c759', bg: 'rgba(52,199,89,0.12)' },
   medium: { label: '중간', color: '#ff9f0a', bg: 'rgba(255,159,10,0.12)' },
@@ -154,7 +160,7 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
             {task.dueDate && (
               <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: 'var(--t-text3)' }}>
                 <Calendar className="w-3 h-3" />
-                {task.dueDate}
+                {formatDueDate(task.dueDate!)}
               </span>
             )}
             {task.assignee && (
