@@ -21,13 +21,13 @@ type Props = {
   onClick?: () => void
 }
 
-export default function TaskCard({ task, columns, isDragging, onDelete, onUpdate, onClick }: Props) {
+export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick }: Props) {
   const [expanded, setExpanded] = useState(false)
 
   const totalCheck = task.checklist?.length ?? 0
   const doneCheck = task.checklist?.filter(c => c.done).length ?? 0
   const priority = task.priority ? PRIORITY_STYLES[task.priority] : null
-  const col = columns?.find(c => c.id === task.columnId)
+  // col is no longer displayed on the card (redundant with column position)
 
   const toggleCheckItem = (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -54,19 +54,14 @@ export default function TaskCard({ task, columns, isDragging, onDelete, onUpdate
         border: '1px solid var(--t-border)',
       }}
     >
+      {/* Priority accent bar */}
+      {priority && (
+        <div className="h-1 w-full rounded-t-2xl" style={{ background: priority.color }} />
+      )}
       <div className="p-4">
-        {/* Top row: column pill + delete */}
+        {/* Top row: priority pill + delete */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-1.5 flex-wrap">
-            {/* Column status pill */}
-            {col && (
-              <span
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                style={{ background: col.color + '18', color: col.color }}
-              >
-                {col.title}
-              </span>
-            )}
             {/* Priority */}
             {priority && (
               <span
