@@ -115,7 +115,7 @@ function NewPostModal({ onClose, onSubmit, userName }: { onClose: () => void; on
             onClick={handleSubmit}
             disabled={!title.trim() || !content.trim()}
             className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             제출하기
           </button>
@@ -284,7 +284,7 @@ function PostCard({
                           ? 'text-white rounded-tr-md'
                           : 't-surface2 t-text rounded-tl-md border t-border'
                       )}
-                      style={c.isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+                      style={c.isAdmin ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                     >
                       <div className={clsx('flex items-center gap-1.5 mb-1', c.isAdmin ? 'justify-end' : '')}>
                         {c.isAdmin && <Shield className="w-2.5 h-2.5 text-white/70" />}
@@ -313,7 +313,7 @@ function PostCard({
                     'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all',
                     isAdmin ? 'text-white' : 't-text3 t-hover t-surface2'
                   )}
-                  style={isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+                  style={isAdmin ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                 >
                   <Shield className="w-3 h-3" />
                   관리자로 댓글
@@ -349,7 +349,7 @@ function PostCard({
                   onClick={submitComment}
                   disabled={!commentText.trim() || (isAdmin && adminCode !== ADMIN_CODE)}
                   className="px-3 py-2 rounded-xl text-white transition-all disabled:opacity-30 flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -414,7 +414,7 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
           <button
             onClick={() => setShowNew(true)}
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-xl transition-all"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             <Plus className="w-4 h-4" />
             피드백 남기기

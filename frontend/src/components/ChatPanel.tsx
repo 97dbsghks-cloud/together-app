@@ -145,7 +145,7 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
                         ? 'text-white rounded-tr-md'
                         : 't-surface2 t-text rounded-tl-md'
                     )}
-                    style={isMine ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+                    style={isMine ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
                   >
                     {msg.content}
                   </div>
@@ -177,7 +177,7 @@ export default function ChatPanel({ projectName, messages, onClose, onSend, onDe
               'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all flex-shrink-0',
               isAdmin ? 'text-white' : 't-text3 t-hover t-surface2'
             )}
-            style={isAdmin ? { background: 'linear-gradient(135deg, #007aff, #5856d6)' } : {}}
+            style={isAdmin ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
           >
             <Shield className="w-3 h-3" />
             관리자

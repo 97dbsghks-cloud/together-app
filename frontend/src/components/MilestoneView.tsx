@@ -231,7 +231,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
         <button
           onClick={() => { setRowName(''); setRowGroup(false); setRowIndent(0); setShowAddRow(true) }}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white rounded-lg"
-          style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+          style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
         >
           <Plus className="w-3.5 h-3.5" /> 행 추가
         </button>

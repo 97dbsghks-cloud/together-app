@@ -42,7 +42,14 @@ export default function AuthPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg, #f2f2f7 0%, #e5e5ea 100%)' }}
+      style={{
+        background: `
+          radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(99,102,241,0.13) 0%, transparent 60%),
+          radial-gradient(ellipse 60% 50% at 90% 10%,  rgba(139,92,246,0.10) 0%, transparent 55%),
+          radial-gradient(ellipse 50% 60% at 80% 90%,  rgba(59,130,246,0.08) 0%, transparent 55%),
+          #eef0f5
+        `
+      }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
@@ -120,7 +127,7 @@ export default function AuthPage() {
             onClick={handleSubmit}
             disabled={loading}
             className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-50 mt-2"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             {loading ? '처리 중...' : tab === 'login' ? '로그인' : '가입하기'}
           </button>

@@ -67,7 +67,7 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
   }
 
   const roleColor = (role: AppUser['role']) => {
-    if (role === 'admin') return 'linear-gradient(135deg, #007aff, #5856d6)'
+    if (role === 'admin') return 'linear-gradient(135deg, #6366f1, #8b5cf6)'
     if (role === 'sub_admin') return 'linear-gradient(135deg, #ff9500, #ff6b00)'
     return 'linear-gradient(135deg, #34c759, #30d158)'
   }
@@ -86,7 +86,7 @@ export default function UserManagementPanel({ projects, onClose }: Props) {
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #5856d6, #007aff)' }}
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
           >
             <UserCheck className="w-4 h-4 text-white" />
           </div>

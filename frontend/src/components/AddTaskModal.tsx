@@ -184,7 +184,7 @@ export default function AddTaskModal({ columnId, columns, onClose, onAdd }: Prop
             onClick={handleSubmit}
             disabled={!title.trim()}
             className="px-5 py-2 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: title.trim() ? 'linear-gradient(135deg, #007aff, #5856d6)' : undefined }}
+            style={{ background: title.trim() ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : undefined }}
           >
             태스크 추가
           </button>

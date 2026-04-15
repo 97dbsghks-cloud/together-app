@@ -305,7 +305,7 @@ export default function RememberView({ items, onChange, userName }: Props) {
           <button
             onClick={() => { setAdding(true); setForm({ ...EMPTY }) }}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-semibold text-white transition-all"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             <Plus className="w-3.5 h-3.5" />
             추가

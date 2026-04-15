@@ -192,7 +192,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
           <button
             onClick={addNote}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-white transition-all"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             <Plus className="w-3.5 h-3.5" /> 새 회의록
           </button>
@@ -390,7 +390,7 @@ export default function MeetingView({ meetings, columns, onChange, onSendToRemem
                     {/* Edit actions */}
                     {isEditing && (
                       <div className="flex gap-2 pt-1">
-                        <button onClick={saveEdit} className="flex-1 py-2 rounded-xl text-[13px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}>저장</button>
+                        <button onClick={saveEdit} className="flex-1 py-2 rounded-xl text-[13px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>저장</button>
                         <button onClick={cancelEdit} className="px-4 py-2 rounded-xl text-[13px] font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200">취소</button>
                       </div>
                     )}

@@ -168,7 +168,7 @@ export default function AddEventModal({
             onClick={handleSubmit}
             disabled={!title.trim()}
             className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             {isEditing ? '저장하기' : '추가하기'}
           </button>

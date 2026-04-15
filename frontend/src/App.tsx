@@ -1237,7 +1237,7 @@ function AppInner() {
                 <button onClick={() => setShowNewProject(false)} className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors">취소</button>
                 <button onClick={createProject} disabled={!newProjectName.trim()}
                   className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40"
-                  style={{ background: newProjectName.trim() ? 'linear-gradient(135deg, #007aff, #5856d6)' : '#ccc' }}
+                  style={{ background: newProjectName.trim() ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : '#ccc' }}
                 >시작하기</button>
               </div>
             </motion.div>

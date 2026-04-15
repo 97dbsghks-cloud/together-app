@@ -224,7 +224,7 @@ export default function TaskEditModal({ task, columns, onClose, onSave, onDelete
             onClick={handleSave}
             disabled={!title.trim()}
             className="px-5 py-2 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #007aff, #5856d6)' }}
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
           >
             저장하기
           </button>
