@@ -29,7 +29,7 @@ type Post = {
 const STATUS_META = {
   pending:   { label: '검토 대기', color: '#636366', bg: 'rgba(99,99,102,0.1)' },
   reviewing: { label: '검토 중',   color: '#ff9f0a', bg: 'rgba(255,159,10,0.1)' },
-  planned:   { label: '반영 예정', color: '#007aff', bg: 'rgba(0,122,255,0.1)' },
+  planned:   { label: '반영 예정', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
   done:      { label: '반영 완료', color: '#34c759', bg: 'rgba(52,199,89,0.1)' },
 }
 
@@ -422,17 +422,23 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
         </div>
 
         {/* Filter tabs */}
-        <div className="flex items-center gap-1 t-surface2 rounded-xl p-0.5 w-fit">
+        <div className="flex items-center gap-1 p-1 rounded-2xl" style={{ background: 'var(--t-surface2)' }}>
           {([['all', '전체'], ['pending', '검토 대기'], ['reviewing', '검토 중'], ['planned', '반영 예정'], ['done', '반영 완료']] as const).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setFilterStatus(key)}
-              className={clsx(
-                'px-3 py-1.5 rounded-[10px] text-[11px] font-semibold transition-all whitespace-nowrap',
-                filterStatus === key ? 't-surface t-text shadow-sm' : 't-text3 t-hover'
-              )}
+              className="relative px-4 py-2 rounded-xl text-[13px] font-semibold transition-colors whitespace-nowrap"
+              style={{ color: filterStatus === key ? 'var(--t-text)' : 'var(--t-text3)' }}
             >
-              {label}
+              {filterStatus === key && (
+                <motion.span
+                  layoutId="feedback-tab-pill"
+                  className="absolute inset-0 rounded-xl"
+                  style={{ background: 'var(--t-surface)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                />
+              )}
+              <span className="relative z-10">{label}</span>
             </button>
           ))}
         </div>
