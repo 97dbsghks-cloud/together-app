@@ -42,7 +42,7 @@ export default function KanbanColumn({
 }: Props) {
   const { setNodeRef } = useDroppable({ id: col.id })
   const [sortMode, setSortMode] = useState<SortMode>('default')
-  const isArchive = col.title.trim() === '보관함'
+  const isArchive = col.title.trim() === 'Archived'
   const [collapsed, setCollapsed] = useState(false)
   const [editingTitle, setEditingTitle] = useState(false)
 

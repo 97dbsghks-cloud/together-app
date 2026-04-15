@@ -17,7 +17,7 @@ type Props = {
   onUpdateEvent: (projectId: string, event: CalendarEvent) => void
 }
 
-const DONE_COLUMN_KEYWORDS = ['완료', '보관함']
+const DONE_COLUMN_KEYWORDS = ['Completed', 'Archived']
 
 function daysFromNow(dateStr: string): number {
   const today = new Date()

@@ -554,7 +554,7 @@ function AppInner() {
       const originalTask = activeTask
       if (originalTask && originalTask.columnId !== draggedTask.columnId) {
         const destCol = current.columns.find(c => c.id === draggedTask.columnId)
-        if (destCol && destCol.title.trim() === '완료') {
+        if (destCol && destCol.title.trim() === 'Completed') {
           setConfettiTrigger(t => !t)
         }
       }

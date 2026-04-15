@@ -134,10 +134,11 @@ class Announcement(BaseModel):
 
 # ---------- DB helpers ----------
 DEFAULT_COLUMNS = [
-    {"id": "todo", "title": "할 일", "color": "#6e6e73"},
-    {"id": "in-progress", "title": "진행 중", "color": "#007aff"},
-    {"id": "review", "title": "검토 요망", "color": "#ff9f0a"},
-    {"id": "done", "title": "완료", "color": "#34c759"},
+    {"id": "todo", "title": "To do", "color": "#6e6e73"},
+    {"id": "in-progress", "title": "In Progress", "color": "#007aff"},
+    {"id": "review", "title": "In Review", "color": "#ff9f0a"},
+    {"id": "done", "title": "Completed", "color": "#34c759"},
+    {"id": "archived", "title": "Archived", "color": "#af52de"},
 ]
 
 def init_db():
