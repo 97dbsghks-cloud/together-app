@@ -3,12 +3,12 @@ import { Plus, Settings, Trash2, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import type { GanttConfig, GanttRow, GanttBar, GanttMilestone } from '../App'
 
-const WEEK_W   = 34   // px per week column
-const ROW_H    = 44   // px per row
-const LEFT_W   = 224  // px for name column
-const HDR_YEAR = 26
-const HDR_MONTH = 26
-const HDR_WEEK  = 22
+const WEEK_W   = 36   // px per week column
+const ROW_H    = 52   // px per row
+const LEFT_W   = 240  // px for name column
+const HDR_YEAR = 28
+const HDR_MONTH = 28
+const HDR_WEEK  = 24
 const HDR_H = HDR_YEAR + HDR_MONTH + HDR_WEEK
 
 const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
@@ -265,7 +265,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                 <div
                   key={y.year}
                   className="absolute flex items-center justify-center text-[11px] font-bold text-white border-r"
-                  style={{ left: y.s * WEEK_W, width: y.n * WEEK_W, top: 0, height: HDR_YEAR, background: 'var(--t-accent)', borderColor: 'var(--t-border)', opacity: 0.85 }}
+                  style={{ left: y.s * WEEK_W, width: y.n * WEEK_W, top: 0, height: HDR_YEAR, background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', borderColor: 'rgba(255,255,255,0.15)' }}
                 >
                   '{String(y.year).slice(2)}
                 </div>
@@ -274,7 +274,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {header.months.map((m, i) => (
                 <div
                   key={i}
-                  className="absolute flex items-center justify-center text-[10px] font-semibold t-text2 border-r t-border"
+                  className="absolute flex items-center justify-center text-[11px] font-semibold t-text2 border-r t-border"
                   style={{ left: m.s * WEEK_W, width: m.n * WEEK_W, top: HDR_YEAR, height: HDR_MONTH, background: 'var(--t-surface2)' }}
                 >
                   {MONTH_KO[m.mo]}
@@ -299,7 +299,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               {todayWeekIdx >= 0 && todayWeekIdx < g.weekCount && (
                 <div
                   className="absolute pointer-events-none z-10"
-                  style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, top: 0, bottom: 0, background: 'rgba(0,122,255,0.7)' }}
+                  style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, top: 0, bottom: 0, background: 'rgba(99,102,241,0.7)' }}
                 />
               )}
             </div>
@@ -333,7 +333,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                     title="더블클릭으로 이름 수정"
                   >
                     {row.indent > 0 && <span className="t-text3 mr-0.5 text-[11px]">-</span>}
-                    <span className={`text-[12px] ${row.isGroup ? 'font-bold t-text' : 'font-medium t-text2'}`}>
+                    <span className={`text-[13px] ${row.isGroup ? 'font-bold t-text' : 'font-medium t-text2'}`}>
                       {row.name}
                     </span>
                   </button>
@@ -344,7 +344,7 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                   {ri > 0 && (
                     <button
                       onClick={() => commit({ ...g, rows: [...g.rows.slice(0, ri-1), g.rows[ri], g.rows[ri-1], ...g.rows.slice(ri+1)] })}
-                      className="p-0.5 rounded text-gray-300 hover:text-gray-500 transition-colors"
+                      className="p-0.5 rounded t-text3 t-hover transition-colors"
                     >
                       <ChevronUp className="w-3 h-3" />
                     </button>
@@ -352,14 +352,14 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                   {ri < g.rows.length - 1 && (
                     <button
                       onClick={() => commit({ ...g, rows: [...g.rows.slice(0, ri), g.rows[ri+1], g.rows[ri], ...g.rows.slice(ri+2)] })}
-                      className="p-0.5 rounded text-gray-300 hover:text-gray-500 transition-colors"
+                      className="p-0.5 rounded t-text3 t-hover transition-colors"
                     >
                       <ChevronDown className="w-3 h-3" />
                     </button>
                   )}
                   <button
                     onClick={() => commit({ ...g, rows: g.rows.filter(r => r.id !== row.id) })}
-                    className="p-0.5 rounded text-gray-300 hover:text-red-400 transition-colors"
+                    className="p-0.5 rounded t-text3 hover:text-red-400 transition-colors"
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
@@ -387,13 +387,13 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
               >
                 {/* Month grid lines */}
                 {header.months.map((m, i) => (
-                  <div key={i} className="absolute inset-y-0 border-l border-gray-100" style={{ left: m.s * WEEK_W }} />
+                  <div key={i} className="absolute inset-y-0 border-l t-border" style={{ left: m.s * WEEK_W }} />
                 ))}
                 {/* Today line */}
                 {todayWeekIdx >= 0 && todayWeekIdx < g.weekCount && (
                   <div
                     className="absolute inset-y-0 pointer-events-none z-10"
-                    style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, background: 'rgba(0,122,255,0.7)' }}
+                    style={{ left: todayWeekIdx * WEEK_W + WEEK_W / 2, width: 2, background: 'rgba(99,102,241,0.7)' }}
                   />
                 )}
 
@@ -404,12 +404,12 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                   return (
                     <div
                       key={bar.id}
-                      className="absolute flex items-center rounded text-white text-[10px] font-semibold overflow-hidden"
+                      className="absolute flex items-center rounded-lg text-white text-[11px] font-semibold overflow-hidden"
                       style={{
-                        left: s * WEEK_W + 1, width: (e - s + 1) * WEEK_W - 2,
-                        top: (ROW_H - 24) / 2, height: 24,
+                        left: s * WEEK_W + 2, width: (e - s + 1) * WEEK_W - 4,
+                        top: (ROW_H - 28) / 2, height: 28,
                         background: color,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.20)',
                         cursor: drag.mode !== 'idle' ? 'grabbing' : 'grab',
                         userSelect: 'none',
                       }}
@@ -452,8 +452,8 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
                     <div
                       className="absolute rounded pointer-events-none"
                       style={{
-                        left: p.s * WEEK_W + 1, width: (p.e - p.s + 1) * WEEK_W - 2,
-                        top: (ROW_H - 24) / 2, height: 24,
+                        left: p.s * WEEK_W + 2, width: (p.e - p.s + 1) * WEEK_W - 4,
+                        top: (ROW_H - 28) / 2, height: 28,
                         background: BAR_COLORS[0], opacity: 0.4,
                       }}
                     />
@@ -484,15 +484,15 @@ export default function MilestoneView({ gantt: prop, onChange }: Props) {
           {/* Empty state */}
           {g.rows.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: 'rgba(0,122,255,0.08)' }}>
-                <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: 'rgba(99,102,241,0.08)' }}>
+                <svg className="w-6 h-6" style={{ color: '#6366f1' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="3" y="5" width="16" height="3" rx="1.5" />
                   <rect x="6" y="11" width="12" height="3" rx="1.5" />
                   <rect x="4" y="17" width="10" height="3" rx="1.5" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-gray-400">공정이 없습니다</p>
-              <p className="text-xs text-gray-300 mt-1">"행 추가"로 공정을 등록한 뒤 드래그하여 일정을 입력하세요</p>
+              <p className="text-sm font-semibold t-text3">공정이 없습니다</p>
+              <p className="text-xs t-text3 mt-1 opacity-60">"행 추가"로 공정을 등록한 뒤 드래그하여 일정을 입력하세요</p>
             </div>
           )}
         </div>
