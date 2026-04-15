@@ -49,6 +49,7 @@ type Props = {
   onAddEvent: (projectId: string, event: CalendarEvent) => void
   onDeleteEvent: (projectId: string, eventId: string) => void
   onUpdateEvent: (projectId: string, event: CalendarEvent) => void
+  headerRight?: React.ReactNode
 }
 
 const WEEKDAYS = ['월', '화', '수', '목', '금', '토', '일']
@@ -97,7 +98,7 @@ function EventRow({
 
 export default function CalendarView({
   allBoards, projects, activeProjectId, filterProjectId, hideEventList,
-  onAddEvent, onDeleteEvent, onUpdateEvent,
+  onAddEvent, onDeleteEvent, onUpdateEvent, headerRight,
 }: Props) {
   const today = new Date()
   const weather = useWeather()
@@ -179,14 +180,17 @@ export default function CalendarView({
           )}
         </div>
 
-        {/* 날씨 — 같은 줄 오른쪽 */}
-        {hideEventList && weather && (
-          <div className="flex items-center gap-1.5 text-sm font-bold" style={{ color: 'var(--t-text)' }}>
-            <span>{today.getMonth() + 1}월 {today.getDate()}일 {['일', '월', '화', '수', '목', '금', '토'][today.getDay()]}요일</span>
-            <span>{weatherIcon(weather.code)}</span>
-            <span>{weather.temp}°</span>
-          </div>
-        )}
+        {/* 날씨 및 커스텀 헤더 우측 컴포넌트 */}
+        <div className="flex items-center gap-4">
+          {headerRight}
+          {hideEventList && weather && (
+            <div className="flex items-center gap-1.5 text-sm font-bold" style={{ color: 'var(--t-text)' }}>
+              <span>{today.getMonth() + 1}월 {today.getDate()}일 {['일', '월', '화', '수', '목', '금', '토'][today.getDay()]}요일</span>
+              <span>{weatherIcon(weather.code)}</span>
+              <span>{weather.temp}°</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Weekday headers */}
