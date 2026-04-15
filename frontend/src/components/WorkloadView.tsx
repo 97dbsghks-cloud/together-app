@@ -59,19 +59,23 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
       if (!proj) continue
 
       for (const task of board.tasks ?? []) {
-        const assignee = task.assignee?.trim() || '미배정'
         const col = board.columns.find(c => c.id === task.columnId)
         const status = col?.title ?? task.columnId
+        const assignees = task.assignee
+          ? task.assignee.split(/[,]+/).map(s => s.trim().replace(/^\[|\]$/g, '').trim()).filter(Boolean)
+          : ['미배정']
 
-        if (!map[assignee]) map[assignee] = []
-        map[assignee].push({
-          title: task.title,
-          projectName: proj.name,
-          projectId: proj.id,
-          status,
-          dueDate: task.dueDate,
-          priority: task.priority,
-        })
+        for (const assignee of assignees) {
+          if (!map[assignee]) map[assignee] = []
+          map[assignee].push({
+            title: task.title,
+            projectName: proj.name,
+            projectId: proj.id,
+            status,
+            dueDate: task.dueDate,
+            priority: task.priority,
+          })
+        }
       }
     }
 
