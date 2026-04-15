@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertCircle, CalendarDays, TrendingUp, Activity, Trash2 } from 'lucide-react'
 import CalendarView from './CalendarView'
 import type { ProjectBoard, ProjectMeta, CalendarEvent } from '../App'
@@ -63,6 +63,7 @@ export default function DashboardView({
   allBoards, projects, activeProjectId, isAdmin,
   onSelectProject, onAddEvent, onDeleteEvent, onUpdateEvent,
 }: Props) {
+  const [calFilter, setCalFilter] = useState<string>('all')
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const twoWeeksLater = new Date(today); twoWeeksLater.setDate(today.getDate() + 14)
 
@@ -145,9 +146,22 @@ export default function DashboardView({
       <div className="flex-1 flex flex-col min-w-0 min-h-0 gap-3">
 
         {/* Calendar card */}
-        <div className="flex-1 flex flex-col min-h-0" style={cardStyle}>
+        <div className="flex-1 flex flex-col min-h-0 relative" style={cardStyle}>
+          <div className="absolute right-52 top-4 z-10">
+            <select
+              value={calFilter}
+              onChange={e => setCalFilter(e.target.value)}
+              className="text-[12px] px-3 py-1.5 rounded-xl outline-none"
+              style={{ background: 'var(--t-surface2)', border: '1px solid var(--t-border)', color: 'var(--t-text)' }}
+            >
+              <option value="all">전체 일정</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
           <CalendarView
-            allBoards={allBoards}
+            allBoards={calFilter === 'all' ? allBoards : { [calFilter]: allBoards[calFilter] || { id: calFilter, name: '', emoji: '', columns: [], tasks: [], events: [], messages: [] } as unknown as ProjectBoard }}
             projects={projects}
             activeProjectId={activeProjectId}
             hideEventList
