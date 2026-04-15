@@ -678,11 +678,11 @@ function AppInner() {
 
   const NAV_ITEMS = [
     { key: 'dashboard',        label: '홈',       icon: <Home className="w-4 h-4" /> },
-    { key: 'board',            label: '태스크',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/></svg> },
-    { key: 'milestone',        label: '마일스톤', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg> },
-    { key: 'meeting',          label: '회의록',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
-    { key: 'chat',             label: '채팅',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
     { key: 'workload',         label: '워크로드', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+    { key: 'board',            label: '태스크',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/></svg> },
+    { key: 'meeting',          label: '회의록',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
+    { key: 'milestone',        label: '마일스톤', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg> },
+    { key: 'chat',             label: '채팅',     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
     { key: 'feedback',         label: '피드백',   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> },
   ] as const
 
@@ -837,8 +837,9 @@ function AppInner() {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 overflow-y-auto px-3 pt-3 space-y-0.5">
-          {NAV_ITEMS.map(item => (
+        {/* Nav Items */}
+        <nav className="flex-1 flex flex-col overflow-y-auto px-3 pt-3 pb-2 space-y-0.5">
+          {NAV_ITEMS.slice(0, 2).map(item => (
             <button
               key={item.key}
               onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
@@ -855,21 +856,43 @@ function AppInner() {
             </button>
           ))}
 
-          {/* Separator */}
-          <div className="pt-2 pb-1 px-1">
-            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--t-text3)' }}>관리</p>
-          </div>
+          <div className="mx-1 my-2 border-t" style={{ borderColor: 'var(--t-border)' }} />
 
-          {user.role === 'admin' && (
+          {NAV_ITEMS.slice(2, 6).map(item => (
             <button
-              onClick={() => { setUserMgmtOpen(v => !v); setProjDropOpen(false) }}
-              className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', userMgmtOpen ? '' : 't-hover')}
-              style={userMgmtOpen ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
+              key={item.key}
+              onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+              className={clsx(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
+                isNavActive(item.key) ? '' : 't-hover'
+              )}
+              style={isNavActive(item.key)
+                ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 }
+                : { color: 'var(--t-text2)' }}
             >
-              <UserCog className="w-4 h-4 flex-shrink-0" />
-              사용자 관리
+              <span className="flex-shrink-0">{item.icon}</span>
+              {item.label}
             </button>
-          )}
+          ))}
+
+          <div className="flex-1 min-h-[32px]" />
+
+          {NAV_ITEMS.slice(6, 7).map(item => (
+            <button
+              key={item.key}
+              onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+              className={clsx(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
+                isNavActive(item.key) ? '' : 't-hover'
+              )}
+              style={isNavActive(item.key)
+                ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 }
+                : { color: 'var(--t-text2)' }}
+            >
+              <span className="flex-shrink-0">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
         </nav>
 
         {/* Bottom: user info */}
@@ -883,7 +906,16 @@ function AppInner() {
               <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--t-text)' }}>{user.name}</p>
               <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{user.role === 'admin' ? '관리자' : user.role === 'sub_admin' ? '부관리자' : '멤버'}</p>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {user.role === 'admin' && (
+                <button
+                  onClick={() => { setUserMgmtOpen(v => !v); setProjDropOpen(false) }}
+                  className={clsx('w-7 h-7 flex items-center justify-center rounded-lg transition-colors', userMgmtOpen ? 'bg-[var(--t-active-bg)] text-[var(--t-accent2)]' : 't-topbar-btn text-[var(--t-text2)]')}
+                  title="사용자 관리"
+                >
+                  <UserCog className="w-3.5 h-3.5" />
+                </button>
+              )}
               <button
                 onClick={toggleTheme}
                 className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
