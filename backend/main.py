@@ -189,6 +189,37 @@ def init_db():
             """)
             conn.commit()
 
+            # Migrate column titles to English
+            COLUMN_RENAME = {
+                "할 일": "To do",
+                "할일": "To do",
+                "진행 중": "In Progress",
+                "검토 요망": "In Review",
+                "완료": "Completed",
+                "보관함": "Archived",
+            }
+            cur.execute("SELECT id, data FROM projects")
+            rows = cur.fetchall()
+            for pid, data in rows:
+                changed = False
+                for col in data.get("columns", []):
+                    if col.get("title") in COLUMN_RENAME:
+                        col["title"] = COLUMN_RENAME[col["title"]]
+                        changed = True
+                    # Add Archived column if missing
+                if not any(c.get("title") == "Archived" for c in data.get("columns", [])):
+                    data.setdefault("columns", []).append(
+                        {"id": "archived", "title": "Archived", "color": "#af52de"}
+                    )
+                    changed = True
+                if changed:
+                    cur.execute(
+                        "UPDATE projects SET data = %s WHERE id = %s",
+                        (psycopg2.extras.Json(data), pid)
+                    )
+            conn.commit()
+            print("Column migration complete")
+
             # Seed projects from db.json if table is empty
             cur.execute("SELECT COUNT(*) FROM projects")
             if cur.fetchone()[0] == 0 and os.path.exists("db.json"):
