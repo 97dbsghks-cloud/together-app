@@ -327,8 +327,10 @@ function AppInner() {
   const [showNewProject, setShowNewProject] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null)
-  const [editingMetaProj, setEditingMetaProj] = useState<ProjectMeta | null>(null)
   const [deleteCode, setDeleteCode] = useState('')
+  const [deleteColConfirm, setDeleteColConfirm] = useState<{ id: string; title: string } | null>(null)
+  const [deleteColCode, setDeleteColCode] = useState('')
+  const [editingMetaProj, setEditingMetaProj] = useState<ProjectMeta | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: {
       delay: 200,
@@ -1092,8 +1094,11 @@ function AppInner() {
                           tasks={board.tasks.filter(t => t.columnId === col.id)}
                           allColumns={board.columns}
                           isOver={activeOverColId === col.id}
-                          onDeleteColumn={deleteColumn}
                           onUpdateColumnTitle={updateColumnTitle}
+                          onDeleteColumn={(colId) => {
+                            const title = board.columns.find(c => c.id === colId)?.title ?? ''
+                            setDeleteColConfirm({ id: colId, title })
+                          }}
                           onAddTask={() => setAddingToCol(col.id)}
                           onDeleteTask={deleteTask}
                           onUpdateTask={updateTask}
@@ -1287,6 +1292,86 @@ function AppInner() {
               setEditingMetaProj(null)
             }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Column Delete Confirm Modal */}
+      <AnimatePresence>
+        {deleteColConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}
+            onClick={() => { setDeleteColConfirm(null); setDeleteColCode('') }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="t-surface rounded-2xl w-full max-w-sm p-6"
+              style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }}
+            >
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 mx-auto" style={{ background: 'rgba(239,68,68,0.1)' }}>
+                <Trash2 className="w-5 h-5" style={{ color: '#ef4444' }} />
+              </div>
+
+              <h3 className="text-base font-bold t-text text-center mb-1">컬럼 삭제</h3>
+              <p className="text-[12px] t-text2 text-center mb-1 leading-relaxed">
+                <span className="font-semibold t-text">"{deleteColConfirm.title}"</span> 컬럼과 이 곳에 속한
+              </p>
+              <p className="text-[12px] t-text2 text-center mb-5 leading-relaxed">
+                모든 태스크가 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+              </p>
+
+              <div className="mb-4">
+                <label className="text-[11px] font-semibold t-text3 uppercase tracking-wider block mb-1.5">
+                  확인 코드 입력 <span className="text-red-400 normal-case font-bold">( {Math.floor(Math.random() * 9000 + 1000).toString()} 대신 0000 )</span>
+                </label>
+                <input
+                  autoFocus
+                  type="text"
+                  maxLength={4}
+                  value={deleteColCode}
+                  onChange={e => setDeleteColCode(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && deleteColCode === '0000') {
+                      deleteColumn(deleteColConfirm.id)
+                      setDeleteColConfirm(null)
+                      setDeleteColCode('')
+                    }
+                  }}
+                  placeholder="0000"
+                  className="w-full px-3.5 py-2.5 t-surface2 border rounded-xl text-sm text-center font-bold tracking-[0.4em] t-text focus:outline-none transition-all"
+                  style={{
+                    borderColor: deleteColCode === '0000' ? '#ef4444' : deleteColCode.length > 0 ? '#ff9f0a' : 'var(--t-border)',
+                    boxShadow: deleteColCode === '0000' ? '0 0 0 3px rgba(239,68,68,0.12)' : 'none',
+                  }}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setDeleteColConfirm(null); setDeleteColCode('') }}
+                  className="flex-1 py-2.5 text-sm font-medium t-text2 rounded-xl t-hover transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    deleteColumn(deleteColConfirm.id)
+                    setDeleteColConfirm(null)
+                    setDeleteColCode('')
+                  }}
+                  disabled={deleteColCode !== '0000'}
+                  className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-30"
+                  style={{ background: deleteColCode === '0000' ? '#ff3b30' : '#ccc' }}
+                >
+                  삭제하기
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
