@@ -107,9 +107,6 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
 
       {/* Header */}
       <div className="flex-shrink-0 flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid var(--t-border)', background: 'var(--t-surface)' }}>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)' }}>
-          <Users className="w-4 h-4" style={{ color: '#6366f1' }} />
-        </div>
         <div>
           <h2 className="text-[15px] font-bold" style={{ color: 'var(--t-text)' }}>팀 워크로드</h2>
           <p className="text-[11px]" style={{ color: 'var(--t-text3)' }}>팀원들의 현재 업무량과 여력을 한눈에 파악하고 균형있게 관리하세요</p>
