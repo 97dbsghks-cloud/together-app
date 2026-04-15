@@ -173,8 +173,7 @@ export default function DashboardView({
                 return (
                   <div key={proj.id} className="px-2 py-1.5 rounded-xl cursor-pointer transition-colors t-hover" onClick={() => onSelectProject?.(proj.id)}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[13px]">{proj.emoji}</span>
+                      <div className="flex items-center min-w-0 pointer-events-auto">
                         <p className="text-[12px] font-semibold t-text truncate">{proj.name}</p>
                       </div>
                       <span className="text-[11px] font-bold flex-shrink-0 ml-2" style={{ color: pct === 100 ? '#34c759' : 'var(--t-text3)' }}>{pct}%</span>

@@ -653,7 +653,7 @@ function AppInner() {
 
   const createProject = async () => {
     if (!newProjectName.trim()) return
-    await axios.post(`${API}/api/projects`, { name: newProjectName.trim(), emoji: '🏗️' })
+    await axios.post(`${API}/api/projects`, { name: newProjectName.trim() })
     const list = await loadProjects()
     setActiveProjectId(list[list.length - 1].id)
     setShowNewProject(false)

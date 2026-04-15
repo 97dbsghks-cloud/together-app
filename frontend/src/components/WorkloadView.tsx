@@ -85,7 +85,7 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
         for (const t of tasks) {
           statusCounts[t.status] = (statusCounts[t.status] ?? 0) + 1
         }
-        const activeTasks = tasks.filter(t => t.status === 'In Progress' || t.status === 'In Review').length
+        const activeTasks = tasks.filter(t => t.status === 'To do' || t.status === 'In Progress').length
         return { name, tasks, statusCounts, activeTasks }
       })
       .sort((a, b) => {
@@ -97,8 +97,8 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
 
   const workloadLevel = (active: number): { label: string; color: string; bg: string } => {
     if (active === 0) return { label: 'Idle', color: '#6e6e73', bg: 'rgba(110,110,115,0.1)' }
-    if (active <= 2) return { label: 'Normal', color: '#34c759', bg: 'rgba(52,199,89,0.1)' }
-    if (active <= 4) return { label: 'Busy', color: '#ff9f0a', bg: 'rgba(255,159,10,0.1)' }
+    if (active <= 3) return { label: 'Normal', color: '#34c759', bg: 'rgba(52,199,89,0.1)' }
+    if (active <= 5) return { label: 'Busy', color: '#ff9f0a', bg: 'rgba(255,159,10,0.1)' }
     return { label: 'Overloaded', color: '#ff3b30', bg: 'rgba(255,59,48,0.1)' }
   }
 
@@ -125,14 +125,14 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
         >
           <option value="all">전체 프로젝트</option>
           {projects.map(p => (
-            <option key={p.id} value={p.id}>{p.emoji} {p.name}</option>
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
       </div>
 
       {/* Summary bar */}
       <div className="flex-shrink-0 flex items-center gap-6 px-6 py-3" style={{ borderBottom: '1px solid var(--t-border)', background: 'var(--t-surface)' }}>
-        {(['In Progress', 'In Review', 'To do'] as const).map(s => {
+        {(['To do', 'In Progress', 'In Review', 'Completed'] as const).map(s => {
           const total = people.reduce((acc, p) => acc + (p.statusCounts[s] ?? 0), 0)
           return (
             <div key={s} className="flex items-center gap-2">
