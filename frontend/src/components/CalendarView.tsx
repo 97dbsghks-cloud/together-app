@@ -149,59 +149,54 @@ export default function CalendarView({
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
   return (
-    <div className={`flex-1 p-5 min-h-0 flex flex-col ${hideEventList ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ background: 'var(--t-bg)' }}>
+    <div className={`flex-1 min-h-0 flex flex-col ${hideEventList ? 'overflow-hidden p-3' : 'overflow-y-auto p-5'}`} style={{ background: 'var(--t-bg)' }}>
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 mb-2 flex-shrink-0">
+        <button
+          onClick={() => setCurrent(new Date(year, month - 1, 1))}
+          className="p-1.5 rounded-lg t-topbar-btn transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <h2 className="text-base font-bold t-text w-24 text-center">
+          {year}년 {month + 1}월
+        </h2>
+        <button
+          onClick={() => setCurrent(new Date(year, month + 1, 1))}
+          className="p-1.5 rounded-lg t-topbar-btn transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+        {(year !== today.getFullYear() || month !== today.getMonth()) && (
           <button
-            onClick={() => setCurrent(new Date(year, month - 1, 1))}
-            className="p-1.5 rounded-lg t-topbar-btn transition-colors"
+            onClick={() => setCurrent(new Date(today.getFullYear(), today.getMonth(), 1))}
+            className="ml-1 px-3 py-1 rounded-full text-[12px] font-semibold transition-all"
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', boxShadow: '0 2px 8px rgba(99,102,241,0.35)' }}
           >
-            <ChevronLeft className="w-4 h-4" />
+            오늘
           </button>
-          <h2 className="text-base font-bold t-text w-24 text-center">
-            {year}년 {month + 1}월
-          </h2>
-          <button
-            onClick={() => setCurrent(new Date(year, month + 1, 1))}
-            className="p-1.5 rounded-lg t-topbar-btn transition-colors"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-
-          {/* 오늘 버튼 — < YYYY년 M월 > 바로 오른쪽 */}
-          {(year !== today.getFullYear() || month !== today.getMonth()) && (
-            <button
-              onClick={() => setCurrent(new Date(today.getFullYear(), today.getMonth(), 1))}
-              className="ml-1 px-3 py-1 rounded-full text-[12px] font-semibold transition-all"
-              style={{
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 2px 8px rgba(99,102,241,0.35)',
-              }}
-            >
-              오늘
-            </button>
-          )}
-        </div>
-
-        {/* 날씨 정보 (대시보드에서만) - 우측 배치 */}
-        {hideEventList && weather && (
-          <div className="text-base font-bold t-text flex items-center gap-1.5" style={{ color: 'var(--t-text2)' }}>
-            {today.getMonth() + 1}월 {today.getDate()}일 ({['일', '월', '화', '수', '목', '금', '토'][today.getDay()]}) {weatherIcon(weather.code)} {weather.temp}°
-          </div>
         )}
       </div>
 
-      {/* Weekday headers */}
-      <div className="grid grid-cols-7 mb-1">
+      {/* Weekday headers — 일요일 컬럼 위에 날씨 */}
+      <div className="grid grid-cols-7 flex-shrink-0 mb-1">
         {WEEKDAYS.map((d, i) => (
           <div
             key={d}
-            className={`text-center py-1 flex flex-col items-center justify-center min-h-[36px] gap-0.5 ${
+            className={`text-center flex flex-col items-center justify-end pb-1 ${
               i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400'
             }`}
+            style={{ height: hideEventList && weather ? 52 : 28 }}
           >
+            {i === 6 && hideEventList && weather && (
+              <div className="flex flex-col items-center mb-1" style={{ color: 'var(--t-text2)' }}>
+                <span className="text-[15px] leading-none">{weatherIcon(weather.code)}</span>
+                <span className="text-[11px] font-bold leading-none mt-0.5">{weather.temp}°</span>
+                <span className="text-[9px] leading-none mt-0.5" style={{ color: 'var(--t-text3)' }}>
+                  {today.getMonth() + 1}/{today.getDate()}
+                </span>
+              </div>
+            )}
             <span className="text-[11px] font-semibold leading-none">{d}</span>
           </div>
         ))}
