@@ -112,7 +112,7 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
         </div>
         <div>
           <h2 className="text-[15px] font-bold" style={{ color: 'var(--t-text)' }}>팀 워크로드</h2>
-          <p className="text-[11px]" style={{ color: 'var(--t-text3)' }}>담당자별 업무 현황</p>
+          <p className="text-[11px]" style={{ color: 'var(--t-text3)' }}>팀원들의 현재 업무량과 여력을 한눈에 파악하고 균형있게 관리하세요</p>
         </div>
         <div className="flex-1" />
 
