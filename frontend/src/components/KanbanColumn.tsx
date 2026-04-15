@@ -140,7 +140,7 @@ export default function KanbanColumn({
       {/* Column body — white card */}
       <div
         className={clsx(
-          'flex-1 flex flex-col rounded-2xl transition-all duration-150',
+          'flex-1 flex flex-col rounded-2xl transition-all duration-150 overflow-hidden',
           isOver ? 'ring-2 ring-blue-400/60' : ''
         )}
         style={{
@@ -151,6 +151,8 @@ export default function KanbanColumn({
             : '0 2px 8px rgba(0,0,0,0.04)',
         }}
       >
+        {/* Color accent top bar */}
+        <div className="h-[3px] w-full flex-shrink-0" style={{ background: col.color }} />
         <AnimatePresence initial={false}>
           {!collapsed && (
             <motion.div
@@ -181,8 +183,11 @@ export default function KanbanColumn({
                   </AnimatePresence>
                 </SortableContext>
                 {tasks.length === 0 && (
-                  <div className="py-10 text-center">
-                    <p className="text-[11px] t-text3">태스크를 추가하거나 드래그하세요</p>
+                  <div className="py-8 flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: col.color + '15' }}>
+                      <Plus className="w-4 h-4" style={{ color: col.color }} />
+                    </div>
+                    <p className="text-[11px] font-medium" style={{ color: 'var(--t-text3)' }}>비어있어요</p>
                   </div>
                 )}
               </div>

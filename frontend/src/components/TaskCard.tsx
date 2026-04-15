@@ -43,11 +43,12 @@ export default function TaskCard({ task, isDragging, onDelete, onUpdate, onClick
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ duration: 0.15 }}
       onClick={onClick}
+      whileHover={!isDragging ? { y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.10)' } : {}}
       className={clsx(
         'rounded-2xl select-none transition-all duration-150 overflow-hidden group',
         isDragging
           ? 'rotate-1 shadow-2xl opacity-95 cursor-grabbing'
-          : 'cursor-pointer hover:shadow-md'
+          : 'cursor-pointer'
       )}
       style={{
         background: 'var(--t-surface2)',

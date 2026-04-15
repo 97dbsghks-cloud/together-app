@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+/* Pretendard loaded via <link> in index.html for better subsetting */
 @import "tailwindcss";
 
 /* ── Theme Variables ───────────────────────────────────── */
@@ -50,7 +51,7 @@
 
 /* ── Base ─────────────────────────────────────────────── */
 * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  font-family: 'Pretendard Variable', 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
 }
