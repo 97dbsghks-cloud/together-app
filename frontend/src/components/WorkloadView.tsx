@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Users, ChevronDown, ChevronUp } from 'lucide-react'
+import { Users } from 'lucide-react'
 import type { ProjectBoard, ProjectMeta } from '../App'
 
 type Props = {
@@ -8,13 +8,12 @@ type Props = {
   onSelectProject?: (projectId: string) => void
 }
 
-const STATUS_ORDER = ['To do', 'In Progress', 'In Review', 'Completed', 'Archived']
+const STATUS_ORDER = ['To do', 'In Progress', 'In Review', 'Completed']
 const STATUS_COLOR: Record<string, string> = {
   'To do':      '#6e6e73',
   'In Progress':'#6366f1',
   'In Review':  '#ff9f0a',
   'Completed':  '#34c759',
-  'Archived':   '#af52de',
 }
 
 type PersonTask = {
@@ -47,7 +46,6 @@ function daysFromNow(dateStr: string): number {
 }
 
 export default function WorkloadView({ allBoards, projects, onSelectProject }: Props) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [filterProject, setFilterProject] = useState<string>('all')
 
   const people = useMemo((): PersonData[] => {
@@ -61,6 +59,8 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
       for (const task of board.tasks ?? []) {
         const col = board.columns.find(c => c.id === task.columnId)
         const status = col?.title ?? task.columnId
+        if (status === 'Archived') continue
+        
         const assignees = task.assignee
           ? task.assignee.split(/[,]+/).map(s => s.trim().replace(/^\[|\]$/g, '').trim()).filter(Boolean)
           : ['미배정']
@@ -94,9 +94,6 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
         return b.activeTasks - a.activeTasks
       })
   }, [allBoards, projects, filterProject])
-
-  const toggleExpand = (name: string) =>
-    setExpanded(prev => ({ ...prev, [name]: !prev[name] }))
 
   const workloadLevel = (active: number): { label: string; color: string; bg: string } => {
     if (active === 0) return { label: 'Idle', color: '#6e6e73', bg: 'rgba(110,110,115,0.1)' }
@@ -162,10 +159,7 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
             {people.map(person => {
               const level = workloadLevel(person.activeTasks)
-              const isExpanded = expanded[person.name]
-              const nonDone = person.tasks.filter(t => t.status !== 'Completed' && t.status !== 'Archived')
-              const done = person.tasks.filter(t => t.status === 'Completed' || t.status === 'Archived')
-              const displayTasks = isExpanded ? person.tasks : nonDone.slice(0, 5)
+              const done = person.tasks.filter(t => t.status === 'Completed')
 
               return (
                 <div
@@ -214,8 +208,8 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
                   </div>
 
                   {/* Task list */}
-                  <div className="px-2 py-2 space-y-0.5">
-                    {displayTasks.map((task, i) => {
+                  <div className="px-2 py-2 space-y-0.5 overflow-y-auto max-h-[240px]">
+                    {person.tasks.map((task, i) => {
                       const days = task.dueDate ? daysFromNow(task.dueDate) : null
                       const urgent = days !== null && days <= 3
                       return (
@@ -249,23 +243,6 @@ export default function WorkloadView({ allBoards, projects, onSelectProject }: P
                       )
                     })}
                   </div>
-
-                  {/* Expand/collapse */}
-                  {(nonDone.length > 5 || done.length > 0) && (
-                    <button
-                      onClick={() => toggleExpand(person.name)}
-                      className="w-full flex items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors"
-                      style={{ color: 'var(--t-text3)', borderTop: '1px solid var(--t-border)' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--t-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = '')}
-                    >
-                      {isExpanded ? (
-                        <><ChevronUp className="w-3 h-3" /> 접기</>
-                      ) : (
-                        <><ChevronDown className="w-3 h-3" /> {person.tasks.length - Math.min(nonDone.length, 5)}개 더 보기</>
-                      )}
-                    </button>
-                  )}
                 </div>
               )
             })}
