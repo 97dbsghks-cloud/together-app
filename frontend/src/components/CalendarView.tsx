@@ -325,7 +325,7 @@ export default function CalendarView({
                           : 't-surface cursor-pointer'
                         : 't-surface2'
                     }`}
-                    style={hideEventList ? undefined : { minHeight: cellMinH }}
+                    style={{ ...(hideEventList ? {} : { minHeight: cellMinH }), ...(isToday ? { background: 'rgba(99,102,241,0.06)' } : {}) }}
                   >
                     {day && (
                       <>
@@ -334,13 +334,14 @@ export default function CalendarView({
                           <span
                             className={`text-[12px] font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
                               isToday
-                                ? 'bg-blue-500 text-white'
+                                ? ''
                                 : dow === 5
                                 ? 'text-blue-500'
                                 : dow === 6
                                 ? 'text-red-500'
                                 : 't-text2'
                             }`}
+                            style={isToday ? { color: '#6366f1', fontWeight: 800 } : undefined}
                           >
                             {day}
                           </span>

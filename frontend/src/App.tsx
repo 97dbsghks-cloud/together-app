@@ -308,9 +308,12 @@ function AppInner() {
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
-  const [view, setView] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard' | 'workload'>('dashboard')
+  const [view, setView_] = useState<'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard' | 'workload'>(
+    () => (localStorage.getItem('together_view') as 'board' | 'chat' | 'project-calendar' | 'global-calendar' | 'feedback' | 'milestone' | 'meeting' | 'dashboard' | 'workload') ?? 'dashboard'
+  )
   const viewRef = useRef(view)
   viewRef.current = view
+  const persistView = (v: typeof view) => { setView_(v); localStorage.setItem('together_view', v) }
   const [boardTab, setBoardTab] = useState<'todo' | 'remember'>('todo')
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
@@ -689,11 +692,11 @@ function AppInner() {
   ] as const
 
   const handleNavClick = (key: string) => {
-    if (key === 'dashboard') { setView('dashboard'); return }
-    if (key === 'feedback') { setView('feedback'); return }
-    if (key === 'workload') { setView('workload'); return }
+    if (key === 'dashboard') { persistView('dashboard'); return }
+    if (key === 'feedback') { persistView('feedback'); return }
+    if (key === 'workload') { persistView('workload'); return }
     if (!activeProjectId && projects.length > 0) setActiveProjectId(projects[0].id)
-    setView(key as TabKey)
+    persistView(key as TabKey)
   }
 
   const isNavActive = (key: string) => {
@@ -783,7 +786,7 @@ function AppInner() {
                         onClick={() => {
                           setActiveProjectId(proj.id)
                           setProjDropOpen(false)
-                          if (view === 'dashboard' || view === 'feedback') setView('board')
+                          if (view === 'dashboard' || view === 'feedback') persistView('board')
                         }}
                         className={clsx(
                           'flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
@@ -1010,7 +1013,7 @@ function AppInner() {
             <WorkloadView
               allBoards={allBoards}
               projects={projects}
-              onSelectProject={(pid) => { setActiveProjectId(pid); setView('board') }}
+              onSelectProject={(pid) => { setActiveProjectId(pid); persistView('board') }}
             />
           ) : view === 'dashboard' ? (
             <DashboardView
@@ -1019,7 +1022,7 @@ function AppInner() {
               activeProjectId={activeProjectId}
               isAdmin={user.role === 'admin' || user.role === 'sub_admin'}
               userName={user.name}
-              onSelectProject={(pid) => { setActiveProjectId(pid); setView('board') }}
+              onSelectProject={(pid) => { setActiveProjectId(pid); persistView('board') }}
               onAddEvent={addEvent}
               onDeleteEvent={deleteEvent}
               onUpdateEvent={updateEvent}
@@ -1028,7 +1031,7 @@ function AppInner() {
             <ChatPanel
               projectName={board.name}
               messages={board.messages ?? []}
-              onClose={() => setView('board')}
+              onClose={() => persistView('board')}
               onSend={addChatMessage}
               onDelete={deleteChatMessage}
               fullPage
