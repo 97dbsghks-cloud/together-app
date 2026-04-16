@@ -274,6 +274,7 @@ function AppInner() {
   const { user: _user, logout } = useAuth()
   const user = _user!
   const { theme, toggle: toggleTheme } = useTheme()
+  // toggleTheme and theme used in topbar
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
   const [backupOpen, setBackupOpen] = useState(false)
   const [restoring, setRestoring] = useState(false)
@@ -961,13 +962,6 @@ function AppInner() {
                   </button>
                 </>
               )}
-              <button
-                onClick={toggleTheme}
-                className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
-                title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
-              >
-                {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-              </button>
               <button onClick={logout} className="w-7 h-7 flex items-center justify-center rounded-lg t-topbar-btn transition-colors" title="로그아웃">
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -998,6 +992,13 @@ function AppInner() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 flex items-center justify-center rounded-lg t-topbar-btn transition-colors"
+              title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <button
               onClick={syncProject}
               disabled={syncing || !activeProjectId}
