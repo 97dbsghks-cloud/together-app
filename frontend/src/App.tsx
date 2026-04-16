@@ -606,24 +606,13 @@ function AppInner() {
     }
   }, [view, projects, loadAllBoards])
 
-  // Real-time polling — every 5s for dashboard / global calendar (all boards)
-  useEffect(() => {
-    if (view !== 'dashboard' && view !== 'global-calendar') return
-    if (projects.length === 0) return
-    const id = setInterval(async () => {
-      try {
-        await loadAllBoards(projects)
-      } catch {}
-    }, 5000)
-    return () => clearInterval(id)
-  }, [view, projects, loadAllBoards])
-
-  // Background polling — every 30s for notification badges (all views)
+  // Universal polling — every 10s, all views
+  // Serves both dashboard/calendar UI refresh AND notification badge updates
   useEffect(() => {
     if (projects.length === 0) return
     const id = setInterval(async () => {
       try { await loadAllBoards(projects) } catch {}
-    }, 30000)
+    }, 10000)
     return () => clearInterval(id)
   }, [projects, loadAllBoards])
 
