@@ -456,27 +456,33 @@ function AppInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allBoards])
 
+  // Mark as read — fires when actual DATA is ready, not just when view changes
+  // dashboard: depends on allBoards (real event data)
   useEffect(() => {
-    if (view === 'dashboard') {
-      setSeen('dashboard', JSON.stringify(getEventFP()))
-      setNavBadges(b => ({ ...b, dashboard: 0 }))
+    if (view !== 'dashboard' || Object.keys(allBoards).length === 0) return
+    setSeen('dashboard', JSON.stringify(getEventFP()))
+    setNavBadges(b => ({ ...b, dashboard: 0 }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, allBoards])
+
+  // board/meeting/chat: depend on `board` (single-project fresh data)
+  // `board` is loaded via dedicated fetch on project select, so it's always fresh
+  useEffect(() => {
+    if (!board || board.id !== activeProjectId) return
+    if (view === 'board') {
+      setSeen(`${activeProjectId}_board`, JSON.stringify(getBoardFP(activeProjectId)))
+      setNavBadges(b => ({ ...b, [`${activeProjectId}_board`]: 0 }))
     }
-    if (activeProjectId) {
-      if (view === 'board') {
-        setSeen(`${activeProjectId}_board`, JSON.stringify(getBoardFP(activeProjectId)))
-        setNavBadges(b => ({ ...b, [`${activeProjectId}_board`]: 0 }))
-      }
-      if (view === 'meeting') {
-        setSeen(`${activeProjectId}_meeting`, JSON.stringify(getMeetingFP(activeProjectId)))
-        setNavBadges(b => ({ ...b, [`${activeProjectId}_meeting`]: 0 }))
-      }
-      if (view === 'chat') {
-        setSeen(`${activeProjectId}_chat`, getLastMsgTime(activeProjectId))
-        setNavBadges(b => ({ ...b, [`${activeProjectId}_chat`]: 0 }))
-      }
+    if (view === 'meeting') {
+      setSeen(`${activeProjectId}_meeting`, JSON.stringify(getMeetingFP(activeProjectId)))
+      setNavBadges(b => ({ ...b, [`${activeProjectId}_meeting`]: 0 }))
+    }
+    if (view === 'chat') {
+      setSeen(`${activeProjectId}_chat`, getLastMsgTime(activeProjectId))
+      setNavBadges(b => ({ ...b, [`${activeProjectId}_chat`]: 0 }))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, activeProjectId])
+  }, [view, board])
   // ─────────────────────────────────────────────────────────────────────────
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
