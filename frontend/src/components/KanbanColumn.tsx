@@ -181,12 +181,15 @@ export default function KanbanColumn({
                   </AnimatePresence>
                 </SortableContext>
                 {tasks.length === 0 && (
-                  <div className="py-8 flex flex-col items-center gap-2">
+                  <button
+                    onClick={onAddTask}
+                    className="w-full py-8 flex flex-col items-center gap-2 transition-opacity hover:opacity-70"
+                  >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: col.color + '15' }}>
                       <Plus className="w-4 h-4" style={{ color: col.color }} />
                     </div>
                     <p className="text-[11px] font-medium" style={{ color: 'var(--t-text3)' }}>비어있어요</p>
-                  </div>
+                  </button>
                 )}
               </div>
 
