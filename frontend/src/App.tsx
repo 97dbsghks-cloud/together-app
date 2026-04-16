@@ -7,7 +7,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, X, Bot, Loader2, Trash2, Edit2, Check, LogOut, UserCog, Megaphone,
-  Home, RefreshCw, Sun, Moon,
+  Home, RefreshCw, Sun, Moon, Download, Upload,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
@@ -275,6 +275,39 @@ function AppInner() {
   const user = _user!
   const { theme, toggle: toggleTheme } = useTheme()
   const [userMgmtOpen, setUserMgmtOpen] = useState(false)
+  const [backupOpen, setBackupOpen] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+
+  const handleExportBackup = async () => {
+    const res = await axios.get(`${API}/api/backup`)
+    const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const date = new Date().toISOString().slice(0, 10)
+    a.href = url
+    a.download = `together_backup_${date}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    const text = await file.text()
+    let data: unknown
+    try { data = JSON.parse(text) } catch { alert('올바른 JSON 파일이 아닙니다.'); return }
+    if (!confirm(`백업 데이터를 복원하면 현재 데이터가 모두 교체됩니다.\n계속하시겠습니까?`)) return
+    setRestoring(true)
+    try {
+      await axios.post(`${API}/api/restore`, data)
+      await loadProjects()
+      setBackupOpen(false)
+      alert('복원이 완료되었습니다. 페이지를 새로고침합니다.')
+      window.location.reload()
+    } catch { alert('복원 중 오류가 발생했습니다.') }
+    finally { setRestoring(false) }
+  }
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -911,13 +944,22 @@ function AppInner() {
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               {user.role === 'admin' && (
-                <button
-                  onClick={() => { setUserMgmtOpen(v => !v); setProjDropOpen(false) }}
-                  className={clsx('w-7 h-7 flex items-center justify-center rounded-lg transition-colors', userMgmtOpen ? 'bg-[var(--t-active-bg)] text-[var(--t-accent2)]' : 't-topbar-btn text-[var(--t-text2)]')}
-                  title="사용자 관리"
-                >
-                  <UserCog className="w-3.5 h-3.5" />
-                </button>
+                <>
+                  <button
+                    onClick={() => { setUserMgmtOpen(v => !v); setProjDropOpen(false) }}
+                    className={clsx('w-7 h-7 flex items-center justify-center rounded-lg transition-colors', userMgmtOpen ? 'bg-[var(--t-active-bg)] text-[var(--t-accent2)]' : 't-topbar-btn text-[var(--t-text2)]')}
+                    title="사용자 관리"
+                  >
+                    <UserCog className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setBackupOpen(v => !v)}
+                    className={clsx('w-7 h-7 flex items-center justify-center rounded-lg transition-colors', backupOpen ? 'bg-[var(--t-active-bg)] text-[var(--t-accent2)]' : 't-topbar-btn text-[var(--t-text2)]')}
+                    title="백업 / 복원"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
+                </>
               )}
               <button
                 onClick={toggleTheme}
@@ -1147,6 +1189,66 @@ function AppInner() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Backup / Restore Modal */}
+      <AnimatePresence>
+        {backupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}
+            onClick={() => setBackupOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 16 }}
+              className="w-full max-w-sm rounded-2xl p-6 flex flex-col gap-4"
+              style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div>
+                <h3 className="text-[15px] font-bold" style={{ color: 'var(--t-text)' }}>백업 / 복원</h3>
+                <p className="text-[12px] mt-1" style={{ color: 'var(--t-text3)' }}>전체 데이터(프로젝트, 태스크, 회의록, 피드백 등)를 JSON 파일로 내보내거나 복원합니다.</p>
+              </div>
+
+              {/* Export */}
+              <div className="rounded-xl p-4 flex items-center gap-4" style={{ background: 'var(--t-surface2)', border: '1px solid var(--t-border)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
+                  <Download className="w-5 h-5" style={{ color: '#6366f1' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--t-text)' }}>내보내기</p>
+                  <p className="text-[11px]" style={{ color: 'var(--t-text3)' }}>현재 데이터를 JSON 파일로 다운로드</p>
+                </div>
+                <button
+                  onClick={handleExportBackup}
+                  className="px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all"
+                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff' }}
+                >
+                  다운로드
+                </button>
+              </div>
+
+              {/* Import */}
+              <div className="rounded-xl p-4 flex items-center gap-4" style={{ background: 'var(--t-surface2)', border: '1px solid var(--t-border)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,59,48,0.08)' }}>
+                  <Upload className="w-5 h-5" style={{ color: '#ff3b30' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--t-text)' }}>복원</p>
+                  <p className="text-[11px]" style={{ color: 'var(--t-text3)' }}>백업 파일로 데이터 덮어쓰기</p>
+                </div>
+                <label className={clsx('px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer', restoring && 'opacity-50 pointer-events-none')}
+                  style={{ background: 'rgba(255,59,48,0.1)', color: '#ff3b30' }}>
+                  {restoring ? '복원 중...' : '파일 선택'}
+                  <input type="file" accept=".json" className="hidden" onChange={handleImportBackup} disabled={restoring} />
+                </label>
+              </div>
+
+              <button onClick={() => setBackupOpen(false)} className="text-[12px] font-medium py-1" style={{ color: 'var(--t-text3)' }}>닫기</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Task Edit Modal */}
       <AnimatePresence>

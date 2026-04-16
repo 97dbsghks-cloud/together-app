@@ -879,3 +879,99 @@ def delete_global_chat(message_id: str):
         return {"status": "success"}
     finally:
         conn.close()
+
+# ── Backup / Restore ──────────────────────────────────────────────────────────
+
+@app.get("/api/backup")
+def export_backup():
+    """전체 데이터를 JSON으로 내보내기 (admin 전용)"""
+    from datetime import datetime, timezone
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id, data FROM projects")
+            projects = {row["id"]: row["data"] for row in cur.fetchall()}
+
+            cur.execute("SELECT id, name, password, role, project_ids FROM users")
+            users = [
+                {
+                    "id": row["id"],
+                    "name": row["name"],
+                    "password": row["password"],
+                    "role": row["role"],
+                    "projectIds": row["project_ids"],
+                }
+                for row in cur.fetchall()
+            ]
+
+            cur.execute("SELECT data FROM feedback ORDER BY (data->>'createdAt') DESC")
+            feedback = [row["data"] for row in cur.fetchall()]
+
+            cur.execute("SELECT data FROM announcements ORDER BY (data->>'createdAt') DESC")
+            announcements = [row["data"] for row in cur.fetchall()]
+
+        return {
+            "version": "1",
+            "exportedAt": datetime.now(timezone.utc).isoformat(),
+            "projects": projects,
+            "users": users,
+            "feedback": feedback,
+            "announcements": announcements,
+        }
+    finally:
+        conn.close()
+
+
+class RestoreRequest(BaseModel):
+    projects: Dict[str, Any] = {}
+    users: List[Dict[str, Any]] = []
+    feedback: List[Dict[str, Any]] = []
+    announcements: List[Dict[str, Any]] = []
+    version: Optional[str] = None
+    exportedAt: Optional[str] = None
+
+
+@app.post("/api/restore")
+def import_backup(req: RestoreRequest):
+    """백업 데이터를 복원 (admin 전용) — 기존 데이터를 완전히 덮어씀"""
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            # Projects
+            cur.execute("DELETE FROM projects")
+            for proj in req.projects.values():
+                cur.execute(
+                    "INSERT INTO projects (id, data) VALUES (%s, %s)",
+                    (proj["id"], psycopg2.extras.Json(proj))
+                )
+
+            # Users
+            cur.execute("DELETE FROM users")
+            for user in req.users:
+                cur.execute(
+                    """INSERT INTO users (id, name, password, role, project_ids)
+                       VALUES (%s, %s, %s, %s, %s)""",
+                    (user["id"], user["name"], user["password"],
+                     user["role"], psycopg2.extras.Json(user.get("projectIds", [])))
+                )
+
+            # Feedback
+            cur.execute("DELETE FROM feedback")
+            for post in req.feedback:
+                cur.execute(
+                    "INSERT INTO feedback (id, data) VALUES (%s, %s)",
+                    (post["id"], psycopg2.extras.Json(post))
+                )
+
+            # Announcements
+            cur.execute("DELETE FROM announcements")
+            for ann in req.announcements:
+                cur.execute(
+                    "INSERT INTO announcements (id, data) VALUES (%s, %s)",
+                    (ann["id"], psycopg2.extras.Json(ann))
+                )
+
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        conn.close()
