@@ -338,7 +338,13 @@ function AppInner() {
   }, [])
 
   const [projects, setProjects] = useState<ProjectMeta[]>([])
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
+  const [activeProjectId, setActiveProjectId_] = useState<string | null>(
+    () => localStorage.getItem('together_project') || null
+  )
+  const setActiveProjectId = (id: string | null) => {
+    setActiveProjectId_(id)
+    if (id) localStorage.setItem('together_project', id)
+  }
   const [board, setBoard] = useState<ProjectBoard | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
 
@@ -521,9 +527,10 @@ function AppInner() {
 
   useEffect(() => {
     loadProjects().then(list => {
-      if (list.length > 0 && !activeProjectId) {
-        setActiveProjectId(list[0].id)
-      }
+      if (list.length === 0) return
+      const saved = localStorage.getItem('together_project')
+      const valid = saved && list.some(p => p.id === saved)
+      if (!valid) setActiveProjectId(list[0].id)
     })
   }, [])
 
