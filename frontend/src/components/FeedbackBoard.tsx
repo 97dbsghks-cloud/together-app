@@ -400,7 +400,9 @@ export default function FeedbackBoard({ userName, isAdmin }: { userName: string;
     setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
-  const filtered = filterStatus === 'all' ? posts : posts.filter(p => p.status === filterStatus)
+  const STATUS_ORDER: Post['status'][] = ['pending', 'reviewing', 'planned', 'done']
+  const filtered = (filterStatus === 'all' ? posts : posts.filter(p => p.status === filterStatus))
+    .slice().sort((a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status))
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
