@@ -368,30 +368,32 @@ function AppInner() {
     localStorage.setItem(seenStorageKey, JSON.stringify(d))
   }
 
-  // Fingerprint: serialize item content so additions AND edits are detected
-  const getBoardFP = useCallback((pid: string): Record<string, string> => {
-    const b = allBoards[pid]; if (!b) return {}
+  // Fingerprint helpers — accept a board object directly (avoids allBoards timing issues)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const computeBoardFP = (b: any): Record<string, string> => {
+    if (!b) return {}
     const fp: Record<string, string> = {}
     for (const t of (b.tasks ?? [])) {
-      if (b.columns.find(c => c.id === t.columnId)?.title === 'Archived') continue
+      if (b.columns?.find((c: any) => c.id === t.columnId)?.title === 'Archived') continue
       fp[t.id] = `${t.title}|${t.description ?? ''}|${t.columnId}|${t.assignee ?? ''}|${t.priority ?? ''}|${t.dueDate ?? ''}`
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const r of ((b.remember ?? []) as any[])) {
       fp[`r_${r.id}`] = JSON.stringify(r)
     }
     return fp
-  }, [allBoards])
-
-  const getMeetingFP = useCallback((pid: string): Record<string, string> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const meetings = (allBoards[pid]?.meetings ?? []) as any[]
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const computeMeetingFP = (b: any): Record<string, string> => {
     const fp: Record<string, string> = {}
-    for (const m of meetings) {
+    for (const m of ((b?.meetings ?? []) as any[])) {
       fp[m.id] = `${m.title ?? ''}|${m.content ?? m.summary ?? ''}|${m.date ?? ''}`
     }
     return fp
-  }, [allBoards])
+  }
+
+  // allBoards-based FP helpers (for badge computation, runs after allBoards is populated)
+  const getBoardFP = useCallback((pid: string) => computeBoardFP(allBoards[pid]), [allBoards])
+  const getMeetingFP = useCallback((pid: string) => computeMeetingFP(allBoards[pid]), [allBoards])
 
   const getEventFP = useCallback((): Record<string, string> => {
     const fp: Record<string, string> = {}
@@ -465,20 +467,21 @@ function AppInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, allBoards])
 
-  // board/meeting/chat: depend on `board` (single-project fresh data)
-  // `board` is loaded via dedicated fetch on project select, so it's always fresh
+  // board/meeting/chat: use `board` object directly — avoids allBoards timing issues
   useEffect(() => {
     if (!board || board.id !== activeProjectId) return
     if (view === 'board') {
-      setSeen(`${activeProjectId}_board`, JSON.stringify(getBoardFP(activeProjectId)))
+      setSeen(`${activeProjectId}_board`, JSON.stringify(computeBoardFP(board)))
       setNavBadges(b => ({ ...b, [`${activeProjectId}_board`]: 0 }))
     }
     if (view === 'meeting') {
-      setSeen(`${activeProjectId}_meeting`, JSON.stringify(getMeetingFP(activeProjectId)))
+      setSeen(`${activeProjectId}_meeting`, JSON.stringify(computeMeetingFP(board)))
       setNavBadges(b => ({ ...b, [`${activeProjectId}_meeting`]: 0 }))
     }
     if (view === 'chat') {
-      setSeen(`${activeProjectId}_chat`, getLastMsgTime(activeProjectId))
+      const msgs = board.messages ?? []
+      const last = msgs.length > 0 ? msgs[msgs.length - 1].createdAt : ''
+      setSeen(`${activeProjectId}_chat`, last)
       setNavBadges(b => ({ ...b, [`${activeProjectId}_chat`]: 0 }))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
