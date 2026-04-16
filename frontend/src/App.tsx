@@ -860,7 +860,8 @@ function AppInner() {
           </div>
 
           {/* 프로젝트 */}
-          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1 mt-4" style={{ color: 'var(--t-text3)' }}>Project</p>
+          <div className="my-3 mx-2" style={{ height: '1px', background: 'var(--t-border)' }} />
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1" style={{ color: 'var(--t-text3)' }}>Project</p>
           <div className="space-y-0.5">
             {NAV_ITEMS.slice(2, 6).map(item => (
               <button
