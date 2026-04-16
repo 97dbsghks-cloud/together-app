@@ -352,6 +352,84 @@ function AppInner() {
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
+  // ── Notification badges (per-user, per-project) ──────────────────────────
+  const seenStorageKey = `together_seen_${user.id}`
+  const getSeen = (): Record<string, number | string> => {
+    try { return JSON.parse(localStorage.getItem(seenStorageKey) ?? '{}') } catch { return {} }
+  }
+  const setSeen = (key: string, val: number | string) => {
+    const d = getSeen(); d[key] = val
+    localStorage.setItem(seenStorageKey, JSON.stringify(d))
+  }
+  const getDashboardCount = useCallback(() =>
+    Object.values(allBoards).reduce((s, b) => s + (b.events?.length ?? 0), 0)
+  , [allBoards])
+  const getBoardCount = useCallback((pid: string) => {
+    const b = allBoards[pid]; if (!b) return 0
+    const activeTasks = (b.tasks ?? []).filter(t => b.columns.find(c => c.id === t.columnId)?.title !== 'Archived').length
+    return activeTasks + (b.remember ?? []).length
+  }, [allBoards])
+  const getMeetingCount = useCallback((pid: string) => allBoards[pid]?.meetings?.length ?? 0, [allBoards])
+  const getLastMsgTime = useCallback((pid: string) => {
+    const msgs = allBoards[pid]?.messages ?? []
+    return msgs.length > 0 ? msgs[msgs.length - 1].createdAt : ''
+  }, [allBoards])
+
+  const [navBadges, setNavBadges] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    if (Object.keys(allBoards).length === 0) return
+    const seen = getSeen()
+    const next: Record<string, number> = {}
+    const dashCount = getDashboardCount()
+    const seenDash = seen['dashboard'] as number | undefined
+    next['dashboard'] = seenDash !== undefined ? Math.max(0, dashCount - seenDash) : 0
+    if (seenDash === undefined) setSeen('dashboard', dashCount)
+    for (const pid of Object.keys(allBoards)) {
+      const bc = getBoardCount(pid)
+      const seenBoard = seen[`${pid}_board`] as number | undefined
+      next[`${pid}_board`] = seenBoard !== undefined ? Math.max(0, bc - seenBoard) : 0
+      if (seenBoard === undefined) setSeen(`${pid}_board`, bc)
+      const mc = getMeetingCount(pid)
+      const seenMeeting = seen[`${pid}_meeting`] as number | undefined
+      next[`${pid}_meeting`] = seenMeeting !== undefined ? Math.max(0, mc - seenMeeting) : 0
+      if (seenMeeting === undefined) setSeen(`${pid}_meeting`, mc)
+      const seenChat = seen[`${pid}_chat`] as string | undefined
+      if (seenChat === undefined) {
+        next[`${pid}_chat`] = 0
+        setSeen(`${pid}_chat`, getLastMsgTime(pid))
+      } else {
+        const msgs = allBoards[pid]?.messages ?? []
+        next[`${pid}_chat`] = seenChat === '' ? 0 : msgs.filter(m => m.createdAt > seenChat).length
+      }
+    }
+    setNavBadges(next)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allBoards])
+
+  useEffect(() => {
+    if (view === 'dashboard') {
+      setSeen('dashboard', getDashboardCount())
+      setNavBadges(b => ({ ...b, dashboard: 0 }))
+    }
+    if (activeProjectId) {
+      if (view === 'board') {
+        setSeen(`${activeProjectId}_board`, getBoardCount(activeProjectId))
+        setNavBadges(b => ({ ...b, [`${activeProjectId}_board`]: 0 }))
+      }
+      if (view === 'meeting') {
+        setSeen(`${activeProjectId}_meeting`, getMeetingCount(activeProjectId))
+        setNavBadges(b => ({ ...b, [`${activeProjectId}_meeting`]: 0 }))
+      }
+      if (view === 'chat') {
+        setSeen(`${activeProjectId}_chat`, getLastMsgTime(activeProjectId))
+        setNavBadges(b => ({ ...b, [`${activeProjectId}_chat`]: 0 }))
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, activeProjectId])
+  // ─────────────────────────────────────────────────────────────────────────
+
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [activeOverColId, setActiveOverColId] = useState<string | null>(null)
   const [addingToCol, setAddingToCol] = useState<string | null>(null)
@@ -496,6 +574,15 @@ function AppInner() {
     }, 5000)
     return () => clearInterval(id)
   }, [view, projects, loadAllBoards])
+
+  // Background polling — every 30s for notification badges (all views)
+  useEffect(() => {
+    if (projects.length === 0) return
+    const id = setInterval(async () => {
+      try { await loadAllBoards(projects) } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [projects, loadAllBoards])
 
   // Calendar event CRUD — prefer boardRef.current (latest polled state) over potentially stale allBoards
   const applyEventUpdate = useCallback((projectId: string, updater: (b: ProjectBoard) => ProjectBoard) => {
@@ -740,6 +827,15 @@ function AppInner() {
     return view === key
   }
 
+  const getNavBadge = (key: string): number => {
+    if (key === 'dashboard') return navBadges['dashboard'] ?? 0
+    if (!activeProjectId) return 0
+    if (key === 'board') return navBadges[`${activeProjectId}_board`] ?? 0
+    if (key === 'meeting') return navBadges[`${activeProjectId}_meeting`] ?? 0
+    if (key === 'chat') return navBadges[`${activeProjectId}_chat`] ?? 0
+    return 0
+  }
+
   return (
     <div className="flex h-screen overflow-hidden gap-3 p-3" style={{ background: 'var(--t-bg)' }}>
       {/* Left Sidebar — rounded card */}
@@ -765,17 +861,26 @@ function AppInner() {
           {/* Overview */}
           <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1 mt-1" style={{ color: 'var(--t-text3)' }}>Overview</p>
           <div className="space-y-0.5">
-            {NAV_ITEMS.slice(0, 2).map(item => (
-              <button
-                key={item.key}
-                onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
-                className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
-                style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
-              >
-                <span className="flex-shrink-0">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
+            {NAV_ITEMS.slice(0, 2).map(item => {
+              const badge = getNavBadge(item.key)
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+                  className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
+                  style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {badge > 0 && (
+                    <span className="min-w-[18px] h-[18px] rounded-full text-[10px] font-bold flex items-center justify-center px-1 flex-shrink-0"
+                      style={{ background: '#ff3b30', color: '#fff' }}>
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
           {/* Project Selector */}
@@ -899,17 +1004,26 @@ function AppInner() {
           </div>
 
           <div className="space-y-0.5">
-            {NAV_ITEMS.slice(2, 6).map(item => (
-              <button
-                key={item.key}
-                onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
-                className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
-                style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
-              >
-                <span className="flex-shrink-0">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
+            {NAV_ITEMS.slice(2, 6).map(item => {
+              const badge = getNavBadge(item.key)
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+                  className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
+                  style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {badge > 0 && (
+                    <span className="min-w-[18px] h-[18px] rounded-full text-[10px] font-bold flex items-center justify-center px-1 flex-shrink-0"
+                      style={{ background: '#ff3b30', color: '#fff' }}>
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
           <div className="flex-1 min-h-[32px]" />
