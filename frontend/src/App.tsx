@@ -842,43 +842,38 @@ function AppInner() {
         </div>
 
         {/* Nav Items */}
-        {/* Nav Items */}
-        <nav className="flex-1 flex flex-col overflow-y-auto px-3 pt-3 pb-2 space-y-0.5">
-          {NAV_ITEMS.slice(0, 2).map(item => (
-            <button
-              key={item.key}
-              onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
-              className={clsx(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
-                isNavActive(item.key) ? '' : 't-hover'
-              )}
-              style={isNavActive(item.key)
-                ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 }
-                : { color: 'var(--t-text2)' }}
-            >
-              <span className="flex-shrink-0">{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
+        <nav className="flex-1 flex flex-col overflow-y-auto px-3 pt-2 pb-2">
+          {/* 글로벌 */}
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1 mt-1" style={{ color: 'var(--t-text3)' }}>Overview</p>
+          <div className="space-y-0.5">
+            {NAV_ITEMS.slice(0, 2).map(item => (
+              <button
+                key={item.key}
+                onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+                className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
+                style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
+              >
+                <span className="flex-shrink-0">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
 
-          <div className="mx-1 my-2 border-t" style={{ borderColor: 'var(--t-border)' }} />
-
-          {NAV_ITEMS.slice(2, 6).map(item => (
-            <button
-              key={item.key}
-              onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
-              className={clsx(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
-                isNavActive(item.key) ? '' : 't-hover'
-              )}
-              style={isNavActive(item.key)
-                ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 }
-                : { color: 'var(--t-text2)' }}
-            >
-              <span className="flex-shrink-0">{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
+          {/* 프로젝트 */}
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1 mt-4" style={{ color: 'var(--t-text3)' }}>Project</p>
+          <div className="space-y-0.5">
+            {NAV_ITEMS.slice(2, 6).map(item => (
+              <button
+                key={item.key}
+                onClick={() => { handleNavClick(item.key); setProjDropOpen(false) }}
+                className={clsx('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all', isNavActive(item.key) ? '' : 't-hover')}
+                style={isNavActive(item.key) ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)', fontWeight: 600 } : { color: 'var(--t-text2)' }}
+              >
+                <span className="flex-shrink-0">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
 
           <div className="flex-1 min-h-[32px]" />
 
