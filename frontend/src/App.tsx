@@ -352,28 +352,63 @@ function AppInner() {
   const [syncing, setSyncing] = useState(false)
   const [allBoards, setAllBoards] = useState<Record<string, ProjectBoard>>({})
 
-  // ── Notification badges (per-user, per-project) ──────────────────────────
-  const seenStorageKey = `together_seen_${user.id}`
-  const getSeen = (): Record<string, number | string> => {
+  // ── Notification badges (per-user, per-project, fingerprint-based) ────────
+  const seenStorageKey = `together_seen2_${user.id}` // v2: fingerprint-based
+  const getSeen = (): Record<string, string> => {
     try { return JSON.parse(localStorage.getItem(seenStorageKey) ?? '{}') } catch { return {} }
   }
-  const setSeen = (key: string, val: number | string) => {
+  const setSeen = (key: string, val: string) => {
     const d = getSeen(); d[key] = val
     localStorage.setItem(seenStorageKey, JSON.stringify(d))
   }
-  const getDashboardCount = useCallback(() =>
-    Object.values(allBoards).reduce((s, b) => s + (b.events?.length ?? 0), 0)
-  , [allBoards])
-  const getBoardCount = useCallback((pid: string) => {
-    const b = allBoards[pid]; if (!b) return 0
-    const activeTasks = (b.tasks ?? []).filter(t => b.columns.find(c => c.id === t.columnId)?.title !== 'Archived').length
-    return activeTasks + (b.remember ?? []).length
+
+  // Fingerprint: serialize item content so additions AND edits are detected
+  const getBoardFP = useCallback((pid: string): Record<string, string> => {
+    const b = allBoards[pid]; if (!b) return {}
+    const fp: Record<string, string> = {}
+    for (const t of (b.tasks ?? [])) {
+      if (b.columns.find(c => c.id === t.columnId)?.title === 'Archived') continue
+      fp[t.id] = `${t.title}|${t.description ?? ''}|${t.columnId}|${t.assignee ?? ''}|${t.priority ?? ''}|${t.dueDate ?? ''}`
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const r of ((b.remember ?? []) as any[])) {
+      fp[`r_${r.id}`] = JSON.stringify(r)
+    }
+    return fp
   }, [allBoards])
-  const getMeetingCount = useCallback((pid: string) => allBoards[pid]?.meetings?.length ?? 0, [allBoards])
+
+  const getMeetingFP = useCallback((pid: string): Record<string, string> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const meetings = (allBoards[pid]?.meetings ?? []) as any[]
+    const fp: Record<string, string> = {}
+    for (const m of meetings) {
+      fp[m.id] = `${m.title ?? ''}|${m.content ?? m.summary ?? ''}|${m.date ?? ''}`
+    }
+    return fp
+  }, [allBoards])
+
+  const getEventFP = useCallback((): Record<string, string> => {
+    const fp: Record<string, string> = {}
+    for (const b of Object.values(allBoards)) {
+      for (const e of (b.events ?? [])) {
+        fp[e.id] = `${e.title}|${e.date}|${e.endDate ?? ''}|${e.description ?? ''}`
+      }
+    }
+    return fp
+  }, [allBoards])
+
   const getLastMsgTime = useCallback((pid: string) => {
     const msgs = allBoards[pid]?.messages ?? []
     return msgs.length > 0 ? msgs[msgs.length - 1].createdAt : ''
   }, [allBoards])
+
+  // Count items that differ (new or modified) vs stored fingerprint
+  const diffFP = (current: Record<string, string>, seenJson: string): number => {
+    if (!seenJson) return 0
+    let seen: Record<string, string>
+    try { seen = JSON.parse(seenJson) } catch { return 0 }
+    return Object.entries(current).filter(([id, fp]) => seen[id] !== fp).length
+  }
 
   const [navBadges, setNavBadges] = useState<Record<string, number>>({})
 
@@ -381,20 +416,28 @@ function AppInner() {
     if (Object.keys(allBoards).length === 0) return
     const seen = getSeen()
     const next: Record<string, number> = {}
-    const dashCount = getDashboardCount()
-    const seenDash = seen['dashboard'] as number | undefined
-    next['dashboard'] = seenDash !== undefined ? Math.max(0, dashCount - seenDash) : 0
-    if (seenDash === undefined) setSeen('dashboard', dashCount)
+
+    // Dashboard: calendar events
+    const evFP = getEventFP()
+    const seenEv = seen['dashboard']
+    next['dashboard'] = seenEv !== undefined ? diffFP(evFP, seenEv) : 0
+    if (seenEv === undefined) setSeen('dashboard', JSON.stringify(evFP))
+
     for (const pid of Object.keys(allBoards)) {
-      const bc = getBoardCount(pid)
-      const seenBoard = seen[`${pid}_board`] as number | undefined
-      next[`${pid}_board`] = seenBoard !== undefined ? Math.max(0, bc - seenBoard) : 0
-      if (seenBoard === undefined) setSeen(`${pid}_board`, bc)
-      const mc = getMeetingCount(pid)
-      const seenMeeting = seen[`${pid}_meeting`] as number | undefined
-      next[`${pid}_meeting`] = seenMeeting !== undefined ? Math.max(0, mc - seenMeeting) : 0
-      if (seenMeeting === undefined) setSeen(`${pid}_meeting`, mc)
-      const seenChat = seen[`${pid}_chat`] as string | undefined
+      // Board
+      const bFP = getBoardFP(pid)
+      const seenBoard = seen[`${pid}_board`]
+      next[`${pid}_board`] = seenBoard !== undefined ? diffFP(bFP, seenBoard) : 0
+      if (seenBoard === undefined) setSeen(`${pid}_board`, JSON.stringify(bFP))
+
+      // Meeting
+      const mFP = getMeetingFP(pid)
+      const seenMeeting = seen[`${pid}_meeting`]
+      next[`${pid}_meeting`] = seenMeeting !== undefined ? diffFP(mFP, seenMeeting) : 0
+      if (seenMeeting === undefined) setSeen(`${pid}_meeting`, JSON.stringify(mFP))
+
+      // Chat (timestamp-based — new messages only)
+      const seenChat = seen[`${pid}_chat`]
       if (seenChat === undefined) {
         next[`${pid}_chat`] = 0
         setSeen(`${pid}_chat`, getLastMsgTime(pid))
@@ -409,16 +452,16 @@ function AppInner() {
 
   useEffect(() => {
     if (view === 'dashboard') {
-      setSeen('dashboard', getDashboardCount())
+      setSeen('dashboard', JSON.stringify(getEventFP()))
       setNavBadges(b => ({ ...b, dashboard: 0 }))
     }
     if (activeProjectId) {
       if (view === 'board') {
-        setSeen(`${activeProjectId}_board`, getBoardCount(activeProjectId))
+        setSeen(`${activeProjectId}_board`, JSON.stringify(getBoardFP(activeProjectId)))
         setNavBadges(b => ({ ...b, [`${activeProjectId}_board`]: 0 }))
       }
       if (view === 'meeting') {
-        setSeen(`${activeProjectId}_meeting`, getMeetingCount(activeProjectId))
+        setSeen(`${activeProjectId}_meeting`, JSON.stringify(getMeetingFP(activeProjectId)))
         setNavBadges(b => ({ ...b, [`${activeProjectId}_meeting`]: 0 }))
       }
       if (view === 'chat') {
