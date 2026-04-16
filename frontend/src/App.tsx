@@ -726,124 +726,9 @@ function AppInner() {
           </p>
         </div>
 
-        {/* Project Selector — h-[56px] matches sub-tab bar */}
-        <div className="px-3 flex-shrink-0 relative" style={{ height: 56 }}>
-          <button
-            onClick={() => { setProjDropOpen(v => !v); setProjSearch('') }}
-            className="w-full h-full flex items-center gap-3 px-4 rounded-2xl border transition-all"
-            style={{
-              background: 'var(--t-surface2)',
-              borderColor: projDropOpen ? 'var(--t-accent)' : 'var(--t-border)',
-            }}
-          >
-            {activeProj ? (
-              <>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
-                  style={{ background: activeProj.avatarColor ?? '#6366f1' }}>
-                  {(activeProj.abbr ?? getDefaultAbbr(activeProj.name)).slice(0,2)}
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-[13px] font-semibold truncate" style={{ color: 'var(--t-text)' }}>{activeProj.name}</p>
-                  {activeProj.projectCode && <p className="text-[11px] truncate" style={{ color: 'var(--t-text3)' }}>{activeProj.projectCode}</p>}
-                </div>
-              </>
-            ) : (
-              <span className="text-[13px] flex-1 text-left" style={{ color: 'var(--t-text3)' }}>프로젝트 선택</span>
-            )}
-            <svg className={clsx('w-4 h-4 flex-shrink-0 transition-transform', projDropOpen && 'rotate-180')} style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-
-          <AnimatePresence>
-            {projDropOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                transition={{ duration: 0.15 }}
-                className="absolute left-3 right-3 top-full mt-1 z-50 rounded-2xl border overflow-hidden"
-                style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.14)' }}
-              >
-                {/* Search */}
-                <div className="p-2 border-b" style={{ borderColor: 'var(--t-border)' }}>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'var(--t-surface2)' }}>
-                    <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input
-                      autoFocus
-                      value={projSearch}
-                      onChange={e => setProjSearch(e.target.value)}
-                      placeholder="프로젝트 검색..."
-                      className="flex-1 bg-transparent text-[12px] outline-none"
-                      style={{ color: 'var(--t-text)' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Project list */}
-                <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
-                  {filteredProjects.map(proj => (
-                    <div key={proj.id} className="flex items-center gap-1 group">
-                      <button
-                        onClick={() => {
-                          setActiveProjectId(proj.id)
-                          setProjDropOpen(false)
-                          if (view === 'dashboard' || view === 'feedback') persistView('board')
-                        }}
-                        className={clsx(
-                          'flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
-                          proj.id === activeProjectId ? '' : 't-hover'
-                        )}
-                        style={proj.id === activeProjectId
-                          ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' }
-                          : { color: 'var(--t-text)' }}
-                      >
-                        <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                          style={{ background: proj.avatarColor ?? '#6366f1' }}>
-                          {(proj.abbr ?? getDefaultAbbr(proj.name)).slice(0,2)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] font-semibold truncate">{proj.name}</p>
-                          {proj.projectCode && <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{proj.projectCode}</p>}
-                        </div>
-                        {proj.id === activeProjectId && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-                      </button>
-                      {(user.role === 'admin' || user.role === 'sub_admin') && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setProjDropOpen(false); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
-                          className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-lg transition-all flex-shrink-0"
-                          style={{ color: '#ef4444' }}
-                          title="프로젝트 삭제"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  {filteredProjects.length === 0 && (
-                    <p className="text-[11px] text-center py-4" style={{ color: 'var(--t-text3)' }}>검색 결과 없음</p>
-                  )}
-                </div>
-
-                {/* Add project */}
-                {(user.role === 'admin' || user.role === 'sub_admin') && (
-                  <div className="p-1.5 border-t" style={{ borderColor: 'var(--t-border)' }}>
-                    <button
-                      onClick={() => { setProjDropOpen(false); setShowNewProject(true) }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium transition-all t-hover"
-                      style={{ color: 'var(--t-text3)' }}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      새 프로젝트 추가
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
         {/* Nav Items */}
-        <nav className="flex-1 flex flex-col overflow-y-auto px-3 pt-2 pb-2">
-          {/* 글로벌 */}
+        <nav className="flex-1 flex flex-col px-3 pt-2 pb-2" style={{ overflow: 'visible' }}>
+          {/* Overview */}
           <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1 mt-1" style={{ color: 'var(--t-text3)' }}>Overview</p>
           <div className="space-y-0.5">
             {NAV_ITEMS.slice(0, 2).map(item => (
@@ -859,9 +744,122 @@ function AppInner() {
             ))}
           </div>
 
-          {/* 프로젝트 */}
+          {/* Project Selector */}
           <div className="my-3 mx-2" style={{ height: '1px', background: 'var(--t-border)' }} />
-          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-1" style={{ color: 'var(--t-text3)' }}>Project</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 mb-2" style={{ color: 'var(--t-text3)' }}>Project</p>
+
+          {/* Project Dropdown */}
+          <div className="relative mb-1.5">
+            <button
+              onClick={() => { setProjDropOpen(v => !v); setProjSearch('') }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all"
+              style={{
+                background: 'var(--t-surface2)',
+                borderColor: projDropOpen ? 'var(--t-accent)' : 'var(--t-border)',
+              }}
+            >
+              {activeProj ? (
+                <>
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                    style={{ background: activeProj.avatarColor ?? '#6366f1' }}>
+                    {(activeProj.abbr ?? getDefaultAbbr(activeProj.name)).slice(0,2)}
+                  </div>
+                  <p className="flex-1 min-w-0 text-[12px] font-semibold truncate text-left" style={{ color: 'var(--t-text)' }}>{activeProj.name}</p>
+                </>
+              ) : (
+                <span className="text-[12px] flex-1 text-left" style={{ color: 'var(--t-text3)' }}>프로젝트 선택</span>
+              )}
+              <svg className={clsx('w-3.5 h-3.5 flex-shrink-0 transition-transform', projDropOpen && 'rotate-180')} style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+
+            <AnimatePresence>
+              {projDropOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 right-0 top-full mt-1 z-50 rounded-2xl border overflow-hidden"
+                  style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.14)' }}
+                >
+                  {/* Search */}
+                  <div className="p-2 border-b" style={{ borderColor: 'var(--t-border)' }}>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'var(--t-surface2)' }}>
+                      <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--t-text3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input
+                        autoFocus
+                        value={projSearch}
+                        onChange={e => setProjSearch(e.target.value)}
+                        placeholder="프로젝트 검색..."
+                        className="flex-1 bg-transparent text-[12px] outline-none"
+                        style={{ color: 'var(--t-text)' }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Project list */}
+                  <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                    {filteredProjects.map(proj => (
+                      <div key={proj.id} className="flex items-center gap-1 group">
+                        <button
+                          onClick={() => {
+                            setActiveProjectId(proj.id)
+                            setProjDropOpen(false)
+                            if (view === 'dashboard' || view === 'feedback') persistView('board')
+                          }}
+                          className={clsx(
+                            'flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-left',
+                            proj.id === activeProjectId ? '' : 't-hover'
+                          )}
+                          style={proj.id === activeProjectId
+                            ? { background: 'var(--t-active-bg)', color: 'var(--t-accent2)' }
+                            : { color: 'var(--t-text)' }}
+                        >
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                            style={{ background: proj.avatarColor ?? '#6366f1' }}>
+                            {(proj.abbr ?? getDefaultAbbr(proj.name)).slice(0,2)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12px] font-semibold truncate">{proj.name}</p>
+                            {proj.projectCode && <p className="text-[10px] truncate" style={{ color: 'var(--t-text3)' }}>{proj.projectCode}</p>}
+                          </div>
+                          {proj.id === activeProjectId && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                        </button>
+                        {(user.role === 'admin' || user.role === 'sub_admin') && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setProjDropOpen(false); setDeleteConfirm({ id: proj.id, name: proj.name }) }}
+                            className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-lg transition-all flex-shrink-0"
+                            style={{ color: '#ef4444' }}
+                            title="프로젝트 삭제"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {filteredProjects.length === 0 && (
+                      <p className="text-[11px] text-center py-4" style={{ color: 'var(--t-text3)' }}>검색 결과 없음</p>
+                    )}
+                  </div>
+
+                  {/* Add project */}
+                  {(user.role === 'admin' || user.role === 'sub_admin') && (
+                    <div className="p-1.5 border-t" style={{ borderColor: 'var(--t-border)' }}>
+                      <button
+                        onClick={() => { setProjDropOpen(false); setShowNewProject(true) }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium transition-all t-hover"
+                        style={{ color: 'var(--t-text3)' }}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        새 프로젝트 추가
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <div className="space-y-0.5">
             {NAV_ITEMS.slice(2, 6).map(item => (
               <button
