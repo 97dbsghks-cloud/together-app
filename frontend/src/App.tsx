@@ -600,18 +600,16 @@ function AppInner() {
     setAllBoards(map)
   }, [])
 
-  // Load allBoards only when project list actually changes (new/deleted projects),
-  // NOT on every view switch — prevents overwriting locally-correct state with stale server data
+  // Load allBoards whenever project list changes (any view) — needed for badges + calendar
   const loadedProjectIdsRef = useRef('')
   useEffect(() => {
-    if ((view === 'global-calendar' || view === 'dashboard') && projects.length > 0) {
-      const ids = projects.map(p => p.id).sort().join(',')
-      if (ids !== loadedProjectIdsRef.current) {
-        loadedProjectIdsRef.current = ids
-        loadAllBoards(projects)
-      }
+    if (projects.length === 0) return
+    const ids = projects.map(p => p.id).sort().join(',')
+    if (ids !== loadedProjectIdsRef.current) {
+      loadedProjectIdsRef.current = ids
+      loadAllBoards(projects)
     }
-  }, [view, projects, loadAllBoards])
+  }, [projects, loadAllBoards])
 
   // Universal polling — every 10s, all views
   // Serves both dashboard/calendar UI refresh AND notification badge updates
@@ -659,7 +657,11 @@ function AppInner() {
   }, [activeProjectId, board])
 
   const boardRef = useRef<ProjectBoard | null>(null)
-  useEffect(() => { boardRef.current = board }, [board])
+  useEffect(() => {
+    boardRef.current = board
+    // Keep allBoards in sync with the freshest single-project data
+    if (board) setAllBoards(prev => ({ ...prev, [board.id]: board }))
+  }, [board])
 
   const handleDragStart = (e: DragStartEvent) => {
     const task = board?.tasks.find(t => t.id === e.active.id)
