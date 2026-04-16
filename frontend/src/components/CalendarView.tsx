@@ -322,10 +322,19 @@ export default function CalendarView({
                       day
                         ? dragOverDate === dateStr
                           ? 'bg-blue-100'
-                          : 't-surface cursor-pointer'
+                          : 'cursor-pointer'
                         : 't-surface2'
                     }`}
-                    style={{ ...(hideEventList ? {} : { minHeight: cellMinH }), ...(isToday ? { background: 'rgba(99,102,241,0.06)' } : {}) }}
+                    style={{
+                      ...(hideEventList ? {} : { minHeight: cellMinH }),
+                      background: day
+                        ? dragOverDate === dateStr
+                          ? undefined
+                          : isToday
+                            ? 'rgba(99,102,241,0.07)'
+                            : 'var(--t-surface)'
+                        : undefined,
+                    }}
                   >
                     {day && (
                       <>
